@@ -1,9 +1,12 @@
 // src/app.ts
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import { connectToDB } from './config/db';
 import cookieparser from 'cookie-parser';
+
+import AppError from './utils/appError';
+import errorController from './controllers/errorController';
 
 dotenv.config();  // Load environment variables
 
@@ -22,9 +25,11 @@ connectToDB();
 // app.use(cors());
 app.use(express.json());  // To parse JSON bodies
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello, welcome to Natyashala Backend!');
+app.all('*', (req: Request, res: Response, next: NextFunction) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
+
+app.use(errorController);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
