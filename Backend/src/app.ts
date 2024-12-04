@@ -7,6 +7,7 @@ import cookieparser from 'cookie-parser';
 
 import AppError from './utils/appError';
 import errorController from './controllers/errorController';
+import authRouter from './routes/authRoutes';
 
 dotenv.config();  // Load environment variables
 
@@ -24,6 +25,8 @@ connectToDB();
 
 // app.use(cors());
 app.use(express.json());  // To parse JSON bodies
+
+app.use('/auth', authRouter);
 
 app.all('*', (req: Request, res: Response, next: NextFunction) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

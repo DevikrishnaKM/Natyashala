@@ -1,16 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import Home from "./Pages/User/Home"
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import UserRoutes from "./Routes/UserRoutes"
+
 
 function App() {
-  const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    fetch('/api/users')
-      .then(res => res.json())
-      .then(data => setMessage(data.message))
-      .catch(err => console.error(err));
-  }, []);
-
-  return <div>{message ? message : 'Loading...'}</div>;
+  return(
+  <>
+  <Router>
+    <Routes>
+    //user Routes
+    <Route path = '/*' element = {<UserRoutes />} />
+    </Routes>
+  </Router>
+  </>
+  )
 }
 
 export default App;
