@@ -4,7 +4,7 @@ import AppError from "../utils/appError";
 import { v4 as uuidv4 } from "uuid";
 import { generateOtp } from "../utils/generateOtp";
 import sendEmail from "../utils/email";
-import redisClient from "../utils/redisCache";
+import {getOtpByEmail, otpSetData} from "../utils/redisCache";
 import { createToken } from "../config/jwtConfig";
 import HTTP_statusCode from '../Enums/httpStatusCode';
 
@@ -16,7 +16,7 @@ class AuthService {
   }
 
   signUp = async (data: any, role: string): Promise<{ user: any; token: string }> => {
-    if (!['user', 'admin'].includes(role)) {
+    if (!['user', 'tutor'].includes(role)) {
       throw new AppError('Invalid role: Only user, admin allowed', HTTP_statusCode.BadRequest);
     }
 
@@ -42,8 +42,10 @@ class AuthService {
       isVerified: false,
     };
 
-    // await redisClient.setEx(`tempUser:${data.email}`, 300, JSON.stringify(tempData));
-    // await redisClient.setEx(data.email, 300, otp);
+
+    await otpSetData(data.email, otp);
+    const storedOtp = await getOtpByEmail(data.email)
+    console.log(`storedOtp:${storedOtp}`)
 
     await sendEmail({
       email: tempData.email,

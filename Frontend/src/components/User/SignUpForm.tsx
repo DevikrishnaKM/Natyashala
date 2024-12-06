@@ -1,70 +1,64 @@
-'use client'
-
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+// import React from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {useFormik} from "formik"
+import { useNavigate,useLocation} from "react-router-dom"
+import { toast } from "sonner"
+import * as Yup from "yup"
+import { AppDispatch } from "../../redux/store";
+import {useDispatch} from "react-redux"
+import { registerUser } from "../../redux/actions/UserActions"
 
-interface FormData {
-  name: string
-  email: string
-  phone: string
-  password: string
-  confirmPassword: string
-}
 
-export default function SignupPage() {
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: ''
-  })
-  const [error, setError] = useState<string>('')
+const SignUpForm = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate()
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const role = queryParams.get('role');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }))
-  }
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    
-    // Basic form validation
-    if (Object.values(formData).some(field => field === '')) {
-      setError('All fields are required')
-      return
+  const formik = useFormik({
+   initialValues: {
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmpassword: "",
+   },
+   validationSchema: Yup.object({
+    name: Yup.string().required("Name is required"),
+    email: Yup.string().email("Invalid email address").required("Email is required"),
+    phone: Yup.string().transform((value) => value.trim()).matches(/^[0-9]{10}$/, "Phone number must be 10 digits").required("Phone number is required"),
+    password: Yup.string().transform((value) => value.trim()).min(8, "Password must be at least 8 characters").required("Password is required"),
+    confirmpassword: Yup.string().transform((value) => value.trim()).oneOf([Yup.ref("password"), ""], "Passwords must match").required("Confirm password is required"),
+   }),
+   onSubmit: async (values) => {
+    try {
+      const registrationResult = await dispatch(registerUser(values, role)); // Dispatching directly
+      if (registrationResult) {
+        navigate("/otp");
+      } else {
+        toast.error("Email already in use. Please use a different email.");
+      }
+    } catch (error) {
+      toast.error("An error occurred during registration. Please try again later.");
     }
-    
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match')
-      return
-    }
-    
-    // If validation passes, you can submit the form data
-    console.log('Form submitted:', formData)
-    setError('')
-    // Here you would typically send the data to your backend
-    navigate('/login')
-  }
+ }
+   
+  })
 
   return (
+    <>
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Create your account
+    <div className="sm:mx-auto sm:w-full sm:max-w-md">
+       <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Signup as a {role==="user"?"User":"Tutor"}
         </h2>
       </div>
-
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={formik.handleSubmit}>
             <div>
               <Label htmlFor="name">Name</Label>
               <Input
@@ -73,10 +67,16 @@ export default function SignupPage() {
                 type="text"
                 autoComplete="name"
                 required
-                value={formData.name}
-                onChange={handleChange}
+                value={formik.values.name}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 className="mt-1"
               />
+              {formik.touched.name && formik.errors.name ? (
+              <div className="text-red-500 text-sm">
+                {formik.errors.name}
+              </div>
+            ) : null}
             </div>
 
             <div>
@@ -87,10 +87,16 @@ export default function SignupPage() {
                 type="email"
                 autoComplete="email"
                 required
-                value={formData.email}
-                onChange={handleChange}
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 className="mt-1"
               />
+              {formik.touched.email && formik.errors.email ? (
+              <div className="text-red-500 text-sm">
+                {formik.errors.email}
+              </div>
+              ) : null}
             </div>
 
             <div>
@@ -101,10 +107,16 @@ export default function SignupPage() {
                 type="tel"
                 autoComplete="tel"
                 required
-                value={formData.phone}
-                onChange={handleChange}
+                value={formik.values.phone}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 className="mt-1"
               />
+              {formik.touched.phone && formik.errors.phone ? (
+              <div className="text-red-500 text-sm">
+                {formik.errors.phone}
+              </div>
+               ) : null}
             </div>
 
             <div>
@@ -115,29 +127,37 @@ export default function SignupPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                value={formData.password}
-                onChange={handleChange}
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 className="mt-1"
               />
+              {formik.touched.password && formik.errors.password ? (
+              <div className="text-red-500 text-sm">
+                {formik.errors.password}
+              </div>
+              ) : null}
             </div>
 
             <div>
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmpassword">Confirm Password</Label>
               <Input
-                id="confirmPassword"
-                name="confirmPassword"
+                id="confirmpassword"
+                name="confirmpassword"
                 type="password"
                 autoComplete="new-password"
                 required
-                value={formData.confirmPassword}
-                onChange={handleChange}
+                value={formik.values.confirmpassword}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 className="mt-1"
               />
+              {formik.touched.confirmpassword && formik.errors.confirmpassword ? (
+              <div className="text-red-500 text-sm">
+                {formik.errors.confirmpassword}
+              </div>
+              ) : null}
             </div>
-
-            {error && (
-              <div className="text-red-600 text-sm">{error}</div>
-            )}
 
             <div>
               <Button type="submit" className="w-full">
@@ -170,6 +190,11 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+    
+    </>
+    
   )
+
 }
 
+export default SignUpForm
