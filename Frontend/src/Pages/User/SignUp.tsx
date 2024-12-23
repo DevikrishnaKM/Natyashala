@@ -1,4 +1,4 @@
-import React from 'react'
+// import React from 'react'
 import { Toaster } from 'sonner'
 import SignUpForm from "../../components/User/SignUpForm"
 import Navbar from '@/components/common/UserCommon/NavBar'

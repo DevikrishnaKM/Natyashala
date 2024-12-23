@@ -1,10 +1,11 @@
 export
 interface User{
-    // userId:string;
+    userId:string;
     name:string;
     email:string;
     phone:string;
     password:string;
-    confirmpassword:string;
-    // isBlocked:Boolean
+    role:"user"|"tutor"
+    confirmPassword:string;
+    isVerified:boolean
 }

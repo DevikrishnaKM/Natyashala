@@ -7,7 +7,7 @@ export interface IUser extends Document {
     phone: string;
     password: string;
     confirmPassword?: string;
-    role: 'user' | 'tutor' | 'admin';
+    role: 'user' | 'tutor' ;
     isVerified: boolean;
     otp?: string;
     otpExpiration?: Date;
@@ -20,4 +20,14 @@ export interface IUser extends Document {
     bio?: string;
     location?: string;
   }
+ export interface ICleanedUser {
+    userId : string
+    name: string;
+    email: string;
+    phone: string;
+    role: 'user' | 'tutor' | 'admin';
+    isVerified: boolean;
+    profileUrl : string | ""
+
+}
   

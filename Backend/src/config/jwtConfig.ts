@@ -11,6 +11,10 @@ const secret_key = process.env.JWT_SECRET as string;
 export const createToken =(id:string,role:string):string=>{
     return jwt.sign({id,role},secret_key,{expiresIn:process.env.JWT_EXPIRES_IN});
 }
+export const createRefreshToken = (user_id: string, role: string): string => {
+  return jwt.sign({ user_id, role }, secret_key, { expiresIn: '7d' });
+};
+
 
 export const createSendToken = (user: any, statusCode: number, res: Response, message: string) => {
     const token = createToken(user._id,user.role);

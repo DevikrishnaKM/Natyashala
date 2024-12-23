@@ -6,12 +6,7 @@ import {IUser} from "../interfaces/common.inteface";
 // Create the User schema
 const userSchema = new Schema<IUser>(
   {
-    userId: {
-      type: String,
-      required: true,
-      unique: true,
-      trim : true,
-    },
+    userId: { type: String, required: true, unique: true },
     name: {
       type: String,
       required: [true, 'Name is required'],
@@ -40,22 +35,21 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: [true, 'Password is required'],
       minlength: 8,
-      select: false,
     },
     confirmPassword: {
       type: String,
-      required: [true, 'Confirm password is required'],
-      validate: {
-        validator: function (this: IUser, value: string) {
-          return value === this.password;
-        },
-        message: 'Passwords do not match',
-      },
+      // required: [true, 'Confirm password is required'],
+      // validate: {
+      //   validator: function (this: IUser, value: string) {
+      //     return value === this.password;
+      //   },
+      //   message: 'Passwords do not match',
+      // },
     },
     role: {
       type: String,
-      enum: ['user', 'tutor', 'admin'],
-      default: 'user',
+      enum: ['user', 'tutor'],
+      // default: 'user',
     },
     isVerified: {
       type: Boolean,

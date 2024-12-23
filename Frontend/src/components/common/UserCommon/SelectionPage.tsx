@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Navbar from './NavBar';
+
 
 const SelectionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -9,6 +11,8 @@ const SelectionPage: React.FC = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl overflow-hidden max-w-4xl w-full">
         <div className="flex flex-col md:flex-row gap-8">
@@ -51,6 +55,7 @@ const SelectionPage: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

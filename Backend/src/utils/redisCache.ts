@@ -30,7 +30,8 @@ export const otpSetData = async (email: string, otp: string): Promise<void> => {
       client.hSet(`${email}`, { otp }),
       client.expire(`${email}`, 3000),
     ]);
-    console.log('OTP set on redis for user:', email);
+    console.log('OTP set on redis for user:', email,otp);
+  
   } catch (error) {
     console.log('Error setting OTP:', error);
   }
@@ -39,6 +40,7 @@ export const otpSetData = async (email: string, otp: string): Promise<void> => {
 
 export const getOtpByEmail = async (email: string): Promise<string | null> => {
   try {
+    console.log(email)
     const userData = await client.hGetAll(`${email}`);
     console.log(userData, 'userData');
     if (!userData.otp) {

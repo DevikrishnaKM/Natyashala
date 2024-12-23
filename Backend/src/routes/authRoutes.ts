@@ -13,5 +13,8 @@ const authController = new AuthController(authService); // Inject service into c
 
 // Define routes
 router.post('/signup', authController.createUser.bind(authController)); // Correctly bind `createUser`
+router.post('/otpVerification', authController.otpVerification.bind(authController));
+router.post("/verifyLogin",authController.verifyLogin.bind(authController))
+
 
 export default router;

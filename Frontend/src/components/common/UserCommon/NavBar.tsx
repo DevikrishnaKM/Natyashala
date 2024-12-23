@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
+import {decrypt} from "../../../utils/encryption";
 
 interface NavItem {
   label: string
@@ -11,12 +12,22 @@ const navItems: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
-  { label: 'Selection', href: '/getStart' },
 
 ]
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+      const authStatus = decrypt(localStorage.getItem('userInfo') === null)
+      if (authStatus) {
+        setLoggedIn(false)
+      } else {
+        setLoggedIn(true)      
+      }
+  },[])
+
 
   return (
     <nav className="bg-black text-white shadow-lg">
@@ -26,6 +37,7 @@ const Navbar: React.FC = () => {
             <a href="/" className="flex-shrink-0">
               <img className="h-8 w-8" src="./src/assets/output (1).jpg?height=32&width=32" alt="Logo" />
             </a>
+            <h2 className="p-2 text-white text-lg">Natyashala</h2>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
                 {navItems.map((item) => (
@@ -41,14 +53,39 @@ const Navbar: React.FC = () => {
             </div>
           </div>
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" className="text-white border-white hover:bg-white hover:text-black">
-              Sign In
-            </Button>
-            <Button className="w-full bg-white text-black hover:bg-gray-200">
-                 <a href="/getStart" className="w-full h-full flex items-center justify-center">
-                 Get Started
-                 </a>
-              </Button>
+            {loggedIn ? (
+              <>
+                <Button
+                  variant="outline"
+                  className="text-white border-white hover:bg-white hover:text-black"
+                >
+                  <a href="/logout" className="w-full h-full flex items-center justify-center">
+                    Log Out
+                  </a>
+                </Button>
+                <Button className="w-full bg-white text-black hover:bg-gray-200">
+                  <a href="/profile" className="w-full h-full flex items-center justify-center">
+                    Profile
+                  </a>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="text-white border-white hover:bg-white hover:text-black"
+                >
+                  <a href="/login" className="w-full h-full flex items-center justify-center">
+                    Sign In
+                  </a>
+                </Button>
+                <Button className="w-full bg-white text-black hover:bg-gray-200">
+                  <a href="/getStart" className="w-full h-full flex items-center justify-center">
+                    Get Started
+                  </a>
+                </Button>
+              </>
+            )}
           </div>
           <div className="-mr-2 flex md:hidden">
             <button
@@ -68,7 +105,7 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
-
+  
       {isOpen && (
         <div className="md:hidden" id="mobile-menu">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -82,20 +119,24 @@ const Navbar: React.FC = () => {
               </a>
             ))}
             <div className="mt-4 space-y-2">
-              <Button variant="outline" className="w-full text-white border-white hover:bg-white hover:text-black">
+              <Button
+                variant="outline"
+                className="w-full text-white border-white hover:bg-white hover:text-black"
+              >
                 Sign In
               </Button>
               <Button className="w-full bg-white text-black hover:bg-gray-200">
-                 <a href="/getStart" className="w-full h-full flex items-center justify-center">
-                 Get Started
-                 </a>
+                <a href="/getStart" className="w-full h-full flex items-center justify-center">
+                  Get Started
+                </a>
               </Button>
             </div>
           </div>
         </div>
       )}
     </nav>
-  )
+  );
+  
 }
 
 export default Navbar
