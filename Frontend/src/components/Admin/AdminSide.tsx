@@ -9,11 +9,12 @@ import {
   FaFlag,
 } from "react-icons/fa";
 import { IoMdLogOut } from "react-icons/io";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logout } from "../../redux/actions/adminActions";
+import { AppDispatch } from "../../redux/store";
 
-// Mocking some of the router and redux functionality for this preview
-const useNavigate = () => (path: string) => console.log(`Navigating to ${path}`);
-const useLocation = () => ({ pathname: "/admin/dashboard" });
-const useDispatch = () => (action: any) => console.log('Dispatching action:', action);
+
 
 const ConfirmationModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: () => void; }) => {
   if (!isOpen) return null;
@@ -45,7 +46,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; on
 const AdminAside = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -56,6 +57,7 @@ const AdminAside = () => {
     { icon: <FaChalkboardTeacher />, label: "Tutor Applications", path: "/admin/tutorapplications" },
     { icon: <FaBook />, label: "Courses", path: "/admin/courses" },
     { icon: <FaBook />, label: "Category", path: "/admin/category" },
+    // { icon: <FaWallet />, label: "Wallet", path: "/admin/wallet" },
     { icon: <FaFlag />, label: "Reports", path: "/admin/reports" },
   ];
 
@@ -65,13 +67,18 @@ const AdminAside = () => {
     return activeItem !== -1 ? activeItem : 0;
   };
 
+
   const [activeItemKey, setActiveItemKey] = useState<number>(getActiveItemKey());
 
   useEffect(() => {
     setActiveItemKey(getActiveItemKey());
   }, [location.pathname]);
 
-  const handleNavigation = (path: string, key: number) => {
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+   const handleNavigation = (path: string, key: number) => {
     setActiveItemKey(key); 
     if (path === "/admin/logout") {
       setIsModalOpen(true);
@@ -81,10 +88,18 @@ const AdminAside = () => {
   };
 
   const handleLogout = () => {
-    // Mocking logout action
-    console.log("Logging out...");
-    setIsModalOpen(false);
-    navigate("/admin");
+    dispatch(logout())
+      .unwrap()
+      .then(() => {
+        setActiveItemKey(0); 
+        navigate("/admin");
+      })
+      .catch((error: any) => {
+        console.error("Logout failed:", error);
+      })
+      .finally(() => {
+        setIsModalOpen(false);
+      });
   };
 
   return (

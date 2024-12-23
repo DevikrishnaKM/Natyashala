@@ -19,6 +19,8 @@ export interface IUser extends Document {
     isApprovedTutor?: boolean;
     bio?: string;
     location?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
   }
  export interface ICleanedUser {
     userId : string
@@ -27,7 +29,8 @@ export interface IUser extends Document {
     phone: string;
     role: 'user' | 'tutor' | 'admin';
     isVerified: boolean;
-    profileUrl : string | ""
-
+    profilePicture : string | "";
+    createdAt?: Date;
+    updatedAt?: Date;
 }
   

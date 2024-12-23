@@ -65,7 +65,7 @@ class AuthRepository implements IAuthRepository{
           phone: user.phone,
           role: user.role,
           isVerified: user.isVerified,
-          profileUrl: user.profilePicture || "",
+          profilePicture: user.profilePicture || "",
         };
     
         return userData;

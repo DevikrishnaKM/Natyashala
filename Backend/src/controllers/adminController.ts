@@ -3,6 +3,7 @@ import HTTP_statusCode from "../Enums/httpStatusCode";
 import appError from "../utils/appError";
 import { IAdminServices } from "../interfaces/admin.service.interface";
 import catchAsync from "../utils/catchAsync"
+
 class AdminController{
     private adminService:IAdminServices
 
@@ -37,5 +38,59 @@ class AdminController{
            }
         }
     })
+    getUsers = catchAsync(async(req:Request,res:Response)=>{
+        try {
+           
+            const page=parseInt(req.query.page as string,10)||1
+            const limit=parseInt(req.query.limit as string,10)||10
+            const {users,total}=await this.adminService.getUsersList(page,limit)
+            console.log(users,total)
+            res.status(200).json({
+                users,
+                total,
+                currentPage: page,
+                totalPages: Math.ceil(total / limit),
+            });
+        } catch (error:any) {
+            console.log("Admin := getusers error",error);
+        if(error.message === 'Invalid page number') {
+            res.status(HTTP_statusCode.BadRequest).json({message : "Invalid page number"})
+        } else if (error.message === 'Invalid limit value') {
+            res.status(HTTP_statusCode.BadRequest).json({message : 'Invalid limit value'})
+        }
+        res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+        }
+        
+    })
+    blockUser = async(req : Request , res : Response) => {
+        try {
+           const { email } = req.params 
+            const status = await this.adminService.blockUser(email)
+            res.status(HTTP_statusCode.updated).json(status)
+        } catch (error : any) {
+            console.log("Admin := getusers error in controller",error);
+            if(error.message === 'User not found') {
+                res.status(HTTP_statusCode.NotFound).json({message : 'User not found'})
+            } else if(error.message === 'User is already blocked') {
+                res.status(HTTP_statusCode.NotFound).json({message : 'User is already blocked'})
+            }
+            res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+        }
+    } 
+    unblockUser = async(req : Request , res : Response) => {
+        try {
+           const { email } = req.params 
+            const status = await this.adminService.unBlockUser(email)
+            res.status(HTTP_statusCode.updated).json(status)
+        } catch (error : any) {
+            console.log("Admin := getusers error in controller",error);
+            if(error.message === 'User not found') {
+                res.status(HTTP_statusCode.NotFound).json({message : 'User not found'})
+            } else if(error.message === 'User is already unblocked') {
+                res.status(HTTP_statusCode.NotFound).json({message : 'User is already unblocked'})
+            }
+            res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+        }
+    } 
 }
 export default AdminController

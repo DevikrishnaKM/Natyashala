@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 // import { toast } from 'sonner';
-// import { clearAdmin } from '../slices/adminSlice'
+import { clearAdmin } from '../slices/adminSlice'
 import { Base_URL } from '../../credentials';
 
 export const adminLogin = createAsyncThunk(
@@ -16,6 +16,28 @@ export const adminLogin = createAsyncThunk(
         console.error("Admin login thunk error:", error.response?.data || error.message);
         return thunkAPI.rejectWithValue(error.response?.data || error.message);
       }
+    }
+  );
+
+  export const updateUserBlockStatus = createAsyncThunk(
+    'user/updateUserBlockStatus',
+    async ({ email, isVerified }: { email: string; isVerified: boolean }, thunkAPI) => {
+      try {
+        const response = await axios.patch(`${Base_URL}/admin/${isVerified ? 'block' : 'unblock'}user/${email}`);
+        console.log(`User ${isVerified ? 'blocked' : 'unblocked'} response: `, response.data);
+  
+        return { email, isVerified };
+      } catch (error: any) {
+        console.error(`Update user block status thunk error:`, error.response?.data || error.message);
+        return thunkAPI.rejectWithValue(error.response?.data || error.message);
+      }
+    }
+  );
+  export const logout = createAsyncThunk<void, void>(
+    'admin/logout',
+    async (_, { dispatch }) => {
+      dispatch(clearAdmin());
+     
     }
   );
   

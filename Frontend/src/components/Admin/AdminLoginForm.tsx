@@ -69,7 +69,7 @@ export default function AdminLoginPage() {
             Start for free and start interacting with thousands of courses.
           </p>
           <img
-             src="./src/assets/pexels-cottonbro-7097464.jpg"
+             src="./src/assets/pexels-diva.png"
              className="w-full h-full object-cover"
              alt="Learning Journey"
             />
