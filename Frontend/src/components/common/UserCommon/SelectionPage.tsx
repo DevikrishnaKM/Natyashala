@@ -1,6 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './NavBar';
+import Lotte from "lottie-react"
+import userLogin from "../../../assets/lotties/userLogin.json"
+import tutorLogin from "../../../assets/lotties/tutorLogin.json"
 
 
 const SelectionPage: React.FC = () => {
@@ -19,7 +22,9 @@ const SelectionPage: React.FC = () => {
           {/* Student Section */}
           <div className="flex-1 p-8 flex flex-col items-center">
             <div className="w-48 h-48 mb-6 rounded-full bg-gray-300 flex items-center justify-center">
-              <span className="text-4xl">👨‍🎓</span>
+              <span className="text-4xl">
+                <Lotte animationData={userLogin}/>
+              </span>
             </div>
             <h2 className="text-2xl font-bold mb-4 text-center">Student</h2>
             <p className="text-gray-600 mb-6 text-center">
@@ -39,7 +44,9 @@ const SelectionPage: React.FC = () => {
           {/* Tutor Section */}
           <div className="flex-1 p-8 flex flex-col items-center">
             <div className="w-48 h-48 mb-6 rounded-full bg-gray-300 flex items-center justify-center">
-              <span className="text-4xl">👨‍🏫</span>
+              <span className="text-4xl">
+              <Lotte animationData={tutorLogin}/>
+              </span>
             </div>
             <h2 className="text-2xl font-bold mb-4 text-center">Tutor</h2>
             <p className="text-gray-600 mb-6 text-center">

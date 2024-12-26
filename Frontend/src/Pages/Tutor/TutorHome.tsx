@@ -1,9 +1,9 @@
-'use client'
+
 
 import React from 'react'
 import { FaHome } from 'react-icons/fa'
 import { IoIosArrowDroprightCircle } from 'react-icons/io'
-
+import {useNavigate} from "react-router-dom"
 import { Button } from '@/components/ui/button'
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -14,6 +14,7 @@ import TutorNav from '@/components/common/TutorCommon/TutorNav'
 
 
 export default function TutorHomePage() {
+  const navigate = useNavigate()
   const [istutor, setIsTutor] = React.useState(false) // This should be set based on your auth logic
   
   const handleDashboard = () => {
@@ -22,8 +23,7 @@ export default function TutorHomePage() {
   }
 
   const goToApplication = () => {
-    // Add your application navigation logic here
-    console.log('Navigating to application')
+    navigate('/tutor/application')
   }
 
   return (
