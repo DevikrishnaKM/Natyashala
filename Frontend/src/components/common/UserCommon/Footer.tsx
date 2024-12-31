@@ -42,7 +42,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="text-center text-gray-400 mt-8">
-          &copy; Learnsphere, Inc. 2024. All rights reserved.
+          &copy; Natyashala, Inc. 2024. All rights reserved.
         </div>
       </footer>
     );

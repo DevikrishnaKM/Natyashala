@@ -1,16 +1,19 @@
 import { Model } from 'mongoose';
 import { IAdminRepository } from '../interfaces/admin.repository.interface';
-import { IUser } from '../interfaces/common.inteface';
+import { IUser,ITutorApplication } from '../interfaces/common.inteface';
 import { BaseRepository } from '../repository/baseRepository';
 import userSchema from "../models/userSchema";
 
 class AdminRepository implements IAdminRepository {
     private userRepo: BaseRepository<IUser>;
+    private applicationRepo : BaseRepository<ITutorApplication>;
 
     constructor(
-        userSchema:Model<IUser>
+        userSchema:Model<IUser>,
+        applicationModel : Model<ITutorApplication>,
     ){
         this.userRepo = new BaseRepository(userSchema)
+        this.applicationRepo = new BaseRepository(applicationModel);
     }
 
 async getUsers(page:number,limit:number): Promise<{ users: IUser[]; total: number }> {
@@ -69,6 +72,23 @@ async unBlockUser(email: string): Promise<boolean> {
         return true;
     } catch (error: any) {
         console.error('Error in blocking user in repository:', error.message);
+        throw error
+    }
+}
+async getApplications(): Promise<ITutorApplication[]> {
+    try {
+        return await this.applicationRepo.findAll({});
+    } catch (error: any) {
+        console.error('Error in fetching tutor applications:', error.message);
+        throw error
+    }
+}
+
+async findApplication(id : string) : Promise<ITutorApplication | null> {
+    try {
+        return await this.applicationRepo.find({applicationId : id})
+    } catch (error : any) {
+        console.error('Error in fetching tutor application:', error.message);
         throw error
     }
 }

@@ -1,7 +1,7 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { login } from '../actions/UserActions';
-// import { toast } from 'sonner';
+import { login, updateUserInfo  } from '../actions/UserActions';
+import { toast } from 'sonner';
 // import { SrvRecord } from 'dns';
 import { encrypt } from "../../utils/encryption.js";
 
@@ -62,17 +62,42 @@ const userSlice = createSlice({
   
         // Store access token in localStorage
         localStorage.setItem('accessToken', accessToken);
-  
+
+        if(userInfo.role=="user"){
+
+          const encryptedData = encrypt(userInfo);
+        
+          localStorage.setItem('userInfo', encryptedData);
+        }else{
+          const encryptedData = encrypt(userInfo);
+        
+          localStorage.setItem('tutorInfo', encryptedData);
+
+        }
         // Encrypt and store user info (no need for JSON.stringify here)
-        const encryptedData = encrypt(userInfo);
-        localStorage.setItem('userInfo', encryptedData);
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         // Use fallback error message if action.payload is undefined
         state.error = action.payload ? String(action.payload) : 'Login failed. Please try again.';
-      });
-  }
+      })
+      .addCase(updateUserInfo.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserInfo.fulfilled, (state, action: PayloadAction<User | 'no change'>) => {
+        if (action.payload === 'no change') {
+          toast.warning('No changes made.');
+        } else {
+          state.userInfo = action.payload;
+          state.loading = false;
+        }
+      })
+      .addCase(updateUserInfo.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+  },
   
   
 });

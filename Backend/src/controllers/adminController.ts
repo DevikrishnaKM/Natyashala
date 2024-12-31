@@ -92,5 +92,26 @@ class AdminController{
             res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
         }
     } 
+    getApplications = async(req : Request , res : Response) => {
+        try {
+            const getApplications = await this.adminService.getApplications()
+            res.status(HTTP_statusCode.OK).json(getApplications)        
+        } catch (error : any ) {
+            console.log("Admin := getusers error in controller",error);
+            res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+        }
+    }
+
+    findApplication = async(req : Request , res : Response) => {
+        try {
+            const {id} =  req.params;
+            const applicant = await this.adminService.findApplication(id)
+            res.status(HTTP_statusCode.OK).json(applicant)
+        } catch (error : any) {
+            console.log("Admin := getusers error in controller",error);
+            res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+        }
+    }
+
 }
 export default AdminController

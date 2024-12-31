@@ -1,38 +1,72 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { updateUserInfo } from "../../redux/actions/UserActions";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/store";
+import { toast } from "sonner";
 
-// Placeholder data
-const userData = {
-  userInfo: {
-    userid: '12345',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    phone: '123-456-7890',
-  }
-};
 
-const validationSchema = Yup.object().shape({
-  firstName: Yup.string().required('First name is required'),
-  lastName: Yup.string().required('Last name is required'),
-  phone: Yup.string().required('Phone number is required'),
-});
+export default function UserDetails() {
 
-export default function UserDashboard() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [edit, setEdit] = useState(false);
+  const data:any = useSelector((state: RootState) => state.user);
 
-  const handleOpenModal = () => setIsModalOpen(true);
+  const openEditModal=()=>setEdit(true)
+  const handleOpenModal=()=>setIsModalOpen(true)
+  const dispatch = useDispatch<AppDispatch>();
   const handleCloseModal = () => setIsModalOpen(false);
-  const openEditModal = () => setEdit(true);
   const closeEditModal = () => setEdit(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [edit, setEdit] = useState<boolean>(false);
 
-  const editSubmit = (values, { setSubmitting }) => {
-    console.log(values);
-    setSubmitting(false);
-    closeEditModal();
+  const editSubmit = async (values: {
+    userId: any;
+    name: string;
+    phone: string;
+  }) => {
+    try {
+      values.userId = data.userInfo.userId;
+      // ApiBlock()
+      const isVerified = localStorage.getItem("isVerified")
+      console.log("atleast here",isVerified);
+      if(isVerified === "true") {
+        console.log("atleast here");
+        
+        toast.warning("Currently you are restricted.")
+        return;
+      } else {
+
+        const response = await dispatch(updateUserInfo(values));
+     
+      if (response.meta.requestStatus === "fulfilled") {
+        console.log("User information updated successfully:", response.payload);
+        toast.success("Details updated")
+        closeEditModal();
+      } else if (response.meta.requestStatus === "rejected") {
+        
+  
+        toast.info("No changes made")
+      }
+    }
+    } catch (error) {
+      console.error("Failed to update user", error);
+    }
   };
+
+  const nameRegex = /^[A-Z][a-zA-Z]*$/;
+  const phoneRegex = /^[0-9]{10}$/;
+
+  const validationSchema = Yup.object({
+    name: Yup.string()
+      .matches(
+        nameRegex,
+        "Name must start with a capital letter and contain only letters"
+      )
+      .required("Name is required"),
+    phone: Yup.string()
+      .matches(phoneRegex, "Phone number must be exactly 10 digits")
+      .required("Phone is required"),
+  });
 
   return (
     <>
@@ -56,13 +90,13 @@ export default function UserDashboard() {
           Referral code: <span className="font-bold">BGN567E</span>
         </h5>
         <h3 className="mb-2">
-          Name: <b>{userData.userInfo.firstName + " " + userData.userInfo.lastName}</b>
+          Name: <b>{data?.userInfo?.name}</b>
         </h3>
         <h3 className="mb-2">
-          Email: <b>{userData.userInfo.email}</b>
+          Email: <b>{data?.userInfo?.email}</b>
         </h3>
         <h3 className="mb-2">
-          Contact: <b>{userData.userInfo.phone}</b>
+          Contact: <b>{data?.userInfo?.phone}</b>
         </h3>
         <button
           onClick={openEditModal}
@@ -99,39 +133,25 @@ export default function UserDashboard() {
             </h3>
             <Formik
               initialValues={{
-                userId: userData.userInfo.userid,
-                firstName: userData.userInfo.firstName,
-                lastName: userData.userInfo.lastName,
-                phone: userData.userInfo.phone,
+                userId: data.userInfo.userid,
+                name: data.userInfo.name,
+                phone: data.userInfo.phone,
               }}
               validationSchema={validationSchema}
               onSubmit={editSubmit}
             >
               {({ isSubmitting }) => (
                 <Form className="space-y-4">
-                  <div>
-                    <label htmlFor="firstName" className="block mb-2 font-medium">First Name</label>
-                    <Field
-                      className="bg-gray-200 h-10 rounded p-2 w-full"
-                      type="text"
-                      name="firstName"
-                    />
-                    <ErrorMessage
-                      name="firstName"
-                      component="div"
-                      className="text-red-500"
-                    />
-                  </div>
 
                   <div>
-                    <label htmlFor="lastName" className="block mb-2 font-medium">Last Name</label>
+                    <label htmlFor="name" className="block mb-2 font-medium">Name</label>
                     <Field
                       className="bg-gray-200 h-10 rounded p-2 w-full"
                       type="text"
-                      name="lastName"
+                      name="name"
                     />
                     <ErrorMessage
-                      name="lastName"
+                      name="name"
                       component="div"
                       className="text-red-500"
                     />

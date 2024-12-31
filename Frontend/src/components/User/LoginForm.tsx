@@ -24,7 +24,7 @@ export default function LoginPage() {
         const loginResult = await dispatch(login(values)).unwrap();
         console.log("the result",loginResult)
         if (loginResult) {
-          if (loginResult.userInfo?.isVerified) {
+          if (loginResult.userInfo?.isVerified===true) {
             toast.error(
               "Currently, you are restricted from accessing the site."
             );
@@ -111,8 +111,7 @@ export default function LoginPage() {
 
             <div className="w-full flex items-center justify-between mt-4">
               <div className="flex items-center">
-                <input type="checkbox" id="remember-me" className="w-4 h-4 mr-2" />
-                <label htmlFor="remember-me" className="text-sm">Remember Me</label>
+                
               </div>
 
               <button type="button" className="text-sm font-medium cursor-pointer underline">
@@ -142,7 +141,7 @@ export default function LoginPage() {
             <p className="text-sm font-normal text-black">
               Don't have an account?{" "}
               <Link
-                to="/signup"
+                to="/getStart"
                 className="font-semibold underline underline-offset-2"
               >
                 Sign Up for free

@@ -11,7 +11,7 @@ const TutorApplication:React.FC = () => {
     <TutorNav/>
     <div className='h-auto bg-gray-100 pb-20'>
         <div className='m-8'>
-            <div className='h-64 bg-cover bg-center rounded-lg'
+            <div className='h-50 bg-cover bg-center rounded-lg'
             
             >
                 <nav className='text-white text-sm mb-4 pt-5 pl-10 font-bold'>

@@ -4,10 +4,13 @@ import AppError from "../utils/appError";
 import { v4 as uuidv4 } from "uuid";
 import { generateOtp } from "../utils/generateOtp";
 import sendEmail from "../utils/email";
-import {ICleanedUser} from "../interfaces/common.inteface";
+import {ICleanedUser,IEditUser} from "../interfaces/common.inteface";
 import {getOtpByEmail, otpSetData} from "../utils/redisCache";
 import { createToken,createRefreshToken } from "../config/jwtConfig";
 import HTTP_statusCode from '../Enums/httpStatusCode';
+import { AwsConfig } from "../config/awsFileConfig";
+import { S3Client } from "@aws-sdk/client-s3";
+import { IAdminRepository } from '../interfaces/admin.repository.interface';
 
 // interface FormData {
 //   name:string,
@@ -19,9 +22,13 @@ import HTTP_statusCode from '../Enums/httpStatusCode';
 
 class AuthService {
   private authRepository: IAuthRepository;
+  private adminRepository : IAdminRepository;
 
-  constructor(authRepository: IAuthRepository) {
-    this.authRepository = authRepository;
+  aws = new AwsConfig()
+
+  constructor(authRepository: IAuthRepository, adminRepository : IAdminRepository) {
+    this.authRepository = authRepository,
+    this.adminRepository = adminRepository
   }
 
   signUp = async (data: any, role: string): Promise<{ user: any; token: string }> => {
@@ -98,6 +105,54 @@ class AuthService {
       return { userInfo, accessToken, refreshToken };
     } catch (error: any) {
       console.error("Error during login verification:", error.message);
+      throw error;
+    }
+  }
+
+  resendOtp = async(email: any): Promise<boolean> => {
+    try {
+      const otp = generateOtp()
+      await otpSetData(email, otp);
+      console.log("Resend generated OTP:", otp);
+      return true;
+    } catch (error: any) {
+      console.error("Error during OTP resend:", error.message);
+      throw error;
+    }
+  }
+  editUser = async(userId : string ,updateData : object): Promise<IEditUser> => {
+    try {
+      const user = await this.authRepository.editUser(userId , updateData)
+      const newData = {
+        name : user?.name,
+        phone :user?.phone,
+        email : user?.email
+      }
+      return newData;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  saveProfile = async(profile: Express.Multer.File, userId: string) : Promise<boolean> => {
+    try {
+      const profileUrl = await this.aws.uploadFileToS3(`users/profile/${userId}/`,profile);
+      return await this.authRepository.saveProfile(userId as string,profileUrl as string);
+    } catch (error: any) {
+      console.error("Error in saving profile pic user serice :", error.message);
+      throw error;
+    }
+  }
+  getProfile = async(email: string) : Promise<string> => {
+    try {
+      const user = await this.authRepository.findUser(email)  
+      let profileUrl = ""
+       if(user?.profilePicture) {
+        profileUrl = await this.aws.getfile(user?.profilePicture as string,`users/profile/${user?.userId}`);
+       }
+      return profileUrl;
+    } catch (error: any) {
+        console.error("Error in getting profile pic user serice :",error.message);
       throw error;
     }
   }

@@ -79,7 +79,65 @@ class AuthController {
     }
   }
  })
+ resendOtp = catchAsync(async(req: Request, res: Response) => {
+  try { 
+    const { email } = req.body;
+    console.log("controller email resend", email);
+    await this.authService.resendOtp(email);
+    res.status(HTTP_statusCode.OK).json(true)
+  } catch (error : any) {
+    console.log("User Controller => Error in veryfing login ", error);
+    res.status(HTTP_statusCode.InternalServerError).json({ message : error.message})
+  }
+})
+
+
+editUser = catchAsync(async(req : Request ,  res : Response) => {
+  try {
+    const {name, phone ,userId} = req.body
+    const updateData = {
+      name,
+      phone,
+    }
+    const updatedUser = await this.authService.editUser(userId ,updateData);
+    res.status(HTTP_statusCode.OK).json({ message: 'User updated successfully', data: updatedUser }); 
+  } catch (error : any) {
+    if (error.message === "No changes detected") {
+      res.status(HTTP_statusCode.NoChange).json({ message: "No changes founded" });
+   } else {
+      res.status(500).json({ message: 'Internal Server Error' });
+   }
+  }
+})
   
+saveProfilePic = catchAsync(async(req : Request, res : Response) => {
+  try {
+    const profile = req.file
+    const userId = req.body.userId 
+    if(!profile) {
+      throw new Error("No profile given")
+    }
+    const status = await this.authService.saveProfile(profile as Express.Multer.File , userId as string)
+    res.status(HTTP_statusCode.updated).json(status) 
+  } catch (error : any) {
+    console.error(error.message);
+    if(error.message === "No profile given") {
+      res.status(HTTP_statusCode.NotFound).json(error.message)
+    }
+    res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+  }
+})
+
+getProfile = async(req : Request, res : Response) => {
+  try {
+   const {email} = req.params
+   const profileUrl = await this.authService.getProfile(email as string)  
+   res.status(HTTP_statusCode.OK).json(profileUrl)
+  } catch (error : any) {
+    console.error(error.message);
+    res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+  }
+}
 }
 
 export default AuthController;

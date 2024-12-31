@@ -4,7 +4,7 @@ import { Toaster, toast } from 'sonner'
 import { useFormik } from 'formik'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch} from 'react-redux'
-import { verifyOtp } from '../../redux/actions/UserActions'
+import { verifyOtp, resendOtp  } from '../../redux/actions/UserActions'
 import { AppDispatch } from '../../redux/store'
 import Navbar from '@/components/common/UserCommon/NavBar'
 import {User} from "../../Types/user"
@@ -110,7 +110,7 @@ const OtpForm: React.FC <OtpFormProps> = ({values,role}) => {
     }, 1000);
 
     try {
-      // await dispatch(resendOtp());
+      await dispatch(resendOtp());
     } catch (error: any) {
       toast.error("Error resending OTP.");
     }

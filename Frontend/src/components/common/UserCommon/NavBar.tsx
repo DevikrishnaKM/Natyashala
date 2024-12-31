@@ -20,13 +20,15 @@ const Navbar: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-      const authStatus = decrypt(localStorage.getItem('userInfo') === null)
-      if (authStatus) {
-        setLoggedIn(false)
-      } else {
-        setLoggedIn(true)      
-      }
-  },[])
+    const userInfo = localStorage.getItem('userInfo');
+    if (userInfo) {
+      const authStatus = decrypt(userInfo); // Decrypt the userInfo
+      setLoggedIn(!!authStatus); // Set loggedIn to true if authStatus is valid
+    } else {
+      setLoggedIn(false); // No userInfo means user is not logged in
+    }
+  }, []);
+  
 
 
   return (

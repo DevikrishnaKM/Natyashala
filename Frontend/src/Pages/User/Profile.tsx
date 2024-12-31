@@ -7,6 +7,8 @@ import Wallet from "../../components/User/Wallet";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
 import Navbar from '@/components/common/UserCommon/NavBar';
+import ProfileImg from "../../components/User/ProfileImg";
+
 
 const menuItems = [
   { name: 'Profile', component: <UserDetails /> },
@@ -45,7 +47,7 @@ export default function Profile() {
         <div className="absolute bottom-[-40px] left-0 right-0 flex justify-center">
           <div className="relative bg-white rounded-2xl shadow-lg p-6 w-11/12 max-w-4xl overflow-hidden opacity-95">
             <div className="relative flex items-center">
-             
+            <ProfileImg size={80} showEditOption={true}/>
               <div className="ml-4">
               {data.userInfo.name}
                 <p className="text-gray-500">Student</p>

@@ -19,7 +19,7 @@ export default function TutorHomePage() {
   
   const handleDashboard = () => {
     // Add your dashboard navigation logic here
-    console.log('Navigating to dashboard')
+   navigate('/tutor/dashboard')
   }
 
   const goToApplication = () => {

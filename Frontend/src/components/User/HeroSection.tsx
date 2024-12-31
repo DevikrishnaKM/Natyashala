@@ -2,6 +2,7 @@ import React from "react";
 import Lottie from "lottie-react";
 import textAnimation from "../../assets/lotties/textAnimation.json";
 import { Link } from "react-router-dom";
+import {motion} from "framer-motion"
 
 const LandingPage: React.FC = () => {
   const goToCommunity = () => {
@@ -24,7 +25,11 @@ const LandingPage: React.FC = () => {
     >
       <div className="grid max-w-6xl grid-cols-1 gap-8 lg:grid-cols-2">
         {/* Text Content with Lottie Animation */}
-        <div className="flex flex-col justify-center text-center lg:text-left gap-6 lg:gap-8">
+        <motion.div className="flex flex-col justify-center text-center lg:text-left gap-6 lg:gap-8"
+          initial={{ x: -250 }}
+          animate={{ x: -10 }}
+          transition={{ duration: 3}}
+        >
           {/* Text Content */}
           <h2 className="text-4xl font-extrabold text-[#161615] sm:text-5xl lg:text-6xl">
             MASTER THE CLASSICS <br /> UNLEASH YOUR CREATIVITY.
@@ -49,10 +54,14 @@ const LandingPage: React.FC = () => {
               Community
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Image Stack */}
-        <div className="relative flex items-center justify-center">
+        <motion.div className="relative flex items-center justify-center"
+        initial={{ x: 250 }}
+        animate={{ x: 10 }}
+        transition={{ duration: 3 }}
+        >
           {/* Base Image */}
           <div
             className={`relative w-[280px] h-[250px] lg:w-[550px] lg:h-[450px] 
@@ -108,7 +117,7 @@ const LandingPage: React.FC = () => {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

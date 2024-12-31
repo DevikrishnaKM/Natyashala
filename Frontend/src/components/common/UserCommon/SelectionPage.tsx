@@ -4,6 +4,7 @@ import Navbar from './NavBar';
 import Lotte from "lottie-react"
 import userLogin from "../../../assets/lotties/userLogin.json"
 import tutorLogin from "../../../assets/lotties/tutorLogin.json"
+import {motion} from "framer-motion"
 
 
 const SelectionPage: React.FC = () => {
@@ -20,7 +21,11 @@ const SelectionPage: React.FC = () => {
       <div className="bg-white rounded-lg shadow-xl overflow-hidden max-w-4xl w-full">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Student Section */}
-          <div className="flex-1 p-8 flex flex-col items-center">
+          <motion.div className="flex-1 p-8 flex flex-col items-center"
+          initial={{ x: -250 }}
+          animate={{ x: -10 }}
+          transition={{ duration: 3}}
+          >
             <div className="w-48 h-48 mb-6 rounded-full bg-gray-300 flex items-center justify-center">
               <span className="text-4xl">
                 <Lotte animationData={userLogin}/>
@@ -36,13 +41,16 @@ const SelectionPage: React.FC = () => {
             >
               Enroll as a Student
             </button>
-          </div>
+          </motion.div>
 
           {/* Divider with space */}
           <div className="hidden md:block w-px bg-gray-200 mx-4"></div>
 
           {/* Tutor Section */}
-          <div className="flex-1 p-8 flex flex-col items-center">
+          <motion.div className="flex-1 p-8 flex flex-col items-center"
+          initial={{ x: 250 }}
+          animate={{ x: 10 }}
+          transition={{ duration: 3}}>
             <div className="w-48 h-48 mb-6 rounded-full bg-gray-300 flex items-center justify-center">
               <span className="text-4xl">
               <Lotte animationData={tutorLogin}/>
@@ -58,7 +66,7 @@ const SelectionPage: React.FC = () => {
             >
               Enroll as a Tutor
             </button>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
