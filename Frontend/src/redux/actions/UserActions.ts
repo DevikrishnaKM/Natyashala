@@ -126,10 +126,7 @@ export const login = createAsyncThunk<
       { email, password },
       { withCredentials: true }
     );
-
     console.log("Response:", response, response.data.cred);
-
-    // Map the response to match the expected structure, if necessary
     const cred = response.data.cred;
     return {
       accessToken: cred.accessToken,

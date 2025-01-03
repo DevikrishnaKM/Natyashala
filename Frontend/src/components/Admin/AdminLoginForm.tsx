@@ -63,16 +63,16 @@ export default function AdminLoginPage() {
     <div className="w-full h-screen flex">
       <Toaster position="top-center" richColors />
       <div className="relative w-1/2 h-full flex flex-col">
+          <img
+             src="./src/assets/pexels-cottonbro-7097464.jpg"
+             className="w-full h-full object-fill"
+             alt="Learning Journey"
+            />
         <div className="absolute top-[20%] left-[10%] flex flex-col">
           <h1 className="text-4xl text-white font-bold my-4">Start your Learning Journey.</h1>
           <p className="text-xl text-white font-normal">
             Start for free and start interacting with thousands of courses.
           </p>
-          <img
-             src="./src/assets/pexels-diva.png"
-             className="w-full h-full object-cover"
-             alt="Learning Journey"
-            />
         </div>
       </div>
 

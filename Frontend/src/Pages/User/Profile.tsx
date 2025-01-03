@@ -49,7 +49,7 @@ export default function Profile() {
             <div className="relative flex items-center">
             <ProfileImg size={80} showEditOption={true}/>
               <div className="ml-4">
-              {data.userInfo.name}
+              {data.userInfo?.name}
                 <p className="text-gray-500">Student</p>
               </div>
               <div className="ml-auto flex space-x-4">

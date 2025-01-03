@@ -31,7 +31,7 @@ const TutorDashboard: React.FC = () => {
     setIsLogoutModalOpen(false);
     localStorage.removeItem("tutorCredentials");
 
-    navigae("/tutor/login");
+    navigae("/login");
   };
 
   const menuItems = [

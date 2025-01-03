@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { connectToDB } from './config/db';
 import cookieparser from 'cookie-parser';
-
+import morgan from 'morgan';
 import AppError from './utils/appError';
 import errorController from './controllers/errorController';
 import authRouter from './routes/authRoutes';
@@ -14,21 +14,20 @@ import { asyncContextMiddleware } from './config/awsFileConfig';
 
 dotenv.config();  // Load environment variables
 
+connectToDB();
 const app = express();
+
+app.use(morgan('dev'))
+app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  next();
+});
 
 app.use(asyncContextMiddleware);
 app.use(cookieparser());
-
-app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
-
-app.use(express.json({limit: '10kb'}));
-
-
-// Connect to the database
-connectToDB();
-
-// app.use(cors());
-app.use(express.json());  // To parse JSON bodies
+app.use(express.json({limit: '5gb'}));
 app.use(express.urlencoded({ limit: '5gb', extended: true }));
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);

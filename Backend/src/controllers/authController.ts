@@ -44,41 +44,47 @@ class AuthController {
  });
 
 
- verifyLogin = catchAsync(async (req: Request,res:Response)=>{
+ verifyLogin = catchAsync(async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-    const result = await this.authService.verifyLogin(email,password)
-    // console.log(result)
+    const result = await this.authService.verifyLogin(email, password);
+
+    // Set cookies for tokens
     res.cookie("RefreshToken", result.refreshToken, {
       httpOnly: true,
       secure: true, 
       sameSite: 'none', 
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-       path: '/'
-   });
-   res.cookie("AccessToken", result.accessToken, {
-    httpOnly: true,
-    secure: true, 
-    sameSite: 'none',
-    maxAge: 15 * 60 * 1000,
-     path: '/'
-   });
-   const { userInfo } = result;
-   const cred = { userInfo}
-   res.status(HTTP_statusCode.OK).json({ message: "Login successful", cred });
-  } catch (error:any) {
-    console.log("Auth Controller => Error in veryfing login ", error);
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/'
+    });
+    res.cookie("AccessToken", result.accessToken, {
+      httpOnly: true,
+      secure: true, 
+      sameSite: 'none',
+      maxAge: 15 * 60 * 1000, // 15 minutes
+      path: '/'
+    });
+
+    // Include accessToken and userInfo in response
+    const { userInfo,accessToken } = result;
+    const cred = { userInfo,accessToken }; // Include accessToken
+    res.status(HTTP_statusCode.OK).json({ message: "Login successful", cred });
+  } catch (error: any) {
+    console.error("Auth Controller => Error in verifying login", error);
+
+    // Handle specific error messages
     if (error.message === "You are restricted.") {
-      res.status(HTTP_statusCode.NoAccess).json({ message: error.message })
+      return res.status(HTTP_statusCode.NoAccess).json({ message: error.message });
     } else if (error.message === "User doesn't exist") {
-      res.status(HTTP_statusCode.NotFound).json({ message: error.message })
-    } else if(error.message === "Invalid password") {
-      res.status(HTTP_statusCode.Conflict).json({ message: error.message })
+      return res.status(HTTP_statusCode.NotFound).json({ message: error.message });
+    } else if (error.message === "Invalid password") {
+      return res.status(HTTP_statusCode.Conflict).json({ message: error.message });
     } else {
-      res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+      return res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
     }
   }
- })
+});
+
  resendOtp = catchAsync(async(req: Request, res: Response) => {
   try { 
     const { email } = req.body;
