@@ -20,12 +20,12 @@ const decrypt = (ciphertext: any) => {
       throw new Error("Decryption failed: No valid ciphertext found.");
     }
 
-    console.log("Ciphertext to decrypt:", ciphertext); // Log to see the actual data
+    // console.log("Ciphertext to decrypt:", ciphertext); // Log to see the actual data
 
     const bytes = CryptoJS.AES.decrypt(ciphertext, CRYPTO_KEY);
     const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
 
-    console.log("Decrypted Data:", decryptedData); // Log decrypted data
+    // console.log("Decrypted Data:", decryptedData); // Log decrypted data
 
     if (!decryptedData) {
       throw new Error("Decryption failed or malformed data.");

@@ -14,8 +14,9 @@ interface ProfileImgProps {
 
 const ProfileImg:React.FC<ProfileImgProps>=({size, showEditOption})=>{
 
-    const {userInfo}=useSelector((state:RootState)=>state.user)
-    const userId = userInfo?.userId || "sss"
+    const {userInfo} = useSelector((state:RootState)=>state.user)
+    console.log("userInfo:",userInfo)
+    const userId = userInfo?.userId || null
 
     const [profileModal,setProfileModal]=useState<boolean>(false)
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -26,6 +27,7 @@ const ProfileImg:React.FC<ProfileImgProps>=({size, showEditOption})=>{
         const fetchProfile = async () => {
           try {
             const response = await userAxiosInstance.get(`/auth/getProfile/${userInfo?.email}`);
+            console.log("response:",response.data)
             if (response.data) {
               setSelectedImage(response.data);
             }

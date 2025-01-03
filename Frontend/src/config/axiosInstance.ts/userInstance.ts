@@ -1,16 +1,23 @@
 import axios from "axios";
 import {Base_URL }from "../../credentials";
 import { toast } from "sonner";
+import { decrypt } from "@/utils/encryption";
 
 
-const storedUserInfo = localStorage.getItem("userInfo");
+const storedEncryptedUserInfo = localStorage.getItem("userInfo");
+console.log("testing...", storedEncryptedUserInfo);
+
 let userInfo, userId;
 
 try {
-    userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
-    userId = userInfo?.userId;
+    // Decrypt the stored encrypted data
+    if (storedEncryptedUserInfo) {
+        userInfo = decrypt(storedEncryptedUserInfo);  // Decrypt the userInfo
+        console.log("userInstance:", userInfo);
+        userId = userInfo?.userId;  // Extract the userId from decrypted userInfo
+    }
 } catch (error) {
-    console.error("Failed to parse userInfo from localStorage:", error);
+    console.error("Failed to decrypt userInfo from localStorage:", error);
 }
 
 const userAxiosInstance = axios.create({
