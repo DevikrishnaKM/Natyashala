@@ -33,6 +33,19 @@ export const adminLogin = createAsyncThunk(
       }
     }
   );
+  export const acceptApplicaitonThunk = createAsyncThunk(
+    'user/tutorIsTrue',
+    async (applicationId:any,thunkAPI)=>{
+      try {
+        const response = await axios.post(`${Base_URL}/admin/acceptapplication/${applicationId}`)
+        console.log("thunk:",response.data)
+        return response.data
+      } catch (error:any) {
+        console.error(error)
+        return thunkAPI.rejectWithValue(error.response?.data || "something went wrong!")
+      }
+    }
+  )
   export const logout = createAsyncThunk<void, void>(
     'admin/logout',
     async (_, { dispatch }) => {

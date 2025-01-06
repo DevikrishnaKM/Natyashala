@@ -58,6 +58,7 @@ const ApplicationList: React.FC<ApplicationListProps> = ({ setApplicationCount }
   const handleViewClick = async (applicationId: string) => {
     try {
       const response = await axios.get(`${Base_URL}/admin/applicationview/${applicationId}`);
+      console.log(response,"res")
       navigate('/admin/applicationdetails', { state: { applicationData: response.data } });
     } catch (error) {
       console.error('Error fetching application details', error);

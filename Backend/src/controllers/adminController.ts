@@ -105,7 +105,9 @@ class AdminController{
     findApplication = async(req : Request , res : Response) => {
         try {
             const {id} =  req.params;
+            console.log(id,"id")
             const applicant = await this.adminService.findApplication(id)
+            console.log("applicat:",applicant)
             res.status(HTTP_statusCode.OK).json(applicant)
         } catch (error : any) {
             console.log("Admin := getusers error in controller",error);

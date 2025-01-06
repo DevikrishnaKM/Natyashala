@@ -15,7 +15,7 @@ import axios from "axios";
 import { toast, Toaster } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
-// import { acceptApplicaitonThunk } from "../../redux/actions/adminActions";
+import { acceptApplicaitonThunk } from "../../redux/actions/adminActions";
 import { Base_URL } from "../../credentials";
 
 
@@ -77,8 +77,8 @@ const ApplicantDetails = () => {
   const acceptApplication = async () => {
     try {
       const applicationId = applicationData.applicationId;
-      // alert(applicationId);
-    //   const response = await dispatch(acceptApplicaitonThunk(applicationId));
+      alert(applicationId);
+      const response = await dispatch(acceptApplicaitonThunk(applicationId));
       setConfirmationModal(false);
       if (response) {
         toast.success("Tutor Applicant Approved.");
@@ -94,10 +94,11 @@ const ApplicantDetails = () => {
   };
 
   return (
-    <div className="grid grid-cols-12 mb-32 font-poppins">
+    <>
+    <div className="grid grid-cols-12 mb-32 mr-20 font-poppins">
       <AdminAside />
       <Toaster richColors position="top-center" />
-      <div className="col-span-8 p-6 bg-gray-100 shadow-lg rounded-lg mt-10">
+      <div className="col-span-8 p-8 bg-gray-100 mr-12 shadow-lg rounded-lg mt-10 ">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">
           Application Details
         </h1>
@@ -264,6 +265,7 @@ const ApplicantDetails = () => {
         </ModalContent>
       </Modal>
     </div>
+    </>
   );
 };
 

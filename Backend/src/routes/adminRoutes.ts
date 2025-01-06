@@ -17,5 +17,5 @@ route.patch('/blockuser/:email', adminController.blockUser.bind(adminController)
 route.patch('/unblockuser/:email', adminController.unblockUser.bind(adminController));
 route.get('/getapplications', adminController.getApplications.bind(adminController))
 route.get('/applicationview/:id' , adminController.findApplication.bind(adminController))
-
+// route.post('/acceptapplication/:id', adminController.acceptApplication.bind(adminController))
 export default route

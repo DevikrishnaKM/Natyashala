@@ -42,7 +42,7 @@ export class AwsConfig {
       const url = await getSignedUrl(this.s3client, getCommand, {
         expiresIn: 60 * 60,
       });
-      console.log("url:",url)
+      // console.log("url:",url)
       return url;
     } catch (error) {
       console.error("Error generating signed URL:", error);
