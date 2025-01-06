@@ -20,6 +20,7 @@ const menuItems = [
 
 export default function Profile() {
   const data: any = useSelector((state: RootState) => state.user);
+  console.log(data,"data")
   const navigate = useNavigate()
 
   const [activeItem, setActiveItem] = useState(menuItems[0].name);

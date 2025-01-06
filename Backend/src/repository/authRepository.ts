@@ -83,15 +83,32 @@ class AuthRepository implements IAuthRepository {
     }
   }
 
+  // async saveProfile(userId: string, profileUrl: string): Promise<boolean> {
+  //   try {
+  //     console.log(userId,profileUrl,"in repository")
+  //     const res = await this.userRepo.update({ userId }, { profile: profileUrl });
+  //     console.log("res:",res)
+  //     return res
+  //   } catch (error: any) {
+  //     console.log("Error in saving profile  in user repo", error.message);
+  //     throw new Error(error.message);
+  //   }
+  // }
+
   async saveProfile(userId: string, profileUrl: string): Promise<boolean> {
     try {
-      console.log(userId,profileUrl,"in repository")
-      return await this.userRepo.update({ userId }, { profile: profileUrl });
+      const updateResult = await this.userRepo.update(
+        { userId },
+        { $set: { profilePicture: profileUrl } }
+      );
+  
+      return updateResult
     } catch (error: any) {
-      console.log("Error in saving profile  in user repo", error.message);
-      throw new Error(error.message);
+      console.error("Error in saving profile in repository:", error.message);
+      throw new Error("Failed to save profile URL");
     }
   }
+  
   async editUser(userid: string, newUserInfo: object): Promise<IUser | null> {
     try {
       return await this.userRepo.updateAndReturn(

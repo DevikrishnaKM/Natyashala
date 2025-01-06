@@ -9,6 +9,8 @@ console.log("testing...", storedEncryptedUserInfo);
 
 let userInfo, userId;
 
+
+
 try {
     // Decrypt the stored encrypted data
     if (storedEncryptedUserInfo) {

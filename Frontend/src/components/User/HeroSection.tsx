@@ -1,10 +1,11 @@
 import React from "react";
 import Lottie from "lottie-react";
-import textAnimation from "../../assets/lotties/textAnimation.json";
 import { Link } from "react-router-dom";
 import {motion} from "framer-motion"
 
 const LandingPage: React.FC = () => {
+
+
   const goToCommunity = () => {
     console.log("Navigating to community page");
   };

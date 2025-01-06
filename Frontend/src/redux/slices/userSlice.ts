@@ -59,14 +59,14 @@ const userSlice = createSlice({
         state.userInfo = userInfo;
         state.accessToken = accessToken;
         state.loading = false;
-  
+         console.log(state.userInfo,"sss")
         // Store access token in localStorage
         localStorage.setItem('accessToken', accessToken);
-
+       
         if(userInfo.role=="user"){
 
           const encryptedData = encrypt(userInfo);
-        
+           
           localStorage.setItem('userInfo', encryptedData);
         }else{
           const encryptedData = encrypt(userInfo);

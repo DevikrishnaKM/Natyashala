@@ -3,6 +3,7 @@ import Validator from 'validator';
 import bcrypt from 'bcrypt';
 import {IUser} from "../interfaces/common.inteface";
 
+
 // Create the User schema
 const userSchema = new Schema<IUser>(
   {

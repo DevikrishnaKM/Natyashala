@@ -134,25 +134,41 @@ class AuthService {
     }
   }
 
-  saveProfile = async(profile: Express.Multer.File, userId: string) : Promise<boolean> => {
+  // saveProfile = async(profile: Express.Multer.File, userId: string) : Promise<boolean> => {
+  //   try {
+  //     const profileUrl = await this.aws.uploadFileToS3(`users/profile/${userId}/`,profile);
+  //     console.log("profileUrl in authService:",profileUrl)
+  //     return await this.authRepository.saveProfile(userId as string,profileUrl as string);
+  //   } catch (error: any) {
+  //     console.error("Error in saving profile pic user serice :", error.message);
+  //     throw error;
+  //   }
+  // }
+  saveProfile = async (profile: Express.Multer.File, userId: string): Promise<boolean> => {
     try {
-      const profileUrl = await this.aws.uploadFileToS3(`users/profile/${userId}/`,profile);
-      console.log("profileUrl in authService:",profileUrl)
-      return await this.authRepository.saveProfile(userId as string,profileUrl as string);
+      const profileUrl = await this.aws.uploadFileToS3(`users/profile/${userId}/`, profile);
+  
+      console.log("Profile URL:", profileUrl);
+  
+      const result = await this.authRepository.saveProfile(userId, profileUrl);
+  
+      return result;
     } catch (error: any) {
-      console.error("Error in saving profile pic user serice :", error.message);
+      console.error("Error in saveProfile service:", error.message);
       throw error;
     }
-  }
+  };
+  
+  
   getProfile = async(email: string) : Promise<string> => {
     try {
       const user = await this.authRepository.findUser(email)  
-      console.log("user in aervice:",user)
+      // console.log("user in aervice:",user)
       let profileUrl = ""
        if(user?.profilePicture) {
         profileUrl = await this.aws.getfile(user?.profilePicture as string,`users/profile/${user?.userId}`);
        }
-       console.log(profileUrl,"in authService")
+      //  console.log(profileUrl,"in authService")
       return profileUrl;
     } catch (error: any) {
         console.error("Error in getting profile pic user serice :",error.message);

@@ -116,31 +116,34 @@ editUser = catchAsync(async(req : Request ,  res : Response) => {
   }
 })
   
-saveProfilePic = catchAsync(async(req : Request, res : Response) => {
+saveProfilePic = catchAsync(async (req: Request, res: Response) => {
   try {
-    const profile = req.file
-    const userId = req.body.userId 
-    console.log(userId,"in authController",req.body)
-    if(!profile) {
-      throw new Error("No profile given")
+    const profile = req.file;
+    const userId = req.body.userId;
+
+    if (!profile) {
+      throw new Error("No profile given");
     }
-    const status = await this.authService.saveProfile(profile as Express.Multer.File , userId as string)
-    console.log("status:",status)
-    res.status(HTTP_statusCode.updated).json(status) 
-  } catch (error : any) {
-    console.error(error.message);
-    if(error.message === "No profile given") {
-      res.status(HTTP_statusCode.NotFound).json(error.message)
+
+    const status = await this.authService.saveProfile(profile as Express.Multer.File, userId as string);
+
+    if (status) {
+      res.status(HTTP_statusCode.updated).json({ message: "Profile updated successfully." });
+    } else {
+      throw new Error("Failed to update profile in database");
     }
+  } catch (error: any) {
+    console.error("Error in saveProfilePic:", error.message);
     res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
   }
-})
+});
+
 
 getProfile = async(req : Request, res : Response) => {
   try {
    const {email} = req.params
    const profileUrl = await this.authService.getProfile(email as string) 
-   console.log("profileUrl in authcon:",profileUrl) 
+  //  console.log("profileUrl in authcon:",profileUrl) 
    res.status(HTTP_statusCode.OK).json(profileUrl)
   } catch (error : any) {
    

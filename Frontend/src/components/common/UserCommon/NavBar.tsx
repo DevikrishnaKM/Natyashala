@@ -21,8 +21,10 @@ const Navbar: React.FC = () => {
 
   useEffect(() => {
     const userInfo = localStorage.getItem('userInfo');
+    
     if (userInfo) {
       const authStatus = decrypt(userInfo); // Decrypt the userInfo
+      // console.log(authStatus,"krishna")
       setLoggedIn(!!authStatus); // Set loggedIn to true if authStatus is valid
     } else {
       setLoggedIn(false); // No userInfo means user is not logged in
