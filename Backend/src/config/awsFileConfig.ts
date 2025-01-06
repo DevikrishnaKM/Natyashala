@@ -33,22 +33,29 @@ export class AwsConfig {
 
   async getfile(fileName: string, folder: string): Promise<string> {
     try {
-
+      // Ensure the folder doesn't have a trailing slash
+      const sanitizedFolder = folder.endsWith('/') ? folder.slice(0, -1) : folder;
+  
+      // Construct the key correctly
+      const key = `${sanitizedFolder}/${fileName}`;
+  
       const options = {
         Bucket: this.bucketName,
-        Key: `${folder}/${fileName}`,
+        Key: key, // Use the correctly constructed key
       };
+  
       const getCommand = new GetObjectCommand(options);
       const url = await getSignedUrl(this.s3client, getCommand, {
-        expiresIn: 60 * 60,
+        expiresIn: 60 * 60, // URL valid for 1 hour
       });
-      // console.log("url:",url)
       return url;
     } catch (error) {
       console.error("Error generating signed URL:", error);
       throw error;
     }
   }
+  
+  
   
   async uploadFileToS3(folderPath: string, file: Express.Multer.File): Promise<string> {
     try {

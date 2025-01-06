@@ -28,8 +28,8 @@ const ProfileImg: React.FC<ProfileImgProps> = ({ size, showEditOption }) => {
         const response = await userAxiosInstance.get(
           `/auth/getProfile/${userInfo?.email}`
         );
-        console.log("res:",response.data,response.data.profileImage)
-        if (response.data && response.data.profileImage) {
+        console.log("res:",response.data)
+        if (response.data) {
           setSelectedImage(response.data); // Ensure correct key from backend
         }
       } catch (error) {

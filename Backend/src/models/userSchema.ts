@@ -52,25 +52,16 @@ const userSchema = new Schema<IUser>(
       enum: ['user', 'tutor'],
       // default: 'user',
     },
+    tutorCredentials: {
+      email: {
+        type: String,
+        trim : true,
+      },
+      passwordHash: { type: String, trim : true },
+    },
     isVerified: {
       type: Boolean,
       default: false,
-    },
-    otp: {
-      type: String,
-      default: null,
-    },
-    otpExpiration: {
-      type: Date,
-      default: null,
-    },
-    resetPasswordOtp: {
-      type: String,
-      default: null,
-    },
-    resetPasswordOtpExpiration: {
-      type: Date,
-      default: null,
     },
     profilePicture: {
       type: String,
@@ -114,6 +105,15 @@ userSchema.pre('save', async function (next) {
   user.confirmPassword = undefined; // Do not save confirmPassword to DB
   next();
 });
+userSchema.index(
+  { "tutorCredentials.email": 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      "tutorCredentials.email": { $exists: true, $ne: null },
+    },
+  }
+);
 
 // Create the User model
 const User = model<IUser>('User', userSchema);

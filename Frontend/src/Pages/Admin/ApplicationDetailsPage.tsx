@@ -32,20 +32,16 @@ const ApplicantDetails = () => {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [isTutor, setIsTutor] = useState<boolean>(); 
   const { applicationData } = location.state;
-  
 
-
- 
-
- 
+ console.log(applicationData,"data")
   useEffect(() => {
     const checkTutorStatus = async () => {
       try {
         const response = await axios.get(`${Base_URL}/admin/check-tutorstatus/${applicationData.email}`);
         const tutorStatus = response?.data;
+        console.log("status:",tutorStatus)
         setIsTutor(tutorStatus);
 
-        console.log(tutorStatus, "fhsajiofhsadfjkhji");
         
       } catch (error) {
         console.error("Error checking tutor status:", error);
@@ -77,7 +73,7 @@ const ApplicantDetails = () => {
   const acceptApplication = async () => {
     try {
       const applicationId = applicationData.applicationId;
-      alert(applicationId);
+      // alert(applicationId);
       const response = await dispatch(acceptApplicaitonThunk(applicationId));
       setConfirmationModal(false);
       if (response) {
@@ -171,7 +167,7 @@ const ApplicantDetails = () => {
                   <h4 className="font-bold text-large">
                     {file.type} Document
                   </h4>
-                  <Button onClick={() => openModal(file.signedUrl as any)} className="mt-2">
+                  <Button onPress={() => openModal(file.signedUrl as any)} className="mt-2">
                     View
                   </Button>
                 </CardHeader>
@@ -195,7 +191,7 @@ const ApplicantDetails = () => {
           <div className="flex justify-end">
             <Button
               className="h-12 w-24 bg-green-500 mt-10 rounded-md hover:bg-green-700 mr-10 text-white font-semibold"
-              onClick={openConfirmationModal}
+              onPress={openConfirmationModal}
             >
               Accept
             </Button>
@@ -227,7 +223,7 @@ const ApplicantDetails = () => {
              
             )}
           </ModalBody>
-          <Button onClick={closeModal} className="ml-auto mr-6 mb-4">
+          <Button onPress={closeModal} className="ml-auto mr-6 mb-4">
             Close
           </Button>
         </ModalContent>
@@ -250,13 +246,13 @@ const ApplicantDetails = () => {
           </ModalBody>
           <ModalFooter className="flex justify-center">
             <Button
-              onClick={acceptApplication}
+              onPress={acceptApplication}
               className="bg-green-500 hover:bg-green-700 text-white font-semibold rounded-md"
             >
               Confirm
             </Button>
             <Button
-              onClick={closeConfirmationModal}
+              onPress={closeConfirmationModal}
               className="bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-md ml-4"
             >
               Cancel

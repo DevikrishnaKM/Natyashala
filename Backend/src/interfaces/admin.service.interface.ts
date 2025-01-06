@@ -6,4 +6,6 @@ export interface IAdminServices {
     unBlockUser(email : string) : Promise<boolean>;
     getApplications() : Promise <ITutorApplication[]>
     findApplication(id : string) : Promise<ITutorApplication>;
+    acceptApplication (id : string) : Promise<boolean>;
+    checkTutorStatus(email : string) : Promise<boolean | undefined>;
 }

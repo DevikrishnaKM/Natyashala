@@ -34,6 +34,7 @@ const ApplicationList: React.FC<ApplicationListProps> = ({ setApplicationCount }
     const fetchData = async () => {
       try {
         const response = await axios.get<IApplication[]>(`${Base_URL}/admin/getapplications`);
+        console.log("response:..",response)
         setApplications(response.data);
         setFilteredApplications(response.data); 
         setApplicationCount(response.data.length);
@@ -58,7 +59,7 @@ const ApplicationList: React.FC<ApplicationListProps> = ({ setApplicationCount }
   const handleViewClick = async (applicationId: string) => {
     try {
       const response = await axios.get(`${Base_URL}/admin/applicationview/${applicationId}`);
-      console.log(response,"res")
+      // console.log(response,"res")
       navigate('/admin/applicationdetails', { state: { applicationData: response.data } });
     } catch (error) {
       console.error('Error fetching application details', error);

@@ -1,17 +1,30 @@
 import { IAdminServices } from "../interfaces/admin.service.interface";
 import { IAdminRepository } from "../interfaces/admin.repository.interface";
 import { createRefreshToken, createToken } from "../config/jwtConfig";
-import { ICleanedUser,ITutorApplication,FileUrl } from "../interfaces/common.inteface";
+import {
+  ICleanedUser,
+  ITutorApplication,
+  FileUrl,
+} from "../interfaces/common.inteface";
 import { AwsConfig } from "../config/awsFileConfig";
 import getFolderPathByFileType from "../helper/filePathHandler";
+import { IAuthRepository } from "../interfaces/auth.repository.interface";
+import { createUniquePass } from "../helper/tutorCredentials";
+import sendTutorLoginCredentials from "../helper/tutorMail";
 
 const adminEmail = process.env.ADMIN_EMAIL;
 const adminPassword = process.env.ADMIN_PASSWORD;
 
 class AdminServices implements IAdminServices {
   private adminRepository: IAdminRepository;
-  constructor(adminRepository: IAdminRepository) {
+  private authRepository: IAuthRepository;
+
+  constructor(
+    adminRepository: IAdminRepository,
+    authRepository: IAuthRepository
+  ) {
     this.adminRepository = adminRepository;
+    this.authRepository = authRepository;
   }
   aws = new AwsConfig();
   login = (
@@ -147,5 +160,38 @@ class AdminServices implements IAdminServices {
       throw error;
     }
   };
+
+  acceptApplication = async (id: string): Promise<boolean> => {
+    try {
+      const application = await this.adminRepository.findApplication(id);
+      const user = await this.authRepository.findUser(
+        application?.email as string
+      );
+      if (!user) throw new Error("User doesnt exist.");
+      const uniquePass = createUniquePass(6);
+      const updateUser = await this.adminRepository.addTutorCredential(
+        user.email as string,
+        uniquePass as any
+      );
+      await sendTutorLoginCredentials(user.email as string, uniquePass as any);
+      return updateUser;
+    } catch (error: any) {
+      console.error(
+        "Error during admin accepting  applicant services:",
+        error.message
+      );
+      throw error;
+    }
+  };
+  checkTutorStatus = async(email : string) : Promise <boolean | undefined> => {
+    try {
+        const response = await this.authRepository.findUser(email)
+        console.log("res in ser",response)
+        return response?.isApprovedTutor
+    } catch (error : any) {
+        console.error("Error during admin checking tutor status:", error.message);
+        throw error;
+    }
+}
 }
 export default AdminServices;

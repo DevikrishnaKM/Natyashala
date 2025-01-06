@@ -6,6 +6,7 @@ import SignupPage from "../Pages/User/SignUp";
 import OtpPage from '../Pages/User/OtpPage';
 import Login from '../Pages/User/Login';
 import Profile from '../Pages/User/Profile';
+import Test from '../Pages/User/Test';
 
 const UserRoutes = () => {
   return (
@@ -17,6 +18,7 @@ const UserRoutes = () => {
         <Route path='/otp' element={<OtpPage/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/profile' element={<Profile/>}/>
+        <Route path='/test' element={<Test/>}/>
 
     </Routes>
     </>

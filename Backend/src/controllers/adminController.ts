@@ -105,11 +105,36 @@ class AdminController{
     findApplication = async(req : Request , res : Response) => {
         try {
             const {id} =  req.params;
-            console.log(id,"id")
+            // console.log(id,"id")
             const applicant = await this.adminService.findApplication(id)
-            console.log("applicat:",applicant)
+            // console.log("applicat:",applicant)
             res.status(HTTP_statusCode.OK).json(applicant)
         } catch (error : any) {
+            console.log("Admin := getusers error in controller",error);
+            res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+        }
+    }
+
+    acceptApplication =async(req:Request,res:Response)=>{
+        try {
+            const {id} = req.params
+            console.log(id,"id")
+            const response = await this.adminService.acceptApplication(id)
+            console.log("res:",response)
+            res.status(HTTP_statusCode.updated).json(response)
+        } catch (error:any) {
+            console.log("Admin := getusers error in controller",error);
+            res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+        }
+    }
+
+    checkTutorStatus= async(req : Request , res : Response) =>  {
+        try {
+            const { email } = req.params
+            const response  = await this.adminService.checkTutorStatus(email)
+            console.log("res in controller",response)
+            res.status(HTTP_statusCode.OK).json(response)       
+        } catch (error :any) {
             console.log("Admin := getusers error in controller",error);
             res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
         }

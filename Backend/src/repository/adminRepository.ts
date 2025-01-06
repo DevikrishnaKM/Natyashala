@@ -92,5 +92,24 @@ async findApplication(id : string) : Promise<ITutorApplication | null> {
         throw error
     }
 }
+async addTutorCredential(email : string , passcode : string) : Promise<boolean > {
+    try {
+       return await this.userRepo.update(
+        {email : email} ,
+        {
+          $set: {
+            isApprovedTutor: true,
+            tutorCredentials: {
+              email: email,
+              passwordHash: passcode,
+            },
+          },
+        }
+    )
+    } catch (error : any) {
+        console.error('Error in fetching tutor application:', error.message);
+        throw error
+    }
+}
 }
 export default AdminRepository

@@ -9,14 +9,14 @@ export interface IUser extends Document {
     confirmPassword?: string;
     role: 'user' | 'tutor' ;
     isVerified: boolean;
-    otp?: string;
-    otpExpiration?: Date;
-    resetPasswordOtp?: string;
-    resetPasswordOtpExpiration?: Date;
     profilePicture?: string;
     enrolledCourses?: string[];
     walletBalance?: number;
     isApprovedTutor?: boolean;
+    tutorCredentials?: {
+      email?: string;
+      passwordHash?: string;
+    };
     bio?: string;
     location?: string;
     createdAt?: Date;

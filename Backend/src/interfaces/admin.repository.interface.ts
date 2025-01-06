@@ -5,4 +5,5 @@ export interface IAdminRepository {
    unBlockUser(email: string): Promise<boolean>;
    getApplications(): Promise<ITutorApplication[]>;
    findApplication(id : string) : Promise<ITutorApplication | null>;
+   addTutorCredential(email : string , passcode : string) : Promise<boolean >;
 }
