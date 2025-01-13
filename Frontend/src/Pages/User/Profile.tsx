@@ -8,7 +8,7 @@ import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
 import Navbar from '@/components/common/UserCommon/NavBar';
 import ProfileImg from "../../components/User/ProfileImg";
-
+import BlockChecker from "../../services/BlockChecker";
 
 const menuItems = [
   { name: 'Profile', component: <UserDetails /> },
@@ -19,6 +19,7 @@ const menuItems = [
 
 
 export default function Profile() {
+  BlockChecker();
   const data: any = useSelector((state: RootState) => state.user);
   console.log(data,"data")
   const navigate = useNavigate()

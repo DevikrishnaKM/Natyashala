@@ -12,6 +12,7 @@ const sendTutorLoginCredentials = async (email: string, passcode: string) => {
         },
     });
 
+    console.log(email,"email")
     const mailOptions = {
       from: `"Natya Shala" <${process.env.BREVO_EMAIL}>`,
       to: email,
@@ -87,7 +88,8 @@ const sendTutorLoginCredentials = async (email: string, passcode: string) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Login credentials sent to:', info.response);
+
+    console.log('Login credentials sent to:', info.response,"info:",info);
   } catch (error) {
     console.error('Failed to send the mail', error);
   }

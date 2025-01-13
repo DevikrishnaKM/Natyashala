@@ -54,6 +54,29 @@ export class AwsConfig {
       throw error;
     }
   }
+  async tutorGetfile(fileName: string, folder: string): Promise<string> {
+    try {
+      // Check if `fileName` already includes the folder path
+      const key = fileName.startsWith(folder)
+        ? fileName // If yes, use it directly
+        : `${folder}/${fileName}`; // Otherwise, prepend the folder
+  
+      const options = {
+        Bucket: this.bucketName,
+        Key: key,
+      };
+  
+      const getCommand = new GetObjectCommand(options);
+      const url = await getSignedUrl(this.s3client, getCommand, {
+        expiresIn: 60 * 60, // URL valid for 1 hour
+      });
+  
+      return url;
+    } catch (error) {
+      console.error("Error generating signed URL:", error);
+      throw error;
+    }
+  }
   
   
   

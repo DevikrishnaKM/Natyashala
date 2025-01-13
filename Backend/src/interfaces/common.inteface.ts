@@ -48,6 +48,7 @@ export interface FileUrl extends Document{
 
 export interface ITutorApplication extends Document{
   applicationId:string
+  name:string
   email:string
   tutorRole:string
   age:string
@@ -90,3 +91,10 @@ export interface ITutorProfile extends Document  {
   updatedAt: Date;
 }
   
+export interface ICategory extends Document {
+  name: string;
+  description?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}

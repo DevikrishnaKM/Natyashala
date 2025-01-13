@@ -73,7 +73,6 @@ const ApplicantDetails = () => {
   const acceptApplication = async () => {
     try {
       const applicationId = applicationData.applicationId;
-      // alert(applicationId);
       const response = await dispatch(acceptApplicaitonThunk(applicationId));
       setConfirmationModal(false);
       if (response) {

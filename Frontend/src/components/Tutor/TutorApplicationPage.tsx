@@ -46,56 +46,43 @@ const TutorApplicationSubmit: React.FC<TutorApplicationSubmitProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const formDataToSend = new FormData();
+        const formDataToSend = new FormData();
 
-      console.log("FormData content:", formData);
-
-      for (const key in formData) {
-        const value = formData[key as keyof FormData];
-
-        if (key === "certifications" && Array.isArray(value)) {
-          value.forEach((file) => {
-            if (file instanceof File) {
-              formDataToSend.append("certifications", file);
+        for (const key in formData) {
+            const value = formData[key as keyof FormData];
+            if (key === "certifications" && Array.isArray(value)) {
+                value.forEach((file) => file instanceof File && formDataToSend.append("certifications", file));
+            } else if (value instanceof File) {
+                formDataToSend.append(key, value);
+            } else if (typeof value === "string" || typeof value === "number") {
+                formDataToSend.append(key, String(value));
+            } else if (value && typeof value === "object") {
+                formDataToSend.append(key, JSON.stringify(value));
             }
-          });
-        } else if (key === "idProof" && value instanceof File) {
-          formDataToSend.append("idProof", value);
-        } else if (key === "resume" && value instanceof File) {
-          formDataToSend.append("resume", value);
-        } else if (typeof value === "string" || typeof value === "number") {
-          formDataToSend.append(key, String(value));
-        } else if (value && typeof value === "object") {
-          formDataToSend.append(key, JSON.stringify(value));
         }
-      }
 
-      toast.success("Form submitted.");
-      formDataToSend.append("email", data.userInfo?.email);
+        toast.success("Form submitted.");
+        formDataToSend.append("email", data.userInfo?.email);
 
-      console.log("ljbkjvkjvjhvkjvbjh", formDataToSend);
+        const response = await axios.post(`${Base_URL}/tutor/tutorapplication`, formDataToSend, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
 
-      const response = await axios.post(
-        `${Base_URL}/tutor/tutorapplication`,
-        formDataToSend,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+        console.log("Form submitted successfully:", response.data.message);
+
+        if (response.data.message === "Application recieved") {
+            console.log("Navigating to /tutor/applicationcompleted...");
+            setTimeout(() => navigate("/tutor/applicationcompleted"), 100); // Add delay
+        } else {
+            console.error("Unexpected response:", response.data);
         }
-      );
-
-      console.log("Form submitted successfully:", response.data.message);
-
-      if (response.data.message === "Application received") {
-        console.log("Navigating to /tutor/applicationcompleted");
-        navigate("/tutor/applicationcompleted");
-      }
     } catch (error) {
-      console.error("Error submitting form:", error);
+        console.error("Error submitting form:", error);
+        toast.error("Form submission failed. Please try again.");
     }
-  };
+};
 
+  
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <h2 className="text-3xl font-bold mb-4 text-gray-800">

@@ -5,6 +5,7 @@ import {
   ICleanedUser,
   ITutorApplication,
   FileUrl,
+  ICategory
 } from "../interfaces/common.inteface";
 import { AwsConfig } from "../config/awsFileConfig";
 import getFolderPathByFileType from "../helper/filePathHandler";
@@ -124,7 +125,9 @@ class AdminServices implements IAdminServices {
 
   getApplications = async (): Promise<ITutorApplication[]> => {
     try {
-      return await this.adminRepository.getApplications();
+      const result = await this.adminRepository.getApplications();
+      console.log("result od appli:", result);
+      return result;
     } catch (error: any) {
       console.error(
         "Error during admin getting  applications in  services:",
@@ -145,7 +148,7 @@ class AdminServices implements IAdminServices {
           response.files.map(async (file: { type: string; url: string }) => {
             const [uniqueName, ...rest] = file.url.split("-");
             const folderPath = getFolderPathByFileType(file.type);
-            const signedUrl = await this.aws.getfile(file.url, folderPath);
+            const signedUrl = await this.aws.tutorGetfile(file.url, folderPath);
             return { signedUrl, ...file };
           })
         );
@@ -183,15 +186,76 @@ class AdminServices implements IAdminServices {
       throw error;
     }
   };
-  checkTutorStatus = async(email : string) : Promise <boolean | undefined> => {
+  checkTutorStatus = async (email: string): Promise<boolean | undefined> => {
     try {
-        const response = await this.authRepository.findUser(email)
-        console.log("res in ser",response)
-        return response?.isApprovedTutor
+      const response = await this.authRepository.findUser(email);
+      console.log("res in ser", response);
+      return response?.isApprovedTutor;
+    } catch (error: any) {
+      console.error("Error during admin checking tutor status:", error.message);
+      throw error;
+    }
+  };
+
+  getTutors = async (page: number,limit: number): Promise<{ tutors: ICleanedUser[]; total: number }> => {
+    try {
+      if (typeof page !== "number" || page < 1) {
+        throw new Error("Invalid page number");
+      }
+      if (typeof limit !== "number" || limit < 1) {
+        throw new Error("Invalid limit value");
+      }
+      const { tutors, total } = await this.adminRepository.getTutors(page, limit);
+  
+      const cleanedUsers = await Promise.all(
+        tutors.map(async (user: any) => {
+            const { name, email, phone, createdAt, role, isVerified, profile, userId, isApprovedTutor } = user._doc;
+            
+            let profilePicture = "";
+            if (profile) {
+                profilePicture = await this.aws.getfile(profile as string, `users/profile/${userId}`);
+            }
+
+            return {
+               name,
+                email,
+                phone,
+                role,
+                isVerified,
+                profilePicture,
+                createdAt: createdAt.toISOString().slice(0, 10),
+                userId,
+                isApprovedTutor
+            };
+        })
+    );
+
+    console.log("Cleaned user data", cleanedUsers);
+
+    return { tutors: cleanedUsers, total };
+    } catch (error: any) {
+      console.error("Error during admin getting users services:",error.message);
+      throw error;
+    }
+  };
+
+  createCategory = async(categoryName : string, description :string) : Promise<boolean> => {
+    try {
+        return await this.adminRepository.createCategory(categoryName as string ,description as string)
     } catch (error : any) {
-        console.error("Error during admin checking tutor status:", error.message);
+        console.error("Error during admin creating category in service:", error.message);
         throw error;
     }
 }
+
+ getCategories = async() : Promise<ICategory[]> => {
+    try {
+         return await this.adminRepository.getCategories()
+    } catch (error : any) {
+        console.error("Error during admin getting categories in service:", error.message);
+        throw error;
+    }
+}
+
 }
 export default AdminServices;

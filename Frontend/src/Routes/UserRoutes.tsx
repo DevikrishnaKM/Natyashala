@@ -7,6 +7,7 @@ import OtpPage from '../Pages/User/OtpPage';
 import Login from '../Pages/User/Login';
 import Profile from '../Pages/User/Profile';
 import Test from '../Pages/User/Test';
+import UserProtector from '@/services/UserProtector';
 
 const UserRoutes = () => {
   return (
@@ -17,9 +18,8 @@ const UserRoutes = () => {
         <Route path='/signup' element={<SignupPage/>}/>
         <Route path='/otp' element={<OtpPage/>}/>
         <Route path='/login' element={<Login/>}/>
-        <Route path='/profile' element={<Profile/>}/>
-        <Route path='/test' element={<Test/>}/>
-
+        <Route path='/profile' element={<UserProtector><Profile/></UserProtector>}/>
+      
     </Routes>
     </>
   )

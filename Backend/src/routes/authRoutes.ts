@@ -5,6 +5,7 @@ import AuthRepository from '../repository/authRepository'; // Default export
 import userSchema from '../models/userSchema'; // Model schema
 import AdminRepository from "../repository/adminRepository";
 import TutorApplication from "../models/applicationModel";
+import categoryModel from "../models/categoryModel"
 import { refreshTokenHandler } from "../config/refreshTokenVerify";
 import { verifyToken } from "../config/jwtConfig";
 import multer from "multer";
@@ -14,7 +15,7 @@ const router = express.Router();
 
 // Initialize dependencies
 const authRepository = new AuthRepository(userSchema); // Use `new` for instantiating the repository
-const adminRepository = new AdminRepository(userSchema,TutorApplication)
+const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModel)
 const authService = new AuthService(authRepository,adminRepository);   // Inject repository into service
 const authController = new AuthController(authService); // Inject service into controller
 

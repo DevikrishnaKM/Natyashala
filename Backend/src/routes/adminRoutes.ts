@@ -4,11 +4,12 @@ import AdminService from "../services/adminService"
 import AdminRepository from "../repository/adminRepository"
 import userSchema from "../models/userSchema"
 import TutorApplication from "../models/applicationModel"
+import categoryModal from "../models/categoryModel"
 import AuthRepository from "../repository/authRepository"
 
 const route = Router()
 
-const adminRepository = new AdminRepository(userSchema,TutorApplication)
+const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModal)
 const authRepository = new AuthRepository(userSchema)
 const adminService = new AdminService(adminRepository,authRepository)
 const adminController = new AdminController(adminService)
@@ -21,6 +22,8 @@ route.get('/getapplications', adminController.getApplications.bind(adminControll
 route.get('/applicationview/:id' , adminController.findApplication.bind(adminController))
 route.post('/acceptapplication/:id', adminController.acceptApplication.bind(adminController))
 route.get('/check-tutorstatus/:email', adminController.checkTutorStatus.bind(adminController))
-
+route.get('/getTutors' , adminController.getTutors.bind(adminController)) 
+route.post('/createcategory', adminController.createCategory.bind(adminController))
+route.get('/categories' ,adminController.getCategories.bind(adminController))
 
 export default route
