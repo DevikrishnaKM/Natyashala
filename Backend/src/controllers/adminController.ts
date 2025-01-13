@@ -198,27 +198,19 @@ class AdminController {
     }
   };
 
-  createCategory = async (req: Request, res: Response) => {
+  createCategory = catchAsync( async(req : Request , res :Response) => {
     try {
-      const { categoryName, description } = req.body;
-      const response = await this.adminService.createCategory(
-        categoryName as string,
-        description as string
-      );
-      res.status(HTTP_statusCode.updated).json(response);
-    } catch (error: any) {
-      console.log("Admin := getusers error in controller", error);
-      if (error.message === "Category already exists.") {
-        return res
-          .status(HTTP_statusCode.Conflict)
-          .json({ message: error.message });
-      }
-      res
-        .status(HTTP_statusCode.InternalServerError)
-        .json({ message: error.message });
+        const {categoryName , description} = req.body
+        const response = await this.adminService.createCategory(categoryName as string , description as string)
+        res.status(HTTP_statusCode.updated).json(response)
+    } catch ( error : any) {
+        console.log("Admin := getusers error in controller",error);
+        if (error.message === "Category already exists.") {
+            return res.status(HTTP_statusCode.Conflict).json({ message: error.message });
+        }
+        res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
     }
-  };
-
+  })
   getCategories = async (req: Request, res: Response) => {
     try {
       const response = await this.adminService.getCategories();

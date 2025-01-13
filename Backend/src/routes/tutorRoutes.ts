@@ -5,13 +5,14 @@ import AuthRepository from "../repository/authRepository";
 import AdminRepository from "../repository/adminRepository";
 import userSchema from "../models/userSchema"
 import TutorApplication from "../models/applicationModel";
+import categoryModel from "../models/categoryModel"
 import TutorRepository from "../repository/tutorRepository";
 import multer from "multer";
 
 const route = Router();
 const authRepository= new AuthRepository(userSchema)
 const tutorRepository = new TutorRepository(userSchema)
-const adminRepository = new AdminRepository(userSchema,TutorApplication)
+const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModel)
 const tutorService = new TutorService(authRepository,adminRepository,tutorRepository)
 const tutorController = new TutorController(tutorService);
 
