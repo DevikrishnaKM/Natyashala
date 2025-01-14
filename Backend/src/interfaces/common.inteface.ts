@@ -98,3 +98,57 @@ export interface ICategory extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+
+export interface IVideo  extends Document {
+  title: string;
+  description?: string;
+  videoUrl: string;
+}
+
+export interface ISection  extends Document {
+  title: string;
+  description?: string;
+  videos: Types.ObjectId[]; 
+}
+export interface ICourse extends Document  {
+  courseId: string;
+  email: string;
+  name: string;
+  description: string;
+  price : number | string;
+  category: string;
+  sections: Types.ObjectId[]; 
+  tags: string[];
+  language: string;
+  ratings?: Types.ObjectId[]; 
+  comments?: Types.ObjectId[];
+  thumbnail?: string;
+  isBlocked : boolean;
+  createdAt : Date;
+  users ?: [];
+  averageRating ?: number ;
+  totalRatings ?: number;
+}
+
+export interface ICourseData {
+  courseId: string;
+  courseName: string;
+  description: string;
+  language: string;
+  tags: string[];
+  selectedCategory: string;
+  sections: {
+    name: string;
+    description: string;
+    videos: {
+      name : string;
+      description: string;
+      title: string;
+      videoUrl: string;
+    }[];
+  }[];
+  additionalDetail1: string;
+  price: string;
+  files: { type: string; url: string }[];
+}

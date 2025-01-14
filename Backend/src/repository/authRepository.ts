@@ -1,5 +1,5 @@
 import { Model } from "mongoose";
-import { IUser, ICleanedUser } from "../interfaces/common.inteface";
+import { IUser, ICleanedUser,ICourse } from "../interfaces/common.inteface";
 import { IAuthRepository } from "../interfaces/auth.repository.interface";
 import BaseRepository from "./baseRepository";
 import bcrypt from "bcrypt";
@@ -7,9 +7,12 @@ import TutorProfile from "../models/tutorProfileModel";
 
 class AuthRepository implements IAuthRepository {
   private userRepo: BaseRepository<IUser>;
+  private courseRepo : BaseRepository<ICourse>
 
-  constructor(userModel: Model<IUser>) {
+  constructor(userModel: Model<IUser>,  courseModel : Model<ICourse>) {
     this.userRepo = new BaseRepository(userModel);
+    this.courseRepo = new BaseRepository(courseModel)
+
   }
 
   async findUser(email: string): Promise<IUser | null> {

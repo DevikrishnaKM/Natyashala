@@ -6,6 +6,7 @@ import userSchema from '../models/userSchema'; // Model schema
 import AdminRepository from "../repository/adminRepository";
 import TutorApplication from "../models/applicationModel";
 import categoryModel from "../models/categoryModel"
+import { Course } from "../models/courseModel";
 import { refreshTokenHandler } from "../config/refreshTokenVerify";
 import { verifyToken } from "../config/jwtConfig";
 import multer from "multer";
@@ -14,11 +15,10 @@ import multer from "multer";
 const router = express.Router();
 
 // Initialize dependencies
-const authRepository = new AuthRepository(userSchema); // Use `new` for instantiating the repository
-const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModel)
-const authService = new AuthService(authRepository,adminRepository);   // Inject repository into service
-const authController = new AuthController(authService); // Inject service into controller
-
+const authRepository = new AuthRepository(userSchema,Course); 
+const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModel,Course)
+const authService = new AuthService(authRepository,adminRepository);  
+const authController = new AuthController(authService); 
 const storage = multer.memoryStorage()
 const upload = multer({
     storage,

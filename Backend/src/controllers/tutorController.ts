@@ -58,6 +58,37 @@ class TutorController {
         .json({ message: error.message });
     }
   };
+  async createCourse(req: Request, res: Response) {
+    try {
+      const courseData = req.body;
+      const { email } = req.params;
+      const files = req.files as Express.Multer.File[];
+      const response = await this.tutorServices.createCourse(
+        files,
+        courseData,
+        email
+      );
+      res.status(HTTP_statusCode.updated).json(response);
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  }
+
+  getCourses =async(req: Request, res: Response) => {
+    try {
+      const { email } = req.params;
+      const response = await this.tutorServices.getCoursesWithSignedUrls(email);
+      res.status(HTTP_statusCode.OK).json(response);
+    } catch (error: any) {
+      console.error(error.message, "dsfsdf");
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  }
 }
 
 export default TutorController;

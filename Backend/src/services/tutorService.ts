@@ -3,7 +3,7 @@ import { IAdminRepository } from "../interfaces/admin.repository.interface";
 import { IAuthRepository } from "../interfaces/auth.repository.interface";
 import ITutorRepository from "../interfaces/tutor.repository.interface";
 import { AwsConfig } from "../config/awsFileConfig";
-import { ITutorProfile } from "../interfaces/common.inteface";
+import { ITutorProfile,ICourse } from "../interfaces/common.inteface";
 class TutorService {
   private authRepository: IAuthRepository;
   private adminRepository: IAdminRepository;
@@ -87,6 +87,83 @@ class TutorService {
       throw new Error(error.message);
     }
   };
+
+  createCourse = async( files: any, courseData: any, email: string) : Promise<boolean> => {
+    try {
+      const fileUrls: { type: string; url: string }[] = [];
+      let courseId = uuidv4();
+      courseData = Object.assign({}, courseData);
+      courseId = courseId + `-${courseData.courseName.split('').join('')}`;
+      const tutorFolderPath = `tutors/${email}/courses/${courseId}/`;
+      for (const file of files) {
+        console.log("Processing File:", file);
+        if (file.fieldname.startsWith("sections")) {
+          const folderPath = `${tutorFolderPath}videos/`;
+          console.log(`Uploading video to ${folderPath}`);
+          const url = await this.awsConfig.uploadFileToS3(folderPath, file);
+          fileUrls.push({ type: "video", url });
+        } else if (file.fieldname === "thumbnail") {
+          const folderPath = `${tutorFolderPath}thumbnail/`;
+          console.log(`Uploading thumbnail to ${folderPath}`);
+          const url = await this.awsConfig.uploadFileToS3(folderPath, file);
+          fileUrls.push({ type: "thumbnail", url });
+        }
+      }
+      console.log("All files uploaded. File URLs:");
+      const combinedData = {
+        courseId,
+        ...courseData,
+        files: fileUrls,
+      };
+      console.log("Course saved successfully:");
+      return await this.tutorRepository.saveCourse(
+        combinedData,
+        email
+      );
+    } catch (error) {
+      console.error("Error creating course:", error);
+      throw error;
+    }
+  }
+  getCoursesWithSignedUrls = async(email: string) : Promise<ICourse[]> => {
+    try {
+      const courses = await this.tutorRepository.getCoursesByTutor(email);
+      const coursesWithUrls = await Promise.all(
+        courses.map(async (course: ICourse) => {
+          const thumbnailUrl = course.thumbnail
+            ? await this.awsConfig.tutorGetfile(
+                course.thumbnail,
+                `tutors/${email}/courses/${course.courseId}/thumbnail`
+              )
+            : null;
+          const sectionsWithUrls = await Promise.all(
+            course.sections.map(async (section: any) => {
+              const videosWithUrls = await Promise.all(
+                section.videos.map(async (video: any) => {
+                  const videoUrl = await this.awsConfig.getfile(
+                    video.videoUrl,
+                    `tutors/${email}/courses/${course.courseId}/sections/${section._id}/videos`
+                  );
+                  return { ...video.toObject(), url: videoUrl };
+                })
+              );
+              return { ...section.toObject(), videos: videosWithUrls };
+            })
+          );
+
+          return {
+            ...course.toObject(),
+            thumbnail: thumbnailUrl,
+            sections: sectionsWithUrls,
+          };
+        })
+      );
+      return coursesWithUrls;
+    } catch (error) {
+      console.error("Error fetching courses with signed URLs:", error);
+      throw error;
+    }
+  }
 }
 
 export default TutorService;

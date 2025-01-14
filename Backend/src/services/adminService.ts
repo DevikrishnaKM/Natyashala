@@ -167,6 +167,8 @@ class AdminServices implements IAdminServices {
   acceptApplication = async (id: string): Promise<boolean> => {
     try {
       const application = await this.adminRepository.findApplication(id);
+      const status = await this.adminRepository.changeStatus(id)
+      console.log("status:",status)
       const user = await this.authRepository.findUser(
         application?.email as string
       );

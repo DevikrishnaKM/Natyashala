@@ -6,11 +6,12 @@ import userSchema from "../models/userSchema"
 import TutorApplication from "../models/applicationModel"
 import categoryModel from "../models/categoryModel"
 import AuthRepository from "../repository/authRepository"
+import { Course } from "../models/courseModel";
 
 const route = Router()
 
-const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModel)
-const authRepository = new AuthRepository(userSchema)
+const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModel,Course)
+const authRepository = new AuthRepository(userSchema,Course)
 const adminService = new AdminService(adminRepository,authRepository)
 const adminController = new AdminController(adminService)
 

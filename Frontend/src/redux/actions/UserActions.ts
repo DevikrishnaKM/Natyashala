@@ -136,7 +136,7 @@ export const login = createAsyncThunk<
   } catch (error: any) {
     // Handle errors gracefully
     console.error("Login error:", error);
-    return rejectWithValue(error.response?.data.message || "Login failed");
+    return rejectWithValue( "Your account is blocked");
   }
 });
 export const updateUserInfo = createAsyncThunk<

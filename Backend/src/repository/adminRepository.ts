@@ -1,6 +1,6 @@
 import { Model } from "mongoose";
 import { IAdminRepository } from "../interfaces/admin.repository.interface";
-import { IUser, ITutorApplication,ICategory } from "../interfaces/common.inteface";
+import { IUser, ITutorApplication,ICategory,ICourse } from "../interfaces/common.inteface";
 import { BaseRepository } from "../repository/baseRepository";
 import userSchema from "../models/userSchema";
 
@@ -8,15 +8,18 @@ class AdminRepository implements IAdminRepository {
   private userRepo: BaseRepository<IUser>;
   private applicationRepo: BaseRepository<ITutorApplication>;
   private categoryRepo: BaseRepository<ICategory>;
+  private courseRepo: BaseRepository<ICourse>;
 
   constructor(
     userSchema: Model<IUser>,
     applicationModel: Model<ITutorApplication>,
     categoryModel: Model<ICategory>,
+    courseModel: Model<ICourse>,
   ) {
     this.userRepo = new BaseRepository(userSchema);
     this.applicationRepo = new BaseRepository(applicationModel);
     this.categoryRepo = new BaseRepository(categoryModel);
+    this.courseRepo = new BaseRepository(courseModel);
   }
 
   async getUsers(
@@ -98,6 +101,23 @@ class AdminRepository implements IAdminRepository {
       throw error;
     }
   }
+
+  async changeStatus(id:string):Promise<ITutorApplication | any>{
+    try{
+      return await this.applicationRepo.update(
+        {applicationId: id},
+        {
+          $set:{
+            status:'accepted'
+          }
+        }
+      )
+    }catch (error: any) {
+      console.error("Error in fetching tutor status:", error.message);
+      throw error;
+    }
+  }
+
   async addTutorCredential(email: string, passcode: string): Promise<boolean> {
     try {
       return await this.userRepo.update(

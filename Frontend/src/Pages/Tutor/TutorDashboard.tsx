@@ -8,14 +8,16 @@ import TutorMainPage from "../../components/Tutor/TutorMainPage";
 import TutorProfile from "../../components/Tutor/TutorProfile";
 import CourseList from "../../components/Tutor/CourseList";
 import TutorWallet from "../../components/Tutor/TutorWallet";
-import CourseCreation from "@/components/Tutor/CourseCreation";
+import CourseCreation1 from "@/components/Tutor/CourseCreation";
+import AddSection from '../../components/Tutor/CourseAddSection';
+import MoreDetails from '../../components/Tutor/MoreDetails';
 
 const TutorDashboard: React.FC = () => {
   const navigae = useNavigate();
   const [selectedItem, setSelectedItem] = useState<string>(
     () => sessionStorage.getItem("selectedItem") || "Dashboard"
   );
-  //   const [currentStep, setCurrentStep] = useState<string>("Dashboard");
+  const [currentStep, setCurrentStep] = useState<string>("Dashboard");
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const handleItemClick = (itemName: string) => {
@@ -34,6 +36,10 @@ const TutorDashboard: React.FC = () => {
     navigae("/login");
   };
 
+  const handleNext = (nextStep: string) => {
+    setCurrentStep(nextStep);
+  };
+
   const menuItems = [
     {
       name: "Dashboard",
@@ -45,7 +51,7 @@ const TutorDashboard: React.FC = () => {
       icon: <IoPersonSharp size={24} />,
       Component: <TutorProfile />,
     },
-    { name: "Courses", icon: <FaBook size={24} />, Component: <CourseList /> },
+    { name: "Courses", icon: <FaBook size={24} />, Component: <CourseList onNext={handleNext} /> },
     {
       name: "Wallet",
       icon: <IoWallet size={24} />,
@@ -54,12 +60,38 @@ const TutorDashboard: React.FC = () => {
     {
       name: "Add Course",
       icon: <FaPlusCircle size={24} />,
-      Component: <CourseCreation />,
+      Component: <CourseCreation1  onNext={handleNext} />,
     },
     { name: "Logout", icon: <FaSignOutAlt size={24} /> },
   ];
 
+  const getCurrentStepComponent = () => {
+    if (currentStep === "Add Section") {
+      return <AddSection onNext={handleNext} />;
+    }
+    if (currentStep === "More Details") {
+      return <MoreDetails onNext={handleNext}/>; 
+    }
+      return null;
+    
+  }
   const renderContent = () => {
+
+    if (currentStep === "Add Course") {
+      return <CourseCreation1 onNext={handleNext} />;
+    }
+    
+    if (currentStep === "Add Section") {
+      return <AddSection onNext={handleNext} />;
+
+    }
+    if (currentStep === "More Details") {
+      return <MoreDetails onNext={handleNext} />;
+    }
+    if(currentStep === "Courses") {
+      return <CourseList onNext = {handleNext} />
+    }
+  
     const selected = menuItems.find((item) => item.name === selectedItem);
     return selected?.Component || null;
   };
