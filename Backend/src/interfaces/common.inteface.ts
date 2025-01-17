@@ -152,3 +152,10 @@ export interface ICourseData {
   price: string;
   files: { type: string; url: string }[];
 }
+
+export interface INewCourseDetails {
+  name ?: string;
+  category ?: string;
+  language ?: string;
+  description ?: string;
+}

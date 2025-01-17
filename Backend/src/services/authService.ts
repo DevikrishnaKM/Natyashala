@@ -4,13 +4,14 @@ import AppError from "../utils/appError";
 import { v4 as uuidv4 } from "uuid";
 import { generateOtp } from "../utils/generateOtp";
 import sendEmail from "../utils/email";
-import { ICleanedUser, IEditUser } from "../interfaces/common.inteface";
+import { ICleanedUser, IEditUser,ICourse } from "../interfaces/common.inteface";
 import { getOtpByEmail, otpSetData } from "../utils/redisCache";
 import { createToken, createRefreshToken } from "../config/jwtConfig";
 import HTTP_statusCode from "../Enums/httpStatusCode";
 import { AwsConfig } from "../config/awsFileConfig";
 import { S3Client } from "@aws-sdk/client-s3";
 import { IAdminRepository } from "../interfaces/admin.repository.interface";
+import ICourseRepository from "../interfaces/course.repository.interface";
 
 // interface FormData {
 //   name:string,
@@ -23,15 +24,18 @@ import { IAdminRepository } from "../interfaces/admin.repository.interface";
 class AuthService {
   private authRepository: IAuthRepository;
   private adminRepository: IAdminRepository;
+  private courseRepository: ICourseRepository;
 
   aws = new AwsConfig();
 
   constructor(
     authRepository: IAuthRepository,
-    adminRepository: IAdminRepository
+    adminRepository: IAdminRepository,
+    courseRepository: ICourseRepository
   ) {
-    (this.authRepository = authRepository),
-      (this.adminRepository = adminRepository);
+    this.authRepository = authRepository;
+    this.adminRepository = adminRepository;
+    this.courseRepository = courseRepository;
   }
 
   signUp = async (
@@ -217,6 +221,66 @@ class AuthService {
       throw error;
     }
   };
+  getCourses = async(category: string , page: number, limit: number , filter?: string) : Promise<{ courses: ICourse[], totalPages : number}> => {
+    try {
+      const response = await this.authRepository.getCourses(category, page, limit);
+      const coursesWithUrls = await Promise.all(
+        response.courses.map(async (course: any) => {
+          const thumbnails = course.thumbnail
+            ? await this.aws.getfile(course.thumbnail,`tutors/${course.email}/courses/${course.courseId}/thumbnail`)
+            : null;
+          return { ...course, thumbnail: thumbnails };
+        })
+      );
+      return {
+        courses: coursesWithUrls,
+        totalPages: response.totalPages,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  getCourseDetail = async(id: string) : Promise<any> => {
+    try {
+      const response = await this.authRepository.courseDetails(id)
+      const tutor = await this.authRepository.findUser(response?.email)
+      const thumbnailUrl = await this.aws.tutorGetfile(
+        response?.thumbnail as string,
+        `tutors/${response.email}/courses/${response.courseId}/thumbnail`
+      );
+       let profileUrl =''
+      if(tutor?.profilePicture) {
+         profileUrl = await this.aws.tutorGetfile(tutor?.profilePicture as string,`users/profile/${tutor?.userId}` )
+      }
+      const sectionsWithUrls = await Promise.all(
+        response.sections.map(async (section: any, index: number) => {
+          const videosWithUrls = await Promise.all(
+            section.videos.map(async (video: any) => {
+              console.log(video.videoUrl, "vurl");
+
+              const videoUrl = await this.aws.tutorGetfile(
+                video.videoUrl,
+                `tutors/${response.email}/courses/${response.courseId}/videos`
+              );
+              return { ...video.toObject(), url: videoUrl };
+            })
+          );
+          return { ...section.toObject(), videos: videosWithUrls };
+        })
+      );
+
+      return {
+        ...response,
+        thumbnailUrl,
+        sections: sectionsWithUrls,
+        profileUrl
+      };
+    } catch (error: any) {
+      console.error("Error fetching course details:", error.message);
+      throw new Error(`Failed to fetch course details: ${error.message}`);
+    }
+  }
 }
 
 export default AuthService;

@@ -1,18 +1,18 @@
 import { Model } from "mongoose";
-import { IUser, ICleanedUser,ICourse } from "../interfaces/common.inteface";
+import { IUser, ICleanedUser, ICourse } from "../interfaces/common.inteface";
 import { IAuthRepository } from "../interfaces/auth.repository.interface";
 import BaseRepository from "./baseRepository";
 import bcrypt from "bcrypt";
 import TutorProfile from "../models/tutorProfileModel";
+import { Course } from "../models/courseModel";
 
 class AuthRepository implements IAuthRepository {
   private userRepo: BaseRepository<IUser>;
-  private courseRepo : BaseRepository<ICourse>
+  private courseRepo: BaseRepository<ICourse>;
 
-  constructor(userModel: Model<IUser>,  courseModel : Model<ICourse>) {
+  constructor(userModel: Model<IUser>, courseModel: Model<ICourse>) {
     this.userRepo = new BaseRepository(userModel);
-    this.courseRepo = new BaseRepository(courseModel)
-
+    this.courseRepo = new BaseRepository(courseModel);
   }
 
   async findUser(email: string): Promise<IUser | null> {
@@ -92,14 +92,14 @@ class AuthRepository implements IAuthRepository {
         { userId },
         { $set: { profilePicture: profileUrl } }
       );
-  
-      return updateResult
+
+      return updateResult;
     } catch (error: any) {
       console.error("Error in saving profile in repository:", error.message);
       throw new Error("Failed to save profile URL");
     }
   }
-  
+
   async editUser(userid: string, newUserInfo: object): Promise<IUser | null> {
     try {
       return await this.userRepo.updateAndReturn(
@@ -147,5 +147,96 @@ class AuthRepository implements IAuthRepository {
       throw new Error(error.message);
     }
   }
+
+  async courseDetails(id: string): Promise<any> {
+    try {
+      const course = await Course.findOne(
+        { courseId: id },
+        { isBlocked: false }
+      )
+        .populate({
+          path: "sections",
+          populate: { path: "videos" },
+        })
+        .exec();
+
+      if (!course) {
+        throw new Error("cannot find course");
+      }
+
+      const tutor = await TutorProfile.findOne({ email: course.email });
+      if (!tutor) {
+        throw new Error("cannot find tutor");
+      }
+
+      const userTutor = await this.userRepo.find({ email: tutor?.email });
+      if (!userTutor) {
+        throw new Error("Cannot find userTutor.");
+      }
+
+      const CourseData = {
+        id: course._id,
+        name: course.name,
+        description: course.description,
+        Category: course.category,
+        sections: course.sections,
+        tags: course.tags,
+        language: course.language,
+        ratings: course.ratings,
+        comments: course.comments,
+        thumbnail: course.thumbnail,
+        tutorName: userTutor.name,
+        tutorBio: tutor.bio,
+        tutorEmail: tutor?.email,
+        tutorProfile: userTutor?.profilePicture,
+        tutorId: userTutor?.userId,
+        education: tutor.education,
+        certifications: tutor.certifications,
+        email: tutor.email,
+        courseId: course.courseId,
+        price: course.price,
+        uploadedDate: course?.createdAt,
+        users: course?.users?.length,
+      };
+
+      return CourseData;
+    } catch (error: any) {
+      console.log("Error in getting course detail user repo", error.message);
+      throw new Error(error.message);
+    }
+  }
+  async getCourses(category: string, page: number, limit: number , filter?: string) : Promise<{courses :ICourse[],totalPages : number }> {
+    try {  
+      let filter: { isBlocked: boolean; category?: string } = {
+        isBlocked: false,
+      };
+      if (category && category !== "All") {
+        filter.category = category;
+      } else if (category && category === "All") {
+        filter = { isBlocked: false };
+      }
+      const skip = (page - 1) * limit;
+      const totalCourses = await Course.countDocuments(filter).exec();
+      const totalPages = Math.ceil(totalCourses / limit);
+      const courses = await Course.find(filter, { isBlocked: false })
+        .lean()
+        .skip(skip)
+        .limit(limit)
+        .exec();
+
+        console.log(totalCourses , "tot")
+        console.log(limit , "lim" , skip);
+        
+        
+      return {
+        courses,
+        totalPages,
+      };
+    } catch (error: any) {
+      console.log("Error in getting courses user repo", error.message);
+      throw error;
+    }
+  }
+
 }
 export default AuthRepository;

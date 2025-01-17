@@ -1,4 +1,4 @@
-import { ITutorProfile } from "./common.inteface";
+import { ITutorProfile,ICourse,INewCourseDetails ,IVideo} from "./common.inteface";
 
 export default interface ITutorService {
     tutorApplication(files: any, data: any): Promise<void>;
@@ -6,4 +6,8 @@ export default interface ITutorService {
     editProfile(data: any) : Promise<ITutorProfile>;
     createCourse( files: any, courseData: any, email: string) : Promise<boolean>;
     getCoursesWithSignedUrls(email: string) : Promise<ICourse[]>
+    updateCourse(courseId: string, newData: any) : Promise<INewCourseDetails>
+    updateVideo(_id : string, title : string , description : string) : Promise<IVideo>
+    deleteVideo(videoId : string, courseId : string ) : Promise<boolean | null>
+    addVideo(name : string, description : string , newVideo : any, sectionId : string , courseId : string) : Promise<IVideo>
 }

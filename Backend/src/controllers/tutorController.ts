@@ -89,6 +89,72 @@ class TutorController {
         .json({ message: error.message });
     }
   }
+
+  updateCourse = catchAsync(async(req:Request,res:Response)=>{
+    try {
+      
+      const {courseId} = req.params
+      const newData = req.body
+      const updatedCourse = await this.tutorServices.updateCourse(courseId as string,newData)
+      return res.status(HTTP_statusCode.updated).json(updatedCourse)
+
+    } catch (error:any) {
+      console.log(error.message,"djdjh")
+      res
+      .status(HTTP_statusCode.InternalServerError)
+      .json({ message: error.message });
+  
+    }
+  })
+  editVideo = async(req: Request, res: Response) => {
+    try {
+      const { _id, title, description } = req.body;
+      const updateVieo = await this.tutorServices.updateVideo(
+        _id,
+        title,
+        description
+      );
+      res.status(HTTP_statusCode.OK).json(updateVieo);
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  }
+  deleteVideo = async(req: Request, res: Response) => {
+    try {
+      const { videoId, courseId } = req.body;
+      const deleted = await this.tutorServices.deleteVideo(videoId, courseId);
+      res.status(HTTP_statusCode.OK).json(deleted);
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  }
+  async addVideo(req: Request, res: Response) {
+    try {
+      const { sectionId } = req.params;
+      const { name, description, courseId } = req.body;
+      const newVideo = req.file;
+      const added = await this.tutorServices.addVideo(
+        name,
+        description,
+        newVideo,
+        sectionId,
+        courseId
+      );
+      res.status(HTTP_statusCode.updated).json(added);
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  }
+  
 }
 
 export default TutorController;

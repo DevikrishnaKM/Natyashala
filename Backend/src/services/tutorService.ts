@@ -2,21 +2,25 @@ import { v4 as uuidv4 } from "uuid";
 import { IAdminRepository } from "../interfaces/admin.repository.interface";
 import { IAuthRepository } from "../interfaces/auth.repository.interface";
 import ITutorRepository from "../interfaces/tutor.repository.interface";
+import ICourseRepository from "../interfaces/course.repository.interface";
 import { AwsConfig } from "../config/awsFileConfig";
-import { ITutorProfile,ICourse } from "../interfaces/common.inteface";
+import { ITutorProfile,ICourse,INewCourseDetails ,IVideo} from "../interfaces/common.inteface";
 class TutorService {
   private authRepository: IAuthRepository;
   private adminRepository: IAdminRepository;
   private tutorRepository: ITutorRepository;
+  private courseRepository: ICourseRepository
 
   constructor(
     authRepository: IAuthRepository,
     adminRepository: IAdminRepository,
-    tutorRepository: ITutorRepository
+    tutorRepository: ITutorRepository,
+    courseRepository : ICourseRepository
   ) {
     this.authRepository = authRepository;
     this.adminRepository = adminRepository;
     this.tutorRepository = tutorRepository;
+    this.courseRepository = courseRepository
   }
   private awsConfig = new AwsConfig();
 
@@ -164,6 +168,56 @@ class TutorService {
       throw error;
     }
   }
+  updateCourse = async(courseId: string, newData: any) : Promise<INewCourseDetails> =>   {
+    try {
+      const update = await this.courseRepository.updateCourse(
+        courseId as string,
+        newData
+      );
+      const newCourseDetail = {
+        name: update?.name,
+        category: update?.category,
+        language: update?.language,
+        description: update?.description,
+      };
+      return newCourseDetail;
+    } catch (error) {
+      console.error("Error fetching courses with signed URLs:", error);
+      throw error;
+    }
+  }
+  updateVideo = async(_id : string, title : string , description : string) : Promise<IVideo> =>{
+    try {
+      return await this.courseRepository.updateVid(_id as string, title as string , description as string)
+    } catch (error) {
+      console.error("Error fetching monthly  data:", error);
+      throw error;
+    }
+  }
+
+  
+   deleteVideo = async(videoId : string, courseId : string ) : Promise<boolean | null> => {
+    try {
+        return await this.courseRepository.deleteVideo(videoId as string, courseId as string )
+    } catch (error) {
+      console.error("Error fetching monthly  data:", error);
+      throw error;
+    }
+  }
+
+  async addVideo(name : string, description : string , newVideo : any, sectionId : string , courseId : string) : Promise<IVideo> {
+    try {
+      const { email } = await this.authRepository.getCourses(courseId)
+      const tutorFolderPath = `tutors/${email}/courses/${courseId}/videos/`
+       const url = await this.awsConfig.uploadFileToS3(tutorFolderPath , newVideo)
+       return  await this.tutorRepository.addVideo(name , description , url, sectionId ,courseId)
+    } catch (error) {
+      console.error("Error fetching monthly  data:", error);
+      throw error;
+    }
+  }
+
+
 }
 
 export default TutorService;

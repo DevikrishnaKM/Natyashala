@@ -10,14 +10,18 @@ import { Course } from "../models/courseModel";
 import { refreshTokenHandler } from "../config/refreshTokenVerify";
 import { verifyToken } from "../config/jwtConfig";
 import multer from "multer";
+import { CourseRepository } from "../repository/courseRepository";
+
+
 // import userAuth from "../config/userAuth";
 
 const router = express.Router();
 
 // Initialize dependencies
 const authRepository = new AuthRepository(userSchema,Course); 
+const courseRepository = new CourseRepository()
 const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModel,Course)
-const authService = new AuthService(authRepository,adminRepository);  
+const authService = new AuthService(authRepository,adminRepository,courseRepository);  
 const authController = new AuthController(authService); 
 const storage = multer.memoryStorage()
 const upload = multer({
@@ -36,5 +40,7 @@ router.put('/editUser', verifyToken ,authController.editUser.bind(authController
 router.post('/save-userProfile',verifyToken,upload.single('profileImage'), authController.saveProfilePic.bind(authController));
 router.get('/getProfile/:email' ,verifyToken, authController.getProfile.bind(authController))
 router.post('/refresh-token', refreshTokenHandler);
+router.get('/get-courses', authController.getCourses.bind(authController));
+router.get("/getCourse/:id", verifyToken, authController.courseDetails.bind(authController));
 
 export default router;

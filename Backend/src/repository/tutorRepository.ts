@@ -2,17 +2,23 @@ import { Model } from "mongoose";
 import userSchema from "../models/userSchema";
 import BaseRepository from "./baseRepository";
 import TutorApplication from "../models/applicationModel";
-import { IUser, ITutorProfile ,ICourseData, IVideo, ICourse} from "../interfaces/common.inteface";
+import {
+  IUser,
+  ITutorProfile,
+  ICourseData,
+  IVideo,
+  ICourse,
+} from "../interfaces/common.inteface";
 import TutorProfile from "../models/tutorProfileModel";
 import { Course, Section, Video } from "../models/courseModel";
 
 class TutorRepository {
   private userRepo: BaseRepository<IUser>;
-  private courseRepo : BaseRepository<ICourse>
+  private courseRepo: BaseRepository<ICourse>;
 
-  constructor(userModel: Model<IUser>,courseModel : Model<ICourse>) {
+  constructor(userModel: Model<IUser>, courseModel: Model<ICourse>) {
     this.userRepo = new BaseRepository(userModel);
-    this.courseRepo = new BaseRepository(courseModel)
+    this.courseRepo = new BaseRepository(courseModel);
   }
   async saveApplication(data: any): Promise<void> {
     try {
@@ -75,18 +81,21 @@ class TutorRepository {
     }
   }
 
-  async saveCourse(data: ICourseData, email: string) : Promise<boolean> {
+  async saveCourse(data: ICourseData, email: string): Promise<boolean> {
     try {
-      const videoFiles = data.files.filter((file: { type: string; }) => file.type === 'video');
-      const thumbnail = data.files.find((file) => file.type === 'thumbnail')?.url || ''; 
+      const videoFiles = data.files.filter(
+        (file: { type: string }) => file.type === "video"
+      );
+      const thumbnail =
+        data.files.find((file) => file.type === "thumbnail")?.url || "";
       const sections = await Promise.all(
         data.sections.map(async (sectionData, sectionIndex) => {
           const videos = await Promise.all(
             sectionData.videos.map(async (video, videoIndex) => {
               const videoDoc = new Video({
-                title: video.name || `Video ${videoIndex + 1}`, 
+                title: video.name || `Video ${videoIndex + 1}`,
                 description: sectionData.description,
-                videoUrl: videoFiles[videoIndex]?.url || '', 
+                videoUrl: videoFiles[videoIndex]?.url || "",
               });
               await videoDoc.save();
               return videoDoc._id;
@@ -106,12 +115,12 @@ class TutorRepository {
         email: email,
         name: data.courseName,
         description: data.description,
-        price : data.price,
+        price: data.price,
         sections: sections,
         tags: data.tags,
         language: data.language,
         thumbnail: thumbnail,
-        category : data.selectedCategory
+        category: data.selectedCategory,
       });
       await newCourse.save();
       return true;
@@ -120,15 +129,53 @@ class TutorRepository {
       throw error;
     }
   }
-  async getCoursesByTutor(email: string) : Promise<ICourse[]> {
+  async getCoursesByTutor(email: string): Promise<ICourse[]> {
     try {
-       return await Course.find({ email },{isBlocked : false}).populate({
-        path: 'sections',
-        populate: { path: 'videos' }  
+      return await Course.find({ email }, { isBlocked: false }).populate({
+        path: "sections",
+        populate: { path: "videos" },
       });
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      console.error("Error fetching courses:", error);
       throw error;
+    }
+  }
+
+  async addVideo(
+    name: string,
+    description: string,
+    newVideo: string,
+    sectionId: string,
+    courseId: string
+  ): Promise<IVideo> {
+    try {
+      const video = new Video({
+        title: name,
+        description: description,
+        videoUrl: newVideo,
+      });
+      const savedVideo = await video.save();
+      const updatedSection = await Section.findByIdAndUpdate(
+        sectionId,
+        { $push: { videos: savedVideo._id } },
+        { new: true, runValidators: true }
+      );
+      if (!updatedSection) {
+        throw new Error("Section not found");
+      }
+
+      await Course.findOneAndUpdate(
+        { courseId },
+        { $addToSet: { sections: sectionId } },
+        { new: true, runValidators: true }
+      );
+      return savedVideo;
+    } catch (error: any) {
+      console.log(
+        "Error in getting montly revenue in tutor repo",
+        error.message
+      );
+      throw new Error(error.message);
     }
   }
 }

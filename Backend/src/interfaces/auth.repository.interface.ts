@@ -1,4 +1,4 @@
-import {IUser,ICleanedUser} from "./common.inteface";
+import {IUser,ICleanedUser,ICourse} from "./common.inteface";
 
 export interface IAuthRepository {
     findUser(email : string) : Promise<IUser | null>;
@@ -7,4 +7,6 @@ export interface IAuthRepository {
     editUser(userid: string,newUserInfo: object): Promise<IUser | null>;
     saveProfile(userId: string, profileUrl: string) : Promise<boolean>;
     getApplicantData(email: string) : Promise<any>;
+    getCourses(category: string, page: number, limit: number , filter?: string) : Promise<{courses :ICourse[],totalPages : number }>;
+    courseDetails(id: string) : Promise<any>; 
 }
