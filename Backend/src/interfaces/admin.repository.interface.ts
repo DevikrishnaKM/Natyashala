@@ -1,4 +1,4 @@
-import { IUser, ITutorApplication, ICategory } from "./common.inteface";
+import { IUser, ITutorApplication, ICategory,ICourse } from "./common.inteface";
 export interface IAdminRepository {
   getUsers(
     page: number,
@@ -16,4 +16,5 @@ export interface IAdminRepository {
   ): Promise<{ tutors: IUser[]; total: number }>;
   createCategory(categoryName: string, description: string): Promise<boolean>;
   getCategories(): Promise<ICategory[]>;
+  getCourses(skip: number, limit: number) : Promise<{courses :ICourse[] , totalCourses : number}>; 
 }

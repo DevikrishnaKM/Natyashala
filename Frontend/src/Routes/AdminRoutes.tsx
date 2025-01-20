@@ -7,6 +7,7 @@ import UserList from '../Pages/Admin/UserList'
 import ApplicationListPage from "../Pages/Admin/ApplicationListPage"
 import TutorList from '@/Pages/Admin/TutorList';
 import CategoryList from '../components/Admin/CategoryList'
+import AdminCoursePage from '@/Pages/Admin/AdminCoursePage';
 
 
 const AdminRoutes = () => {
@@ -20,6 +21,7 @@ const AdminRoutes = () => {
             <Route path=  '/applicationdetails' element={<ApplicantDetails />}/>
             <Route path='/tutors' element={<TutorList/>}/>
             <Route path = '/category' element = {<CategoryList /> }/>
+            <Route path ='/courses' element = {<AdminCoursePage/>}/>
         </Routes>
 
     </div>

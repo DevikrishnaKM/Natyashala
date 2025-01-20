@@ -11,4 +11,5 @@ export interface IAdminServices {
     getTutors(page: number, limit: number) : Promise<{ tutors: ICleanedUser[]; total: number }>;
     createCategory(categoryName : string, description :string) : Promise<boolean>;
     getCategories() : Promise<ICategory[]>;
+    getCourses(page: number, limit: number) : Promise<{courses : any,  totalCourses : number }>;
 }

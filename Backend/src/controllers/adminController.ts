@@ -221,5 +221,16 @@ class AdminController {
         .json({ message: error.message });
     }
   };
+  getCourses = async(req: Request, res: Response) => {
+    try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const { courses, totalCourses } = await this.adminService.getCourses(page, limit);
+        const totalPages = Math.ceil(totalCourses / limit);
+        res.status(HTTP_statusCode.OK).json({ courses, totalPages });
+    } catch (error: any) {
+        res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+    }
+}
 }
 export default AdminController;

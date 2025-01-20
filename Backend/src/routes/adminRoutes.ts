@@ -26,5 +26,6 @@ route.get('/check-tutorstatus/:email', adminController.checkTutorStatus.bind(adm
 route.get('/getTutors' , adminController.getTutors.bind(adminController)) 
 route.post('/createcategory', adminController.createCategory.bind(adminController))
 route.get('/categories' ,adminController.getCategories.bind(adminController))
+route.get('/getcourses', adminController.getCourses.bind(adminController))
 
 export default route

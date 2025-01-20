@@ -5,7 +5,7 @@ import {
   ICleanedUser,
   ITutorApplication,
   FileUrl,
-  ICategory
+  ICategory,
 } from "../interfaces/common.inteface";
 import { AwsConfig } from "../config/awsFileConfig";
 import getFolderPathByFileType from "../helper/filePathHandler";
@@ -167,8 +167,8 @@ class AdminServices implements IAdminServices {
   acceptApplication = async (id: string): Promise<boolean> => {
     try {
       const application = await this.adminRepository.findApplication(id);
-      const status = await this.adminRepository.changeStatus(id)
-      console.log("status:",status)
+      const status = await this.adminRepository.changeStatus(id);
+      console.log("status:", status);
       const user = await this.authRepository.findUser(
         application?.email as string
       );
@@ -199,7 +199,10 @@ class AdminServices implements IAdminServices {
     }
   };
 
-  getTutors = async (page: number,limit: number): Promise<{ tutors: ICleanedUser[]; total: number }> => {
+  getTutors = async (
+    page: number,
+    limit: number
+  ): Promise<{ tutors: ICleanedUser[]; total: number }> => {
     try {
       if (typeof page !== "number" || page < 1) {
         throw new Error("Invalid page number");
@@ -207,57 +210,138 @@ class AdminServices implements IAdminServices {
       if (typeof limit !== "number" || limit < 1) {
         throw new Error("Invalid limit value");
       }
-      const { tutors, total } = await this.adminRepository.getTutors(page, limit);
-  
+      const { tutors, total } = await this.adminRepository.getTutors(
+        page,
+        limit
+      );
+
       const cleanedUsers = await Promise.all(
         tutors.map(async (user: any) => {
-            const { name, email, phone, createdAt, role, isVerified, profile, userId, isApprovedTutor } = user._doc;
-            
-            let profilePicture = "";
-            if (profile) {
-                profilePicture = await this.aws.getfile(profile as string, `users/profile/${userId}`);
-            }
+          const {
+            name,
+            email,
+            phone,
+            createdAt,
+            role,
+            isVerified,
+            profile,
+            userId,
+            isApprovedTutor,
+          } = user._doc;
 
-            return {
-               name,
-                email,
-                phone,
-                role,
-                isVerified,
-                profilePicture,
-                createdAt: createdAt.toISOString().slice(0, 10),
-                userId,
-                isApprovedTutor
-            };
+          let profilePicture = "";
+          if (profile) {
+            profilePicture = await this.aws.getfile(
+              profile as string,
+              `users/profile/${userId}`
+            );
+          }
+
+          return {
+            name,
+            email,
+            phone,
+            role,
+            isVerified,
+            profilePicture,
+            createdAt: createdAt.toISOString().slice(0, 10),
+            userId,
+            isApprovedTutor,
+          };
         })
-    );
+      );
 
-    console.log("Cleaned user data", cleanedUsers);
+      console.log("Cleaned user data", cleanedUsers);
 
-    return { tutors: cleanedUsers, total };
+      return { tutors: cleanedUsers, total };
     } catch (error: any) {
-      console.error("Error during admin getting users services:",error.message);
+      console.error(
+        "Error during admin getting users services:",
+        error.message
+      );
       throw error;
     }
   };
 
-  createCategory = async(categoryName : string, description :string) : Promise<boolean> => {
+  createCategory = async (
+    categoryName: string,
+    description: string
+  ): Promise<boolean> => {
     try {
-        return await this.adminRepository.createCategory(categoryName as string ,description as string)
-    } catch (error : any) {
-        console.error("Error during admin creating category in service:", error.message);
-        throw error;
+      return await this.adminRepository.createCategory(
+        categoryName as string,
+        description as string
+      );
+    } catch (error: any) {
+      console.error(
+        "Error during admin creating category in service:",
+        error.message
+      );
+      throw error;
     }
-}
+  };
 
- getCategories = async() : Promise<ICategory[]> => {
+  getCategories = async (): Promise<ICategory[]> => {
     try {
-         return await this.adminRepository.getCategories()
-    } catch (error : any) {
-        console.error("Error during admin getting categories in service:", error.message);
-        throw error;
+      return await this.adminRepository.getCategories();
+    } catch (error: any) {
+      console.error(
+        "Error during admin getting categories in service:",
+        error.message
+      );
+      throw error;
     }
-}
+  };
 
+  getCourses = async (
+    page: number,
+    limit: number
+  ): Promise<{ courses: any; totalCourses: number }> => {
+    try {
+      const skip = (page - 1) * limit;
+      const response = await this.adminRepository.getCourses(skip, limit);
+
+      const coursesWithUrls = await Promise.all(
+        response.courses.map(async (course: any) => {
+          const thumbnails = course.thumbnail
+            ? await this.aws.tutorGetfile(
+                course.thumbnail,
+                `tutors/${course.email}/courses/${course.courseId}/thumbnail`
+              )
+            : null;
+          return {
+            _id: course._doc._id,
+            courseId: course._doc.courseId,
+            email: course._doc.email,
+            name: course._doc.name,
+            description: course._doc.description,
+            price: course._doc.price,
+            category: course._doc.category,
+            sections: course._doc.sections,
+            tags: course._doc.tags,
+            language: course._doc.language,
+            ratings: course._doc.ratings,
+            comments: course._doc.comments,
+            thumbnail: thumbnails,
+            isBlocked: course._doc.isBlocked,
+            users: course._doc.users,
+            averageRating: course._doc.averageRating,
+            totalRatings: course._doc.totalRatings,
+            createdAt: course._doc.createdAt,
+          };
+        })
+      );
+      return {
+        courses: coursesWithUrls,
+        totalCourses: response.totalCourses,
+      };
+    } catch (error: any) {
+      console.error(
+        "Error during admin getting course detail in service:",
+        error.message
+      );
+      throw error;
+    }
+  };
 }
 export default AdminServices;
