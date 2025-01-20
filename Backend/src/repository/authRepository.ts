@@ -147,6 +147,67 @@ class AuthRepository implements IAuthRepository {
       throw new Error(error.message);
     }
   }
+  async getCourse(id: string): Promise<ICourse> {
+    try {
+      const course = await Course.findOne(
+              { courseId: id },
+              { isBlocked: false }
+            ).populate({
+              path: "sections",
+              populate: { path: "videos" },
+            }).exec();
+      
+            if (!course) {
+              throw new Error("Cannot find course.");
+            }
+
+            return course;
+    } catch ( error : any) {
+      console.log("Error in getting course detail user repo", error.message);
+      throw error;
+    }
+}
+
+  async getCourses(
+    category: string,
+    page: number,
+    limit: number,
+    filter?: string
+  ): Promise<{ courses :any; totalPages: number }> {
+    try {
+      // Define the base filter
+      let queryFilter: { isBlocked: boolean; category?: string } = {
+        isBlocked: false,
+      };
+  
+      if (category && category !== "All") {
+        queryFilter.category = category;
+      } else if (category && category === "All") {
+        queryFilter = { isBlocked: false };
+      }
+  
+      // Pagination logic
+      const skip = (page - 1) * limit;
+      const totalCourses = await Course.countDocuments(queryFilter).exec();
+      const totalPages = Math.ceil(totalCourses / limit);
+  
+      // Fetch courses
+      const courses = await Course.find(queryFilter)
+        .lean() // Ensure plain JavaScript objects match `ICourse`
+        .skip(skip)
+        .limit(limit)
+        .exec();
+  
+      return {
+        courses,
+        totalPages,
+      };
+    } catch (error: any) {
+      console.error("Error in getting courses in auth repository:", error.message);
+      throw error;
+    }
+  }
+  
 
   async courseDetails(id: string): Promise<any> {
     try {
@@ -195,7 +256,6 @@ class AuthRepository implements IAuthRepository {
         email: tutor.email,
         courseId: course.courseId,
         price: course.price,
-        uploadedDate: course?.createdAt,
         users: course?.users?.length,
       };
 
@@ -205,38 +265,8 @@ class AuthRepository implements IAuthRepository {
       throw new Error(error.message);
     }
   }
-  async getCourses(category: string, page: number, limit: number , filter?: string) : Promise<{courses :ICourse[],totalPages : number }> {
-    try {  
-      let filter: { isBlocked: boolean; category?: string } = {
-        isBlocked: false,
-      };
-      if (category && category !== "All") {
-        filter.category = category;
-      } else if (category && category === "All") {
-        filter = { isBlocked: false };
-      }
-      const skip = (page - 1) * limit;
-      const totalCourses = await Course.countDocuments(filter).exec();
-      const totalPages = Math.ceil(totalCourses / limit);
-      const courses = await Course.find(filter, { isBlocked: false })
-        .lean()
-        .skip(skip)
-        .limit(limit)
-        .exec();
-
-        console.log(totalCourses , "tot")
-        console.log(limit , "lim" , skip);
-        
-        
-      return {
-        courses,
-        totalPages,
-      };
-    } catch (error: any) {
-      console.log("Error in getting courses user repo", error.message);
-      throw error;
-    }
-  }
+ 
+  
 
 }
 export default AuthRepository;

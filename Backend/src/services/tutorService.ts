@@ -207,7 +207,7 @@ class TutorService {
 
   async addVideo(name : string, description : string , newVideo : any, sectionId : string , courseId : string) : Promise<IVideo> {
     try {
-      const { email } = await this.authRepository.getCourses(courseId)
+      const { email } = await this.authRepository.getCourse(courseId)
       const tutorFolderPath = `tutors/${email}/courses/${courseId}/videos/`
        const url = await this.awsConfig.uploadFileToS3(tutorFolderPath , newVideo)
        return  await this.tutorRepository.addVideo(name , description , url, sectionId ,courseId)

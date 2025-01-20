@@ -7,6 +7,7 @@ export interface IAuthRepository {
     editUser(userid: string,newUserInfo: object): Promise<IUser | null>;
     saveProfile(userId: string, profileUrl: string) : Promise<boolean>;
     getApplicantData(email: string) : Promise<any>;
-    getCourses(category: string, page: number, limit: number , filter?: string) : Promise<{courses :ICourse[],totalPages : number }>;
+    getCourses(category: string, page: number, limit: number , filter?: string) : Promise<{courses :any,totalPages : number }>;
+    getCourse(id: string): Promise<ICourse>;
     courseDetails(id: string) : Promise<any>; 
 }

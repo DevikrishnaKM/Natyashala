@@ -188,28 +188,48 @@ class AuthController {
     }
   };
 
-  courseDetails = async(req : Request, res : Response) => {
-    try {
-      const {id} = req.params
-      const courseData =  await this.authService.getCourseDetail(id as string)
-      res.status(HTTP_statusCode.OK).json(courseData)
-    } catch (error : any) {
-      console.error(error.message);
-      res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
-    }
-  }
   async getCourses(req: Request, res: Response) {
     try {
-        const { category, page = "1", limit = "10", filter } = req.query as { category?: string; page?: string; limit?: string; filter?: string };    
-        const pageNumber = parseInt(page, 10);
-        const limitNumber = parseInt(limit, 10);
-        const courses = await this.authService.getCourses(category as string, pageNumber, limitNumber);
-        res.status(HTTP_statusCode.OK).json(courses);
+      const {
+        category,
+        page = "1",
+        limit = "10",
+        filter,
+      } = req.query as {
+        category?: string;
+        page?: string;
+        limit?: string;
+        filter?: string;
+      };
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
+      const courses = await this.authService.getCourses(
+        category as string,
+        pageNumber,
+        limitNumber
+      );
+      console.log("courses",courses)
+      res.status(HTTP_statusCode.OK).json(courses);
     } catch (error: any) {
-        console.error(error.message);
-        res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
     }
-}
+  }
+  
+  courseDetails = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const courseData = await this.authService.getCourseDetail(id as string);
+      res.status(HTTP_statusCode.OK).json(courseData);
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  };
 }
 
 export default AuthController;

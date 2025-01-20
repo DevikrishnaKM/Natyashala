@@ -7,6 +7,6 @@ export default interface IAuthService {
     editUser(userId : string ,updateData : object): Promise<IEditUser>;
     saveProfile(profile: Express.Multer.File, userId: string) : Promise<boolean>;
     getProfile(email: string) : Promise<string>
-    getCourses(category: string , page: number, limit: number , filter?: string) : Promise<{ courses: ICourse[], totalPages : number}>;
+    getCourses(category: string , page: number, limit: number , filter?: string) : Promise<{ courses: any, totalPages : number}>;
     getCourseDetail(id: string) : Promise<any>; 
 }

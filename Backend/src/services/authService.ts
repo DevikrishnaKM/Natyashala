@@ -168,16 +168,7 @@ class AuthService {
     }
   };
 
-  // saveProfile = async(profile: Express.Multer.File, userId: string) : Promise<boolean> => {
-  //   try {
-  //     const profileUrl = await this.aws.uploadFileToS3(`users/profile/${userId}/`,profile);
-  //     console.log("profileUrl in authService:",profileUrl)
-  //     return await this.authRepository.saveProfile(userId as string,profileUrl as string);
-  //   } catch (error: any) {
-  //     console.error("Error in saving profile pic user serice :", error.message);
-  //     throw error;
-  //   }
-  // }
+
   saveProfile = async (
     profile: Express.Multer.File,
     userId: string
@@ -221,7 +212,7 @@ class AuthService {
       throw error;
     }
   };
-  getCourses = async(category: string , page: number, limit: number , filter?: string) : Promise<{ courses: ICourse[], totalPages : number}> => {
+  getCourses = async(category: string , page: number, limit: number , filter?: string) : Promise<{ courses: any, totalPages : number}> => {
     try {
       const response = await this.authRepository.getCourses(category, page, limit);
       const coursesWithUrls = await Promise.all(

@@ -111,6 +111,7 @@ export interface ISection  extends Document {
   description?: string;
   videos: Types.ObjectId[]; 
 }
+
 export interface ICourse extends Document  {
   courseId: string;
   email: string;
@@ -125,7 +126,6 @@ export interface ICourse extends Document  {
   comments?: Types.ObjectId[];
   thumbnail?: string;
   isBlocked : boolean;
-  createdAt : Date;
   users ?: [];
   averageRating ?: number ;
   totalRatings ?: number;

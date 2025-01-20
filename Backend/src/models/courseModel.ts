@@ -1,5 +1,5 @@
-import mongoose, { Schema, Types, Document } from 'mongoose';
-import { ICourse, ISection, IVideo } from '../interfaces/common.inteface';
+import mongoose, { Schema, Types, Document } from "mongoose";
+import { ICourse, ISection, IVideo } from "../interfaces/common.inteface";
 
 const videoSchema = new Schema<IVideo>({
   title: {
@@ -23,11 +23,11 @@ const sectionSchema = new Schema<ISection>({
   description: {
     type: String,
   },
-  videos: [{ type: Schema.Types.ObjectId, ref: 'Video' }],
+  videos: [{ type: Schema.Types.ObjectId, ref: "Video" }],
 });
 
 const courseSchema = new Schema<ICourse>({
-  courseId: { 
+  courseId: {
     type: String,
     required: true,
   },
@@ -43,51 +43,49 @@ const courseSchema = new Schema<ICourse>({
     type: String,
     required: true,
   },
-  price : {
+  price: {
     type: Schema.Types.Mixed,
-    required : true,
+    required: true,
   },
   category: {
     type: String,
     required: true,
   },
-  sections: [{ type: Schema.Types.ObjectId, ref: 'Section' }],
+  sections: [{ type: Schema.Types.ObjectId, ref: "Section" }],
   tags: [String],
   language: {
     type: String,
     required: true,
   },
-  ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],
-  comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
+  ratings: [{ type: Schema.Types.ObjectId, ref: "Rating" }],
+  comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
   thumbnail: {
     type: String,
   },
-  isBlocked : {
-    type : Boolean,
-    default : false,
+  isBlocked: {
+    type: Boolean,
+    default: false,
   },
-  createdAt: {
-    type: Date, 
-    default: Date.now 
- },
- users : {
-  type : [String],
-  default:[]
-},
-averageRating: {
-  type: Number,
-  default: 0, 
-},
-totalRatings: {
-  type: Number,
-  default: 0,
-},
-},
+  users: {
+    type: [String],
+    default: [],
+  },
+  averageRating: {
+    type: Number,
+    default: 0,
+    required:false
+  },
+  totalRatings: {
+    type: Number,
+    default: 0,
+    required:false
+  },
+},{
+  timestamps :true
+});
 
-);
-
-const Course = mongoose.model<ICourse>('Course', courseSchema);
-const Section = mongoose.model<ISection>('Section', sectionSchema);
-const Video = mongoose.model<IVideo>('Video', videoSchema);
+const Course = mongoose.model<ICourse>("Course", courseSchema);
+const Section = mongoose.model<ISection>("Section", sectionSchema);
+const Video = mongoose.model<IVideo>("Video", videoSchema);
 
 export { Course, Section, Video, ICourse, ISection, IVideo };
