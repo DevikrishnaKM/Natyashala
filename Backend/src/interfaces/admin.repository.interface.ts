@@ -9,6 +9,7 @@ export interface IAdminRepository {
   getApplications(): Promise<ITutorApplication[]>;
   findApplication(id: string): Promise<ITutorApplication | null>;
   changeStatus(id: string): Promise<ITutorApplication | any>;
+  updateStatus(id: string): Promise<ITutorApplication | any>;
   addTutorCredential(email: string, passcode: string): Promise<boolean>;
   getTutors(
     page: number,

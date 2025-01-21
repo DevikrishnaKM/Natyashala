@@ -10,6 +10,7 @@ import AllCourses from '../Pages/User/AllCourses';
 import UserProtector from '@/services/UserProtector';
 import TutorsPage from '@/Pages/User/TutorsPage';
 import CourseDetailsPage from '@/Pages/User/CourseDetailsPage';
+import Checkout from '@/Pages/User/Checkout';
 
 const UserRoutes = () => {
   return (
@@ -24,6 +25,7 @@ const UserRoutes = () => {
         <Route path='/allcourses' element={<UserProtector><AllCourses/></UserProtector>}/>
         <Route path='/tutors' element={<UserProtector><TutorsPage/></UserProtector>}/>
         <Route path = '/courseDetails/:id' element = {<CourseDetailsPage />} />
+        <Route path = '/checkout/:id' element = {<Checkout />} />
         
     </Routes>
     </>

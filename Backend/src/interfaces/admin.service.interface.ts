@@ -7,6 +7,7 @@ export interface IAdminServices {
     getApplications() : Promise <ITutorApplication[]>
     findApplication(id : string) : Promise<ITutorApplication>;
     acceptApplication (id : string) : Promise<boolean>;
+    rejectApplication (id : string) : Promise<any>;
     checkTutorStatus(email : string) : Promise<boolean | undefined>;
     getTutors(page: number, limit: number) : Promise<{ tutors: ICleanedUser[]; total: number }>;
     createCategory(categoryName : string, description :string) : Promise<boolean>;

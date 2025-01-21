@@ -22,6 +22,7 @@ route.patch('/unblockuser/:email', adminController.unblockUser.bind(adminControl
 route.get('/getapplications', adminController.getApplications.bind(adminController))
 route.get('/applicationview/:id' , adminController.findApplication.bind(adminController))
 route.post('/acceptapplication/:id', adminController.acceptApplication.bind(adminController))
+route.post('/rejectapplication/:id', adminController.rejectApplication.bind(adminController))
 route.get('/check-tutorstatus/:email', adminController.checkTutorStatus.bind(adminController))
 route.get('/getTutors' , adminController.getTutors.bind(adminController)) 
 route.post('/createcategory', adminController.createCategory.bind(adminController))

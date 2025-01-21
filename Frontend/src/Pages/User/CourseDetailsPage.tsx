@@ -1,6 +1,6 @@
 
 
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { FaRegHeart, FaBook, FaStar } from "react-icons/fa"
 import { HiMiniUsers } from "react-icons/hi2"

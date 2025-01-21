@@ -158,6 +158,22 @@ class AdminController {
     }
   };
 
+  rejectApplication = catchAsync(async(req : Request,res:Response)=>{
+    try {
+      const {id} = req.params;
+      const response = await this.adminService.rejectApplication(id)
+      console.log("res:", response);
+      res.status(HTTP_statusCode.updated).json(response);
+    } catch (error:any) {
+      console.log("Admin := error in controller", error);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    
+    }
+  })
+
+
   checkTutorStatus = async (req: Request, res: Response) => {
     try {
       const { email } = req.params;

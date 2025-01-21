@@ -11,7 +11,7 @@ import { AwsConfig } from "../config/awsFileConfig";
 import getFolderPathByFileType from "../helper/filePathHandler";
 import { IAuthRepository } from "../interfaces/auth.repository.interface";
 import { createUniquePass } from "../helper/tutorCredentials";
-import sendTutorLoginCredentials from "../helper/tutorMail";
+import sendTutorLoginCredentials, { sendTutorRejectionMail } from "../helper/tutorMail";
 
 const adminEmail = process.env.ADMIN_EMAIL;
 const adminPassword = process.env.ADMIN_PASSWORD;
@@ -188,6 +188,28 @@ class AdminServices implements IAdminServices {
       throw error;
     }
   };
+   
+  rejectApplication = async(id:string):Promise<any> =>{
+    try {
+      const application = await this.adminRepository.findApplication(id);
+      const status = await this.adminRepository.updateStatus(id);
+      console.log("status:", status);
+      const user = await this.authRepository.findUser(
+        application?.email as string
+      );
+      if (!user) throw new Error("User doesnt exist.");
+      await sendTutorRejectionMail(user.email as string,user.name as string)
+      return user
+    } catch (error:any) {
+      console.error(
+        "Error during admin rejecting  applicant services:",
+        error.message
+      );
+      throw error;
+    }
+  }
+
+
   checkTutorStatus = async (email: string): Promise<boolean | undefined> => {
     try {
       const response = await this.authRepository.findUser(email);

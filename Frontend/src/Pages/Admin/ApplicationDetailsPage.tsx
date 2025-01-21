@@ -88,6 +88,23 @@ const ApplicantDetails = () => {
     }
   };
 
+  const rejectApplication = async()=>{
+    try {
+      const applicationId = applicationData.applicationId
+      const response = await axios.post(`${Base_URL}/admin/rejectapplication/${applicationId}`)
+      console.log("res:",response)
+      if (response) {
+        toast.success("Tutor Applicant Rejected.");
+        setTimeout(() => {
+          navigate("/admin/tutorapplications");
+        }, 1500);
+      }
+    } catch (error:any) {
+      console.error("Error :", error);
+      toast.error("Failed reject application. Please try again.");
+    }
+  }
+
   return (
     <>
     <div className="grid grid-cols-12 mb-32 mr-20 font-poppins">
@@ -194,7 +211,10 @@ const ApplicantDetails = () => {
             >
               Accept
             </Button>
-            <Button className="h-12 w-24 bg-red-500 mt-10 rounded-md hover:bg-red-700 mr-10 text-white font-semibold">
+            <Button className="h-12 w-24 bg-red-500 mt-10 rounded-md hover:bg-red-700 mr-10 text-white font-semibold"
+             onPress ={rejectApplication}
+            >
+             
               Reject
             </Button>
           </div>

@@ -48,7 +48,6 @@ export interface FileUrl extends Document{
 
 export interface ITutorApplication extends Document{
   applicationId:string
-  name:string
   email:string
   tutorRole:string
   age:string

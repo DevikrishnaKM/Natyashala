@@ -122,6 +122,23 @@ class AdminRepository implements IAdminRepository {
       throw error;
     }
   }
+  async updateStatus(id: string): Promise<ITutorApplication | any> {
+    try {
+      return await this.applicationRepo.update(
+        { applicationId: id },
+        {
+          $set: {
+            status: "rejected",
+          },
+        }
+      );
+    } catch (error: any) {
+      console.error("Error in fetching tutor status:", error.message);
+      throw error;
+    }
+  }
+
+  
 
   async addTutorCredential(email: string, passcode: string): Promise<boolean> {
     try {
