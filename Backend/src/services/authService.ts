@@ -218,7 +218,7 @@ class AuthService {
       const coursesWithUrls = await Promise.all(
         response.courses.map(async (course: any) => {
           const thumbnails = course.thumbnail
-            ? await this.aws.getfile(course.thumbnail,`tutors/${course.email}/courses/${course.courseId}/thumbnail`)
+            ? await this.aws.tutorGetfile(course.thumbnail,`tutors/${course.email}/courses/${course.courseId}/thumbnail`)
             : null;
           return { ...course, thumbnail: thumbnails };
         })
@@ -270,6 +270,23 @@ class AuthService {
     } catch (error: any) {
       console.error("Error fetching course details:", error.message);
       throw new Error(`Failed to fetch course details: ${error.message}`);
+    }
+  }
+  checkEnrollment = async(courseId: string, email: string) : Promise<boolean> =>{
+    try {
+      const user = await this.authRepository.findUser(email as string);
+      if (user?.enrolledCourses) {
+        const isEnrolled = (user.enrolledCourses as string[]).includes(courseId);
+        console.log("enrollled", isEnrolled, courseId);
+        return isEnrolled;
+      }
+      return false;
+    } catch (error: any) {
+      console.error(
+        "Error in checkin enrollment in user serice :",
+        error.message
+      );
+      throw new Error(` ${error.message}`);
     }
   }
 }

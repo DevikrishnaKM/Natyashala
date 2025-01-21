@@ -6,8 +6,10 @@ import SignupPage from "../Pages/User/SignUp";
 import OtpPage from '../Pages/User/OtpPage';
 import Login from '../Pages/User/Login';
 import Profile from '../Pages/User/Profile';
-import Test from '../Pages/User/Test';
+import AllCourses from '../Pages/User/AllCourses';
 import UserProtector from '@/services/UserProtector';
+import TutorsPage from '@/Pages/User/TutorsPage';
+import CourseDetailsPage from '@/Pages/User/CourseDetailsPage';
 
 const UserRoutes = () => {
   return (
@@ -19,7 +21,10 @@ const UserRoutes = () => {
         <Route path='/otp' element={<OtpPage/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/profile' element={<UserProtector><Profile/></UserProtector>}/>
-      
+        <Route path='/allcourses' element={<UserProtector><AllCourses/></UserProtector>}/>
+        <Route path='/tutors' element={<UserProtector><TutorsPage/></UserProtector>}/>
+        <Route path = '/courseDetails/:id' element = {<CourseDetailsPage />} />
+        
     </Routes>
     </>
   )

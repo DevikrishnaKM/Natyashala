@@ -230,6 +230,19 @@ class AuthController {
         .json({ message: error.message });
     }
   };
+
+  checkEnrollement = catchAsync(async(req:Request,res:Response)=>{
+    try {
+      const {courseId,email} = req.params
+      const response = await this.authService.checkEnrollment(courseId as string, email as string)
+      res.status(HTTP_statusCode.OK).json(response)
+    } catch (error:any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  })
 }
 
 export default AuthController;

@@ -1,11 +1,11 @@
 import React from "react";
 import Lottie from "lottie-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {motion} from "framer-motion"
 
 const LandingPage: React.FC = () => {
 
-
+const navigate = useNavigate()
   const goToCommunity = () => {
     console.log("Navigating to community page");
   };
@@ -18,7 +18,7 @@ const LandingPage: React.FC = () => {
     <section
       className="relative flex min-h-screen items-center justify-center bg-[#f5f5f7] px-4 py-12 lg:py-0"
       style={{
-        backgroundImage: "url('./src/assets/pexels-jplenio-1103970.jpg')",
+        backgroundImage: "url('./src/assets/pexels-scottwebb-1029624.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -74,8 +74,11 @@ const LandingPage: React.FC = () => {
               className="w-50 h-full object-cover rounded-xl shadow-lg"
             />
             <div className="absolute bottom-4 left-4 bg-white/75 backdrop-blur-sm px-3 py-2 rounded-md shadow-md">
-              <p className="text-sm font-semibold text-[#17171a]">
-                Explore Our Courses
+            <p
+                className="text-sm font-semibold text-[#17171a] cursor-pointer"
+                onClick={()=> navigate('/allcourses')}
+              >
+                Explore all courses
               </p>
             </div>
           </div>
@@ -94,7 +97,7 @@ const LandingPage: React.FC = () => {
             <div className="absolute bottom-4 left-4 bg-white/75 backdrop-blur-sm px-3 py-2 rounded-md shadow-md">
               <p
                 className="text-sm font-semibold text-[#17171a] cursor-pointer"
-                onClick={goToTutors}
+                onClick={()=> navigate('/tutors')}
               >
                 Meet Our Tutors
               </p>

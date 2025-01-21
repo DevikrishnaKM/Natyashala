@@ -40,7 +40,10 @@ router.put('/editUser', verifyToken ,authController.editUser.bind(authController
 router.post('/save-userProfile',verifyToken,upload.single('profileImage'), authController.saveProfilePic.bind(authController));
 router.get('/getProfile/:email' ,verifyToken, authController.getProfile.bind(authController))
 router.post('/refresh-token', refreshTokenHandler);
+
 router.get('/get-courses', authController.getCourses.bind(authController));
 router.get("/getCourse/:id", verifyToken, authController.courseDetails.bind(authController));
+router.get('/check-enrollment/:email/:courseId', verifyToken,authController.checkEnrollement.bind(authController));
+
 
 export default router;

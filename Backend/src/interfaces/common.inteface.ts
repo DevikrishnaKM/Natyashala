@@ -10,7 +10,7 @@ export interface IUser extends Document {
     role: 'user' | 'tutor' ;
     isVerified: boolean;
     profilePicture?: string;
-    enrolledCourses?: string[];
+    enrolledCourses?: [];
     walletBalance?: number;
     isApprovedTutor?: boolean;
     tutorCredentials?: {

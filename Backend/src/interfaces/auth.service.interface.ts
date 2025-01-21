@@ -9,4 +9,5 @@ export default interface IAuthService {
     getProfile(email: string) : Promise<string>
     getCourses(category: string , page: number, limit: number , filter?: string) : Promise<{ courses: any, totalPages : number}>;
     getCourseDetail(id: string) : Promise<any>; 
+    checkEnrollement(courseId: string, email: string) : Promise<boolean>;
 }
