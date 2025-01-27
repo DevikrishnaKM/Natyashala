@@ -1,10 +1,18 @@
 import { Model } from "mongoose";
-import { IUser, ICleanedUser, ICourse } from "../interfaces/common.inteface";
+import {
+  IUser,
+  ICleanedUser,
+  ICourse,
+  IOrder,
+  IWallet,
+} from "../interfaces/common.inteface";
 import { IAuthRepository } from "../interfaces/auth.repository.interface";
 import BaseRepository from "./baseRepository";
 import bcrypt from "bcrypt";
 import TutorProfile from "../models/tutorProfileModel";
 import { Course } from "../models/courseModel";
+import { Wallet } from "../models/walletModel";
+import Order from "../models/orderModel";
 
 class AuthRepository implements IAuthRepository {
   private userRepo: BaseRepository<IUser>;
@@ -150,64 +158,68 @@ class AuthRepository implements IAuthRepository {
   async getCourse(id: string): Promise<ICourse> {
     try {
       const course = await Course.findOne(
-              { courseId: id },
-              { isBlocked: false }
-            ).populate({
-              path: "sections",
-              populate: { path: "videos" },
-            }).exec();
-      
-            if (!course) {
-              throw new Error("Cannot find course.");
-            }
+        { courseId: id },
+        { isBlocked: false }
+      )
+        .populate({
+          path: "sections",
+          populate: { path: "videos" },
+        })
+        .exec();
 
-            return course;
-    } catch ( error : any) {
+      if (!course) {
+        throw new Error("Cannot find course.");
+      }
+
+      return course;
+    } catch (error: any) {
       console.log("Error in getting course detail user repo", error.message);
       throw error;
     }
-}
+  }
 
   async getCourses(
     category: string,
     page: number,
     limit: number,
     filter?: string
-  ): Promise<{ courses :any; totalPages: number }> {
+  ): Promise<{ courses: any; totalPages: number }> {
     try {
       // Define the base filter
-      let queryFilter: { isBlocked: boolean; category?: string } = {
-        isBlocked: false,
+      let queryFilter: { isBlocked: boolean; category?: string;isVerified:boolean } = {
+        isBlocked: false,isVerified:true
       };
-  
+
       if (category && category !== "All") {
         queryFilter.category = category;
       } else if (category && category === "All") {
-        queryFilter = { isBlocked: false };
+        queryFilter = { isBlocked: false,isVerified:true };
       }
-  
+
       // Pagination logic
       const skip = (page - 1) * limit;
       const totalCourses = await Course.countDocuments(queryFilter).exec();
       const totalPages = Math.ceil(totalCourses / limit);
-  
+
       // Fetch courses
       const courses = await Course.find(queryFilter)
         .lean() // Ensure plain JavaScript objects match `ICourse`
         .skip(skip)
         .limit(limit)
         .exec();
-  
+
       return {
         courses,
         totalPages,
       };
     } catch (error: any) {
-      console.error("Error in getting courses in auth repository:", error.message);
+      console.error(
+        "Error in getting courses in auth repository:",
+        error.message
+      );
       throw error;
     }
   }
-  
 
   async courseDetails(id: string): Promise<any> {
     try {
@@ -265,8 +277,114 @@ class AuthRepository implements IAuthRepository {
       throw new Error(error.message);
     }
   }
- 
-  
 
+  saveOder = async (orderData: any): Promise<boolean> => {
+    try {
+      const order = await new Order(orderData);
+      await order.save();
+      return true;
+    } catch (error: any) {
+      console.log("Error in saving order data in user repo", error.message);
+      throw new Error(error.message);
+    }
+  };
+
+  updateOrder = async (sessionId: any, orderId: any): Promise<boolean> => {
+    try {
+      const order = await Order.updateOne(
+        { OrderId: orderId },
+        {
+          $push: { paymentId: sessionId },
+        }
+      );
+
+      console.log("order:", order);
+      return true;
+    } catch (error: any) {
+      console.log("Error in update Order", error.message);
+      throw new Error(error.message);
+    }
+  };
+
+  async confirmOrder(orderId: string): Promise<any> {
+    try {
+      // Find the order by a custom ID or ObjectId
+      const order = await Order.findOneAndUpdate({ orderId: orderId },{paymentStatus:"Completed"},{new:true});
+
+      // Check if the order exists
+      if (!order) {
+        throw new Error("Order not found");
+      }
+      return order;
+    } catch (error: any) {
+      console.log("Error in confirm Order", error.message);
+      throw new Error(error.message);
+    }
+  }
+
+  async saveCourse(courseId: string, email: string): Promise<boolean> {
+    try {
+      await this.userRepo.update(
+        { email: email },
+        {
+          $push: { courses: courseId },
+        }
+      );
+      const user = await this.userRepo.find({ email: email });
+      const userId = user?.userId;
+      await Course.updateOne(
+        { courseId: courseId },
+        {
+          $push: {
+            users: userId,
+          },
+        }
+      );
+      return true;
+    } catch (error: any) {
+      console.log(
+        "Error in saving course data on user in user repo",
+        error.message
+      );
+      throw new Error(error.message);
+    }
+  }
+  async coursePaymentWallet(
+    userId: string,
+    amount: any,
+    courseName: string
+  ): Promise<any> {
+    try {
+      let wallet = await Wallet.findOne({ userId });
+      const id = Math.floor(1000 + Math.random() * 9000).toString();
+      const parsedAmount = typeof amount === "string" ? Number(amount) : amount;
+      if (isNaN(parsedAmount)) {
+        throw new Error("Invalid amount. Must be a valid number.");
+      }
+      const transaction = {
+        transactionId: id,
+        amount: parsedAmount,
+        transactionType: "course payment" as "course payment",
+        course: courseName,
+        date: new Date(),
+      };
+      if (!wallet) {
+        wallet = new Wallet({
+          userId,
+          balance: parsedAmount,
+          transactions: [transaction],
+        });
+        await wallet.save();
+      } else {
+        wallet.balance += parsedAmount;
+        wallet.transactions.push(transaction);
+        await wallet.save();
+      }
+      return wallet;
+    } catch (error: any) {
+      console.error("Error in saving wallet in wallet repo", error.message);
+      throw new Error(error.message);
+    }
+  }
 }
 export default AuthRepository;

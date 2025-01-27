@@ -6,6 +6,7 @@ import {
   ITutorApplication,
   FileUrl,
   ICategory,
+  ICourse,
 } from "../interfaces/common.inteface";
 import { AwsConfig } from "../config/awsFileConfig";
 import getFolderPathByFileType from "../helper/filePathHandler";
@@ -322,7 +323,7 @@ class AdminServices implements IAdminServices {
     try {
       const skip = (page - 1) * limit;
       const response = await this.adminRepository.getCourses(skip, limit);
-
+      
       const coursesWithUrls = await Promise.all(
         response.courses.map(async (course: any) => {
           const thumbnails = course.thumbnail
@@ -365,5 +366,54 @@ class AdminServices implements IAdminServices {
       throw error;
     }
   };
+  blockCourse = async(courseId : string) : Promise<string> => {
+    try {
+        return await this.adminRepository.blockCourse(courseId)
+    } catch (error : any) {
+        console.error("Error during blocking course  in service:", error.message);
+        throw error;
+    }
+}
+
+unBlockCourse = async(courseId : string): Promise<string> =>  {
+    try {
+        return await this.adminRepository.unBlockCourse(courseId)
+    } catch (error : any) {
+        console.error("Error during unblocking course  in service", error.message);
+        throw error;
+    }
+}
+
+findCourse = async (id: string): Promise<any> => {
+  try {
+    const response = await this.adminRepository.findCourse(id);
+    console.log("RES:",response)
+
+    return response; 
+  } catch (error: any) {
+    console.error(
+      "Error during admin finding course detail in service:",
+      error.message
+    );
+    throw error;
+  }
+};
+
+acceptCourse = async (id: string): Promise<boolean> => {
+  try {
+    const Course = await this.adminRepository.acceptCourse(id);
+   
+    console.log("course:",Course)
+  
+    return Course;
+  } catch (error: any) {
+    console.error(
+      "Error during admin accepting  applicant services:",
+      error.message
+    );
+    throw error;
+  }
+};
+
 }
 export default AdminServices;

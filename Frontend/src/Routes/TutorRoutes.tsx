@@ -5,6 +5,7 @@ import TutorApplication from '@/Pages/Tutor/TutorApplication'
 import ApplicationFinished from '../Pages/Tutor/ApplicationFinished'
 import TutorDashboard from '@/Pages/Tutor/TutorDashboard'
 import CourseEdit from '../Pages/Tutor/CourseEdit'
+import CourseFinished from '../components/Tutor/CourseFinished'
 const TutorRoutes = () => {
   return (
     <>
@@ -14,6 +15,7 @@ const TutorRoutes = () => {
             <Route path="/applicationcompleted" element={<ApplicationFinished/> }/>
             <Route path='/dashboard' element = {<TutorDashboard />} />
             <Route path = '/course-edit/:id' element = {<CourseEdit />} />
+            <Route path='/course-submit' element={<CourseFinished/>}/>
         </Routes>
     </>
   )

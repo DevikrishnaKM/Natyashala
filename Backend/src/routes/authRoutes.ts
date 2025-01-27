@@ -44,6 +44,7 @@ router.post('/refresh-token', refreshTokenHandler);
 router.get('/get-courses', authController.getCourses.bind(authController));
 router.get("/getCourse/:id", verifyToken, authController.courseDetails.bind(authController));
 router.get('/check-enrollment/:email/:courseId', verifyToken,authController.checkEnrollement.bind(authController));
-
+router.post('/createorder',verifyToken,authController.createOrder.bind(authController))
+router.post('/checkSessionStatus',verifyToken,authController.confirmPayment.bind(authController))
 
 export default router;

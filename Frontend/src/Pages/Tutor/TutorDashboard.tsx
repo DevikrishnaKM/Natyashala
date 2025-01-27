@@ -11,6 +11,7 @@ import TutorWallet from "../../components/Tutor/TutorWallet";
 import CourseCreation1 from "@/components/Tutor/CourseCreation";
 import AddSection from '../../components/Tutor/CourseAddSection';
 import MoreDetails from '../../components/Tutor/MoreDetails';
+import CourseFinished from "../../components/Tutor/CourseFinished"
 
 const TutorDashboard: React.FC = () => {
   const navigae = useNavigate();
@@ -51,7 +52,7 @@ const TutorDashboard: React.FC = () => {
       icon: <IoPersonSharp size={24} />,
       Component: <TutorProfile />,
     },
-    { name: "Courses", icon: <FaBook size={24} />, Component: <CourseList onNext={handleNext} /> },
+    { name: "Courses", icon: <FaBook size={24} />, Component: <CourseList/> },
     {
       name: "Wallet",
       icon: <IoWallet size={24} />,
@@ -89,7 +90,7 @@ const TutorDashboard: React.FC = () => {
       return <MoreDetails onNext={handleNext} />;
     }
     if(currentStep === "Courses") {
-      return <CourseList onNext = {handleNext} />
+      return <CourseFinished onNext = {handleNext} />
     }
   
     const selected = menuItems.find((item) => item.name === selectedItem);
@@ -144,6 +145,7 @@ const TutorDashboard: React.FC = () => {
         <h2 className="pb-2 pt-6 font-bold text-xl">{selectedItem}</h2>
         <div className="h-[1px] w-full pl-10 pr-10 bg-gray-500"></div>
         <div className="flex-grow mt-5">{renderContent()}</div>
+      {/* <ProgressBar currentStep={currentStep} totalSteps={3} /> */}
       </div>
 
       <ConfirmModal

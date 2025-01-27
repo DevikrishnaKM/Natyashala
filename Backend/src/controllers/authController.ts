@@ -243,6 +243,34 @@ class AuthController {
         .json({ message: error.message });
     }
   })
+
+  createOrder = catchAsync(async(req:Request,res:Response)=>{
+    try {
+      const {amount,email,courseId,courseName} = req.body
+      const session = await this.authService.createSession(amount as number,email,courseId,courseName)
+      console.log("client_secret:",session)
+      res.status(HTTP_statusCode.updated).json({ message: 'Order created successfully', session })
+    } catch (error:any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  })
+
+  confirmPayment = catchAsync(async(req:Request,res:Response) => {
+    try {
+      const {orderId} = req.body
+      const response = await this.authService.confirmCourse(orderId)
+      console.log("res:",response)
+      res.status(HTTP_statusCode.OK).json({message:"course confirmed",response})
+    } catch (error:any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  })
 }
 
 export default AuthController;

@@ -1,4 +1,4 @@
-import { ICleanedUser,ITutorApplication,ICategory } from "./common.inteface";
+import { ICleanedUser,ITutorApplication,ICategory, ICourse } from "./common.inteface";
 export interface IAdminServices {
     login(email:string,password:string):{adminAccessToken:string,adminRefreshToken:string}
     getUsersList(page: number, limit: number) : Promise<{ users: ICleanedUser[]; total: number }>;
@@ -13,4 +13,8 @@ export interface IAdminServices {
     createCategory(categoryName : string, description :string) : Promise<boolean>;
     getCategories() : Promise<ICategory[]>;
     getCourses(page: number, limit: number) : Promise<{courses : any,  totalCourses : number }>;
+    blockCourse(courseId : string) : Promise<string>
+    unBlockCourse(courseId : string): Promise<string>
+    findCourse(id : string) : Promise<any>;
+    acceptCourse (courseId : string) : Promise<boolean>;
 }

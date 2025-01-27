@@ -11,6 +11,9 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
   async find(filter : object): Promise<T | null> {
     return this.model.findOne(filter).exec();
   }
+  async finddById(filter : object): Promise<T | null> {
+    return this.model.findById(filter).exec();
+  }
 
   async findAll(filter: object = {}, limit: number = 10, skip: number = 0): Promise<T[]> {
     return this.model.find(filter).limit(limit).skip(skip).exec();

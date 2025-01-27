@@ -125,6 +125,7 @@ export interface ICourse extends Document  {
   comments?: Types.ObjectId[];
   thumbnail?: string;
   isBlocked : boolean;
+  isVerified : boolean;
   users ?: [];
   averageRating ?: number ;
   totalRatings ?: number;
@@ -157,4 +158,47 @@ export interface INewCourseDetails {
   category ?: string;
   language ?: string;
   description ?: string;
+}
+
+export interface ITransaction  {
+  amount: number;
+  transactionId : string;
+  transactionType: 'credit' | 'course payment';
+  date?: Date;
+  course?: string;
+}
+
+export interface IWallet extends Document {
+  userId: string;
+  balance: number;
+  transactions: ITransaction[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+export interface IAdminTransaction extends Document {
+  transactionId: string;
+  amount: number;
+  timestamp: Date;
+  course: {
+    courseId: string;
+    courseName: string;
+    tutor: {
+      tutorId: string;
+      tutorName: string;
+    };
+    price: number;
+  };
+  status: 'pending' | 'completed' | 'failed';
+}
+export interface IOrder extends Document  {
+  userId: string;
+  courseId: string;
+  courseName: string;
+  totalAmount: number;
+  currency: string;
+  paymentId: string;
+  orderId: string;
+  paymentStatus: 'Pending' | 'Completed' | 'Failed';
+  createdAt: Date;
+  updatedAt: Date;
 }

@@ -18,4 +18,9 @@ export interface IAdminRepository {
   createCategory(categoryName: string, description: string): Promise<boolean>;
   getCategories(): Promise<ICategory[]>;
   getCourses(skip: number, limit: number) : Promise<{courses :ICourse[] , totalCourses : number}>; 
+  adminPaymentWallet(adminShare : any, data :any) : Promise<any> 
+  blockCourse(courseId: string) : Promise<string>
+  unBlockCourse(courseId: string) : Promise<string> 
+  findCourse(id: string): Promise<any>;
+  acceptCourse(id:string):Promise<any>
 }

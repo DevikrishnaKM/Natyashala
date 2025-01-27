@@ -17,7 +17,7 @@ interface Category {
 
 const CourseCreation1: React.FC<{ onNext: (itemName: string) => void }> = ({ onNext }) => {
   
-  
+ 
   const { courseData, setCourseData } = useCourseContext();
   const [courseName, setCourseName] = useState("");
   const [description, setDescription] = useState("");
@@ -189,8 +189,8 @@ const CourseCreation1: React.FC<{ onNext: (itemName: string) => void }> = ({ onN
             Next
           </button>
         </div>
+     
       </div>
-
       {isModalOpen && (
         <div className="fixed inset-0  flex items-center justify-center">
           <div className="bg-white p-4 rounded-lg shadow-lg w-1/3">

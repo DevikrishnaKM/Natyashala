@@ -8,6 +8,8 @@ import {
 } from "../interfaces/common.inteface";
 import { BaseRepository } from "../repository/baseRepository";
 import userSchema from "../models/userSchema";
+import AdminTransaction from "../models/adminTransactionModel";
+import { Course } from "../models/courseModel";
 
 class AdminRepository implements IAdminRepository {
   private userRepo: BaseRepository<IUser>;
@@ -138,8 +140,6 @@ class AdminRepository implements IAdminRepository {
     }
   }
 
-  
-
   async addTutorCredential(email: string, passcode: string): Promise<boolean> {
     try {
       return await this.userRepo.update(
@@ -224,6 +224,91 @@ class AdminRepository implements IAdminRepository {
       };
     } catch (error: any) {
       throw new Error(error.message);
+    }
+  }
+  async adminPaymentWallet(adminShare: any, data: any): Promise<any> {
+    try {
+      const transactionData = {
+        transactionId: data.transactionId,
+        amount: adminShare,
+        course: {
+          courseId: data.courseId,
+          courseName: data.course,
+          tutor: {
+            tutorId: data.tutorId,
+            tutorName: data.tutor,
+          },
+        },
+        status: "completed",
+      };
+      const transaction = new AdminTransaction(transactionData);
+      await transaction.save();
+    } catch (error: any) {
+      console.log("error in saving admin share", error.message);
+      throw new error.message();
+    }
+  }
+  async blockCourse(courseId: string): Promise<string> {
+    try {
+      const status = await this.courseRepo.update(
+        { courseId: courseId },
+        { isBlocked: true }
+      );
+      if (!status) {
+        throw new Error("Course dosent exist");
+      }
+      return "blocked";
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  async unBlockCourse(courseId: string): Promise<string> {
+    try {
+      const status = await this.courseRepo.update(
+        { courseId: courseId },
+        { isBlocked: false }
+      );
+      if (!status) {
+        throw new Error("Course dosent exist");
+      }
+      return "unblocked";
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+  async findCourse(id: string): Promise<ICourse[]> {
+    try {
+      const result = await this.courseRepo.find({ courseId: id });
+
+      // Ensure the result is an array
+      if (!result) {
+        return [];
+      }
+      return Array.isArray(result) ? result : [result];
+    } catch (error: any) {
+      console.error("Error in fetching course details:", error.message);
+      throw error;
+    }
+  }
+
+  async acceptCourse(_id: string): Promise<any> {
+    try {
+      const result = await Course.findByIdAndUpdate(
+        _id,
+        { isVerified: true },
+        { new: true }
+      );
+
+      if (!result) {
+        return [];
+      }
+      await result.save();
+
+      return result;
+    } catch (error: any) {
+      console.error("Error in fetching course details:", error.message);
+      throw error;
     }
   }
 }

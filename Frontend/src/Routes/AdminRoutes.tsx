@@ -8,7 +8,7 @@ import ApplicationListPage from "../Pages/Admin/ApplicationListPage"
 import TutorList from '@/Pages/Admin/TutorList';
 import CategoryList from '../components/Admin/CategoryList'
 import AdminCoursePage from '@/Pages/Admin/AdminCoursePage';
-
+import CourseDetailPage from '@/Pages/Admin/CourseDetailPage';
 
 const AdminRoutes = () => {
   return (
@@ -22,6 +22,7 @@ const AdminRoutes = () => {
             <Route path='/tutors' element={<TutorList/>}/>
             <Route path = '/category' element = {<CategoryList /> }/>
             <Route path ='/courses' element = {<AdminCoursePage/>}/>
+            <Route path='/coursedetails' element={<CourseDetailPage/>}/>
         </Routes>
 
     </div>

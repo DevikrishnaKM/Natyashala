@@ -9,17 +9,11 @@ import { getOtpByEmail, otpSetData } from "../utils/redisCache";
 import { createToken, createRefreshToken } from "../config/jwtConfig";
 import HTTP_statusCode from "../Enums/httpStatusCode";
 import { AwsConfig } from "../config/awsFileConfig";
-import { S3Client } from "@aws-sdk/client-s3";
 import { IAdminRepository } from "../interfaces/admin.repository.interface";
 import ICourseRepository from "../interfaces/course.repository.interface";
+import { createUniquePass } from "../helper/tutorCredentials";
+import makeThePayment from "../config/stripeConfig";
 
-// interface FormData {
-//   name:string,
-//   email:string,
-//   phone:string,
-//   password:string,
-//   otp:string,
-// }
 
 class AuthService {
   private authRepository: IAuthRepository;
@@ -289,6 +283,63 @@ class AuthService {
       throw new Error(` ${error.message}`);
     }
   }
+  createSession = async (
+    amount: number,
+    email: string,
+    courseId: string,
+    courseName: string
+  ): Promise<any> => {
+    try {
+      const data = {
+        amount,
+        email,
+        courseId,
+        courseName,
+      }
+      const user = await this.authRepository.findUser(email);
+      if(!user){
+        throw new Error("user is not there")
+      }
+      const course = await this.authRepository.getCourse(courseId);
+      if(!course){
+        throw new Error("course is not there")
+      }
+      const orderId = createUniquePass(10)
+      const orderDetails = {
+        userId: user?.userId || "", 
+        courseId: courseId,
+        totalAmount: amount,
+        orderId: orderId,
+        courseName:courseName,
+        paymentStatus: "Pending",
+      };
+      await this.authRepository.saveOder(orderDetails);
+      const session = await makeThePayment(data,orderId as string)
+      if(session){
+        const update = await this.authRepository.updateOrder(session.id,orderId as string)
+        console.log("session:",session)
+        console.log("updateOrder:",update)
+        return session
+      }
+    
+     
+    } catch (error: any) {
+      console.error('Error in create session:', error.message);
+      throw new Error(`Error processing payment: ${error.message}`);
+    }
+  };
+
+  confirmCourse = async(orderId:string):Promise<any> =>{
+    try {
+      const orderStatus = await this.authRepository.confirmOrder(orderId)
+      console.log("status changed:",orderStatus)
+      return orderStatus
+    } catch (error:any) {
+      console.error('Error in confirm course:', error.message);
+      throw new Error(`Error confim course...: ${error.message}`);
+    }
+  }
+  
 }
 
 export default AuthService;

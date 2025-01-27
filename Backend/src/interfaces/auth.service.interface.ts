@@ -10,4 +10,6 @@ export default interface IAuthService {
     getCourses(category: string , page: number, limit: number , filter?: string) : Promise<{ courses: any, totalPages : number}>;
     getCourseDetail(id: string) : Promise<any>; 
     checkEnrollement(courseId: string, email: string) : Promise<boolean>;
+    createSession(amount: number,email: string,courseId: string,courseName:string) : Promise<any>;
+    confirmCourse(courseId:string):Promise<any>
 }

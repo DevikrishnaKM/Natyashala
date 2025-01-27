@@ -66,6 +66,10 @@ const courseSchema = new Schema<ICourse>({
     type: Boolean,
     default: false,
   },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
   users: {
     type: [String],
     default: [],

@@ -1,74 +1,106 @@
-import React, { useEffect, useState } from "react"
-import { Toaster } from "sonner"
-import Navbar from "@/components/common/UserCommon/NavBar"
-import Footer from "@/components/common/UserCommon/Footer"
-import BlockChecker from "@/services/BlockChecker"
-import { useSelector } from "react-redux"
-import { RootState } from "@/redux/store"
-import { useNavigate, useParams } from "react-router-dom"
-import userAxiosInstance from "../../config/axiosInstance.ts/userInstance"
+import  { useEffect, useState } from "react";
+import { Toaster } from "sonner";
+import Navbar from "@/components/common/UserCommon/NavBar";
+import Footer from "@/components/common/UserCommon/Footer";
+import BlockChecker from "@/services/BlockChecker";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useNavigate, useParams } from "react-router-dom";
+import userAxiosInstance from "../../config/axiosInstance.ts/userInstance";
+import { toast } from "sonner";
+// import triggerConfetti from "../../utils/confetti";
+import { Base_URL } from "@/credentials";
 
 interface IcourseData {
-    name: string;
-    description: string;
-    Category: string;
-    sections: Isection[];
-    tags: string[];
-    language: string;
-    ratings: number[];
-    comments: string[];
-    thumbnailUrl: string;
-    tutorName: string;
-    tutorBio: string;
-    education: string;
-    certifications: string[];
-    email: string;
-    courseId: string;
-    price: any;
-    users?: string[];
-  }
-  
+  name: string;
+  description: string;
+  Category: string;
+  sections: Isection[];
+  tags: string[];
+  language: string;
+  ratings: number[];
+  comments: string[];
+  thumbnailUrl: string;
+  tutorName: string;
+  tutorBio: string;
+  education: string;
+  certifications: string[];
+  email: string;
+  courseId: string;
+  price: any;
+  users?: string[];
+}
+
 interface Ivideo {
-    title: string;
-    videoUrl: string;
-  }
-  
-  interface Isection {
-    title: string;
-    sectionTitle: string;
-    videos: Ivideo[];
-  }
-  
+  title: string;
+  videoUrl: string;
+}
+
+interface Isection {
+  title: string;
+  sectionTitle: string;
+  videos: Ivideo[];
+}
 
 export default function CheckoutPage() {
+  BlockChecker();
+  const { userInfo } = useSelector((state: RootState) => state.user);
+  const email = userInfo?.email;
+  const { id } = useParams<{ id: string }>();
+  const [courseData, setCourseData] = useState<IcourseData | null>(null);
+  const navigate = useNavigate();
 
-    BlockChecker();
-    const { userInfo } = useSelector((state: RootState) => state.user);
-    const email = userInfo?.email;
-    const { id } = useParams<{ id: string }>();
-    const [courseData, setCourseData] = useState<IcourseData | null>(null);
-    const navigate = useNavigate();
-  
-    useEffect(()=>{
-        const fetchCourseData = async()=>{
-            console.log("hello")
-            try {
-                const response = await userAxiosInstance.get(`/auth/getCourse/${id}`);
-                console.log("res:",response)
-                setCourseData(response.data)
-            } catch (error:any) {
-                console.error("Error fetching course data:", error);
-            }
+  useEffect(() => {
+    const fetchCourseData = async () => {
+     
+      try {
+        const response = await userAxiosInstance.get(`/auth/getCourse/${id}`);
+        console.log("res:", response);
+        setCourseData(response.data);
+      } catch (error: any) {
+        console.error("Error fetching course data:", error);
+      }
+    };
+    fetchCourseData();
+  }, [id]);
+
+  const handlePayment = async () => {
+    try {
+      const responses = await userAxiosInstance.post(
+        `${Base_URL}/auth/createorder`,
+        {
+          amount: courseData?.price,
+          courseName: courseData?.name,
+          email: email,
+          courseId: courseData?.courseId,
         }
-        fetchCourseData()
-    },[id])
+      );
+      console.log("session", responses.data.message);
 
+      if (responses.data.session) {
+        window.location.href = responses.data.session.url;
+      }
 
-
-  const handlePayment = () => {
-    // Placeholder for payment logic
-    console.log("Processing payment...")
-  }
+      // toast.success("Payment successful!");
+      // triggerConfetti();
+      // navigate("/allcourses");
+    } catch (error: any) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        console.error(
+          "Error in Stripe Checkout process:",
+          error.response.data.message
+        );
+        toast.error(`${error.response.data.message}`);
+      } else {
+        console.error("Unexpected error:", error.message);
+        alert("An unexpected error occurred.");
+      }
+    }
+  };
 
   return (
     <>
@@ -173,4 +205,3 @@ export default function CheckoutPage() {
     </>
   );
 }
-

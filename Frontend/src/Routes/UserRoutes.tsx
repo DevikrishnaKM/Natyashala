@@ -11,6 +11,8 @@ import UserProtector from '@/services/UserProtector';
 import TutorsPage from '@/Pages/User/TutorsPage';
 import CourseDetailsPage from '@/Pages/User/CourseDetailsPage';
 import Checkout from '@/Pages/User/Checkout';
+import PaymentSucess from '@/components/common/PaymentSucess';
+import PaymentFailed from '@/components/common/PaymentFailed';
 
 const UserRoutes = () => {
   return (
@@ -26,7 +28,8 @@ const UserRoutes = () => {
         <Route path='/tutors' element={<UserProtector><TutorsPage/></UserProtector>}/>
         <Route path = '/courseDetails/:id' element = {<CourseDetailsPage />} />
         <Route path = '/checkout/:id' element = {<Checkout />} />
-        
+        <Route path='/confirmPayment/:orderId/:courseId' element={<PaymentSucess/>}/>
+        <Route path='/paymentFailed' element={<PaymentFailed/>}/>
     </Routes>
     </>
   )

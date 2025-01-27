@@ -9,7 +9,7 @@ import { Base_URL } from "../../credentials";
 
 
 
-const CourseList: React.FC<{ onNext: (itemName: string) => void }> = ({ onNext }) => {
+const CourseList = () => {
   const navigate = useNavigate()
   const user = useSelector((state: RootState) => state.user);
   const userInfo = user.userInfo;

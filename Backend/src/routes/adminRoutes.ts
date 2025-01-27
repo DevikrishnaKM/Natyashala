@@ -28,5 +28,9 @@ route.get('/getTutors' , adminController.getTutors.bind(adminController))
 route.post('/createcategory', adminController.createCategory.bind(adminController))
 route.get('/categories' ,adminController.getCategories.bind(adminController))
 route.get('/getcourses', adminController.getCourses.bind(adminController))
+route.patch('/blockcourse/:courseId', adminController.blockCourse.bind(adminController));
+route.patch('/unblockcourse/:courseId', adminController.unBlockCourse.bind(adminController));
+route.get('/courseview/:id' , adminController.findCourse.bind(adminController))
+route.post('/acceptcourse/:courseId', adminController.acceptCourse.bind(adminController))
 
 export default route
