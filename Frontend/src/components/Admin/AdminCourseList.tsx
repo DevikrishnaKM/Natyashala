@@ -18,6 +18,7 @@ interface Icourse {
   courseId: string;
   createdAt: string;
   isBlocked: boolean;
+  isVerified: boolean;
 }
 
 const AdminCourseList = () => {
@@ -44,6 +45,7 @@ const AdminCourseList = () => {
         setCourses(response.data.courses || []);
         setTotalPages(response.data.totalPages || 1);
         console.log(response.data);
+       
       } catch (error) {
         console.error(error);
       }
@@ -51,24 +53,23 @@ const AdminCourseList = () => {
     fetchCourses();
   }, [currentPage]);
 
-  const handleViewClick = async (course: Icourse,index:number) => {
+  const handleViewClick = async (course: Icourse, index: number) => {
     setSelectedCourse(course);
     try {
-      if(selectedCourse){
+      if (selectedCourse) {
         const response = await axios.get(
-          `${Base_URL}/admin/courseview/${selectedCourse.courseId}` 
+          `${Base_URL}/admin/courseview/${selectedCourse.courseId}`
         );
         console.log(response, "res");
         navigate("/admin/coursedetails", {
-          state: { courseData: response.data,index },
+          state: { courseData: response.data, index },
         });
-
       }
     } catch (error) {
       console.error("Error fetching course details", error);
     }
   };
-  
+
   const handleBlockClick = (course: Icourse) => {
     setSelectedCourse(course);
     setModalAction("block");
@@ -225,12 +226,18 @@ const AdminCourseList = () => {
                               )}
                             </td>
                             <td className="pl-4 py-3 text-[#111418] text-sm">
-                              <button
-                                onClick={()=>handleViewClick(course,index)}
-                                className="text-[#fd2c0f]"
-                              >
-                                <FaEye />
-                              </button>
+                              {course.isVerified === true ? (
+                                <p className="font-bold text-blue-500">
+                                  Verified
+                                </p>
+                              ) : (
+                                <button
+                                  onClick={() => handleViewClick(course, index)}
+                                  className="text-[#fd2c0f]"
+                                >
+                                  <FaEye />
+                                </button>
+                              )}
                             </td>
                             <td className="pl-4 py-3 text-[#111418] text-sm">
                               {course.isBlocked ? (

@@ -18,7 +18,7 @@ import axios from "axios";
 const CourseDetailPage = () => {
   const location = useLocation();
   const { courseData } = location.state;
-  
+ 
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmModal, setConfirmationModal] = useState(false);
@@ -48,7 +48,7 @@ const CourseDetailPage = () => {
     try {
       const courseId = courseData[0]._id;
 
-      console.log("courseID:",courseId.split("%20").join(" "))
+      
       const response = await axios.post(`${Base_URL}/admin/acceptcourse/${encodeURIComponent(courseId)}`);
 
       setConfirmationModal(false);
@@ -122,7 +122,7 @@ const CourseDetailPage = () => {
           <h3 className="text-xl font-semibold text-gray-700 mb-4">
             Sections
           </h3>
-          <p className="text-gray-600">bcvggff</p>
+          <img src ="" alt="thumbnail" />
           <p className="text-gray-600 mt-4">
             <strong>Subjects of Expertise:</strong>{" "}
            hghghghgv
@@ -133,14 +133,12 @@ const CourseDetailPage = () => {
         </div>
           <div className="flex justify-end">
             <Button
-              className="h-12 w-24 bg-green-500 mt-10 rounded-md hover:bg-green-700 mr-10 text-white font-semibold"
+              className="h-12 w-24 bg-blue-500 mt-10 rounded-md hover:bg-blue-700 mr-10 text-white font-semibold"
               onPress={openConfirmationModal}
             >
               Accept
             </Button>
-            <Button className="h-12 w-24 bg-red-500 mt-10 rounded-md hover:bg-red-700 mr-10 text-white font-semibold">
-              Reject
-            </Button>
+            
           </div>
 
           <Modal

@@ -347,6 +347,7 @@ class AdminServices implements IAdminServices {
             comments: course._doc.comments,
             thumbnail: thumbnails,
             isBlocked: course._doc.isBlocked,
+            isVerified: course._doc.isVerified,
             users: course._doc.users,
             averageRating: course._doc.averageRating,
             totalRatings: course._doc.totalRatings,
