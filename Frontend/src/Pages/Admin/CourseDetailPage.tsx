@@ -118,16 +118,7 @@ const CourseDetailPage = () => {
             </ul>
            
           </section>
-          <section className="bg-gray-50 p-6 rounded-lg shadow-sm mt-4">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">
-            Sections
-          </h3>
-          <img src ="" alt="thumbnail" />
-          <p className="text-gray-600 mt-4">
-            <strong>Subjects of Expertise:</strong>{" "}
-           hghghghgv
-          </p>
-        </section>
+          
           </>
           ))}
         </div>

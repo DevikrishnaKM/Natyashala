@@ -1,6 +1,6 @@
 
 
-import React from 'react'
+import React,{useEffect} from 'react'
 import { FaHome } from 'react-icons/fa'
 import { IoIosArrowDroprightCircle } from 'react-icons/io'
 import {useNavigate} from "react-router-dom"
@@ -8,19 +8,51 @@ import { Button } from '@/components/ui/button'
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import TutorNav from '@/components/common/TutorCommon/TutorNav'
-
+import axios from 'axios'
+import { Base_URL } from '@/credentials'
+import { toast } from 'sonner'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
 
 // Placeholder components (you'll need to create these separately)
 
 
 export default function TutorHomePage() {
+
+   const data: any = useSelector((state: RootState) => state.user);
   const navigate = useNavigate()
   const [istutor, setIsTutor] = React.useState(false) // This should be set based on your auth logic
+
+  
+
+  useEffect(() => {
+    const checkTutorStatus = async () => {
+      try {
+        const response = await axios.get(`${Base_URL}/admin/check-tutorstatus/${ data.userInfo.email}`);
+        const tutorStatus = response?.data;
+        console.log("status:",tutorStatus,response)
+        setIsTutor(tutorStatus);
+
+        
+      } catch (error) {
+        console.error("Error checking tutor status:", error);
+        toast.error("Failed to check tutor status. Please try again.");
+      }
+    };
+
+    checkTutorStatus();
+  }, [ data.userInfo.email]);
   
   const handleDashboard = () => {
-    // Add your dashboard navigation logic here
-   navigate('/tutor/dashboard')
-  }
+   if(!istutor){
+    navigate("/tutor")
+    toast.error("Please check your Eligibility!!")
+   }else{
+    navigate("/tutor/dashboard")
+    toast.success("Welcome to Dashboard  ")
+   }
+   
+}
 
   const goToApplication = () => {
     navigate('/tutor/application')

@@ -77,6 +77,7 @@ class AdminController {
     try {
       const { email } = req.params;
       const status = await this.adminService.blockUser(email);
+      console.log("block:",status)
       res.status(HTTP_statusCode.updated).json(status);
     } catch (error: any) {
       console.log("Admin := getusers error in controller", error);

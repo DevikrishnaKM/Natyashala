@@ -57,6 +57,7 @@ class AdminRepository implements IAdminRepository {
         { email: email },
         { $set: { isVerified: true } }
       );
+      console.log("res n blovk:",updatedUser)
       if (!updatedUser) {
         throw new Error("User could not be blocked");
       }

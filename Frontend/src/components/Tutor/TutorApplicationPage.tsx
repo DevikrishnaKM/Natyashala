@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState,useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -40,8 +40,8 @@ const TutorApplicationSubmit: React.FC<TutorApplicationSubmitProps> = ({
 }) => {
   const data: any = useSelector((state: RootState) => state.user);
   console.log("store ", data.userInfo.email);
-
   const navigate = useNavigate();
+ 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

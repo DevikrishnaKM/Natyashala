@@ -60,7 +60,7 @@ const userSlice = createSlice({
         state.accessToken = accessToken;
         state.loading = false;
          console.log(state.userInfo,"sss")
-        // Store access token in localStorage
+        
         localStorage.setItem('accessToken', accessToken);
        
         if(userInfo.role=="user"){
@@ -74,11 +74,10 @@ const userSlice = createSlice({
           localStorage.setItem('tutorInfo', encryptedData);
 
         }
-        // Encrypt and store user info (no need for JSON.stringify here)
+       
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        // Use fallback error message if action.payload is undefined
         state.error = action.payload ? String(action.payload) : 'Login failed. Please try again.';
       })
       .addCase(updateUserInfo.pending, (state) => {

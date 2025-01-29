@@ -12,9 +12,11 @@ import CourseCreation1 from "@/components/Tutor/CourseCreation";
 import AddSection from '../../components/Tutor/CourseAddSection';
 import MoreDetails from '../../components/Tutor/MoreDetails';
 import CourseFinished from "../../components/Tutor/CourseFinished"
+import TutorBlockChecker  from "@/services/TutorBlockChecker";
 
 const TutorDashboard: React.FC = () => {
   const navigae = useNavigate();
+  TutorBlockChecker()
   const [selectedItem, setSelectedItem] = useState<string>(
     () => sessionStorage.getItem("selectedItem") || "Dashboard"
   );
