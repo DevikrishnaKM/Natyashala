@@ -13,6 +13,7 @@ import CourseDetailsPage from '@/Pages/User/CourseDetailsPage';
 import Checkout from '@/Pages/User/Checkout';
 import PaymentSucess from '@/components/common/PaymentSucess';
 import PaymentFailed from '@/components/common/PaymentFailed';
+import TutorDetails from '@/Pages/User/TutorDetailsPage';
 
 const UserRoutes = () => {
   return (
@@ -30,6 +31,7 @@ const UserRoutes = () => {
         <Route path = '/checkout/:id' element = {<Checkout />} />
         <Route path='/confirmPayment/:orderId/:courseId' element={<PaymentSucess/>}/>
         <Route path='/paymentFailed' element={<PaymentFailed/>}/>
+        <Route path = '/tutorDetails/:id' element = {<TutorDetails />} />
     </Routes>
     </>
   )

@@ -32,6 +32,18 @@ class AuthRepository implements IAuthRepository {
       throw error;
     }
   }
+  async findUserById(userId: string): Promise<IUser> {
+    try {
+      const user = await this.userRepo.find({userId})
+      if(!user) {
+        throw new Error("User dosent exist.")
+      }
+      return user;
+    } catch ( error : any) {
+    console.error('Error fetching user in user-controller:', error.message);
+    throw error;
+    }
+}
   async createUser(userData: {
     name: string;
     email: string;

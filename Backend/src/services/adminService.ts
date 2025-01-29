@@ -12,7 +12,9 @@ import { AwsConfig } from "../config/awsFileConfig";
 import getFolderPathByFileType from "../helper/filePathHandler";
 import { IAuthRepository } from "../interfaces/auth.repository.interface";
 import { createUniquePass } from "../helper/tutorCredentials";
-import sendTutorLoginCredentials, { sendTutorRejectionMail } from "../helper/tutorMail";
+import sendTutorLoginCredentials, {
+  sendTutorRejectionMail,
+} from "../helper/tutorMail";
 
 const adminEmail = process.env.ADMIN_EMAIL;
 const adminPassword = process.env.ADMIN_PASSWORD;
@@ -189,8 +191,8 @@ class AdminServices implements IAdminServices {
       throw error;
     }
   };
-   
-  rejectApplication = async(id:string):Promise<any> =>{
+
+  rejectApplication = async (id: string): Promise<any> => {
     try {
       const application = await this.adminRepository.findApplication(id);
       const status = await this.adminRepository.updateStatus(id);
@@ -199,17 +201,16 @@ class AdminServices implements IAdminServices {
         application?.email as string
       );
       if (!user) throw new Error("User doesnt exist.");
-      await sendTutorRejectionMail(user.email as string,user.name as string)
-      return user
-    } catch (error:any) {
+      await sendTutorRejectionMail(user.email as string, user.name as string);
+      return user;
+    } catch (error: any) {
       console.error(
         "Error during admin rejecting  applicant services:",
         error.message
       );
       throw error;
     }
-  }
-
+  };
 
   checkTutorStatus = async (email: string): Promise<boolean | undefined> => {
     try {
@@ -323,7 +324,7 @@ class AdminServices implements IAdminServices {
     try {
       const skip = (page - 1) * limit;
       const response = await this.adminRepository.getCourses(skip, limit);
-      
+
       const coursesWithUrls = await Promise.all(
         response.courses.map(async (course: any) => {
           const thumbnails = course.thumbnail
@@ -367,54 +368,56 @@ class AdminServices implements IAdminServices {
       throw error;
     }
   };
-  blockCourse = async(courseId : string) : Promise<string> => {
+  blockCourse = async (courseId: string): Promise<string> => {
     try {
-        return await this.adminRepository.blockCourse(courseId)
-    } catch (error : any) {
-        console.error("Error during blocking course  in service:", error.message);
-        throw error;
+      return await this.adminRepository.blockCourse(courseId);
+    } catch (error: any) {
+      console.error("Error during blocking course  in service:", error.message);
+      throw error;
     }
-}
+  };
 
-unBlockCourse = async(courseId : string): Promise<string> =>  {
+  unBlockCourse = async (courseId: string): Promise<string> => {
     try {
-        return await this.adminRepository.unBlockCourse(courseId)
-    } catch (error : any) {
-        console.error("Error during unblocking course  in service", error.message);
-        throw error;
+      return await this.adminRepository.unBlockCourse(courseId);
+    } catch (error: any) {
+      console.error(
+        "Error during unblocking course  in service",
+        error.message
+      );
+      throw error;
     }
-}
+  };
 
-findCourse = async (id: string): Promise<any> => {
-  try {
-    const response = await this.adminRepository.findCourse(id);
-    console.log("RES:",response)
+  findCourse = async (id: string): Promise<any> => {
+    try {
+      const response = await this.adminRepository.findCourse(id);
+      console.log("RES:", response);
 
-    return response; 
-  } catch (error: any) {
-    console.error(
-      "Error during admin finding course detail in service:",
-      error.message
-    );
-    throw error;
-  }
-};
+      return response;
+    } catch (error: any) {
+      console.error(
+        "Error during admin finding course detail in service:",
+        error.message
+      );
+      throw error;
+    }
+  };
 
-acceptCourse = async (id: string): Promise<boolean> => {
-  try {
-    const Course = await this.adminRepository.acceptCourse(id);
-   
-    console.log("course:",Course)
-  
-    return Course;
-  } catch (error: any) {
-    console.error(
-      "Error during admin accepting  applicant services:",
-      error.message
-    );
-    throw error;
-  }
-};
+  acceptCourse = async (id: string): Promise<boolean> => {
+    try {
+      const Course = await this.adminRepository.acceptCourse(id);
 
+      console.log("course:", Course);
+
+      return Course;
+    } catch (error: any) {
+      console.error(
+        "Error during admin accepting  applicant services:",
+        error.message
+      );
+      throw error;
+    }
+  };
 }
 export default AdminServices;

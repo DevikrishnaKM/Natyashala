@@ -39,6 +39,13 @@ export interface IEditUser  {
   phone: string | undefined;
 }
 
+export interface ITutorData {
+  name: string,
+  email: string,
+  profileUrl: string,
+  bio: string,
+}
+
 
 export interface FileUrl extends Document{
   type: string;

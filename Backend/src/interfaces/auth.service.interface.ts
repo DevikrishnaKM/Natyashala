@@ -1,4 +1,4 @@
-import {ICleanedUser,IEditUser,ICourse} from "./common.inteface"
+import {ICleanedUser,IEditUser,ICourse,ITutorData} from "./common.inteface"
 export default interface IAuthService {
     signUp(data: any, role: string): Promise<{ user: any; token: string }>;
     otpVerify(email:string,name:string,phone:string,password:string,inputOtp:string,role:'user'|'tutor'):Promise<Boolean>;
@@ -12,4 +12,5 @@ export default interface IAuthService {
     checkEnrollement(courseId: string, email: string) : Promise<boolean>;
     createSession(amount: number,email: string,courseId: string,courseName:string) : Promise<any>;
     confirmCourse(courseId:string):Promise<any>
+    tutorData(id: string) : Promise<ITutorData>;
 }

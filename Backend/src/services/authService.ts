@@ -4,7 +4,7 @@ import AppError from "../utils/appError";
 import { v4 as uuidv4 } from "uuid";
 import { generateOtp } from "../utils/generateOtp";
 import sendEmail from "../utils/email";
-import { ICleanedUser, IEditUser,ICourse } from "../interfaces/common.inteface";
+import { ICleanedUser, IEditUser,ICourse ,ITutorData} from "../interfaces/common.inteface";
 import { getOtpByEmail, otpSetData } from "../utils/redisCache";
 import { createToken, createRefreshToken } from "../config/jwtConfig";
 import HTTP_statusCode from "../Enums/httpStatusCode";
@@ -337,6 +337,30 @@ class AuthService {
     } catch (error:any) {
       console.error('Error in confirm course:', error.message);
       throw new Error(`Error confim course...: ${error.message}`);
+    }
+  }
+
+  tutorData = async(id: string) : Promise<ITutorData> => {
+    try {
+      const user = await this.authRepository.findUserById(id as string);
+      const tutor = await this.authRepository.getApplicantData(user?.email as string);
+      let profileUrl = "";
+      if (user?.profilePicture) {
+        profileUrl = await this.aws.tutorGetfile(
+          user?.profilePicture as string,
+          `users/profile/${user?.userId}`
+        );
+      }
+      const tutorData = {
+        name: user?.name,
+        email: user?.email,
+        profileUrl: profileUrl,
+        bio: tutor?.bio,
+      };
+      return tutorData;
+    } catch (error: any) {
+      console.error("Error in getting tutor data user serice :", error.message);
+      throw error;
     }
   }
   

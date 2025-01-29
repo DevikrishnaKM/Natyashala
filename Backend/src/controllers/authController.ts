@@ -271,6 +271,18 @@ class AuthController {
         .json({ message: error.message });
     }
   })
+
+  tutorDetail = async(req : Request, res : Response) => {
+    try {
+       const {id} = req.params
+       const tutorData =  await this.authService.tutorData(id as string)
+       res.status(HTTP_statusCode.OK).json(tutorData)
+    } catch (error :any) {
+      console.error(error.message);
+      res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+    }
+  }
+ 
 }
 
 export default AuthController;
