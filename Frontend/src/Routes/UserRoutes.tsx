@@ -14,6 +14,9 @@ import Checkout from '@/Pages/User/Checkout';
 import PaymentSucess from '@/components/common/PaymentSucess';
 import PaymentFailed from '@/components/common/PaymentFailed';
 import TutorDetails from '@/Pages/User/TutorDetailsPage';
+import MyCourses from '@/Pages/User/MyCourses';
+import CoursePlayer2 from '@/Pages/User/CoursePlayer';
+import MyOrders from '@/Pages/User/MyOrders';
 
 const UserRoutes = () => {
   return (
@@ -30,8 +33,11 @@ const UserRoutes = () => {
         <Route path = '/courseDetails/:id' element = {<CourseDetailsPage />} />
         <Route path = '/checkout/:id' element = {<Checkout />} />
         <Route path='/confirmPayment/:orderId/:courseId' element={<PaymentSucess/>}/>
+        <Route path = '/coursePlayer/:courseId' element = {<UserProtector> <CoursePlayer2 /> </UserProtector>} />
         <Route path='/paymentFailed' element={<PaymentFailed/>}/>
         <Route path = '/tutorDetails/:id' element = {<TutorDetails />} />
+        <Route path = '/mycourses' element = {<UserProtector> <MyCourses /> </UserProtector>} />
+        <Route path = '/my-orders/:userId' element = {<UserProtector> <MyOrders /></UserProtector>} />
     </Routes>
     </>
   )

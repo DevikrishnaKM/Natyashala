@@ -209,3 +209,11 @@ export interface IOrder extends Document  {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IRating extends Document {
+  courseId: string; 
+  userId: string;   
+  ratingValue: number;       
+  review: string;          
+  createdAt: Date;           
+}

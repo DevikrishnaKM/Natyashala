@@ -42,7 +42,7 @@ const CourseCard: React.FC<IcourseData> = ({
       const response = await userAxiosInstance.get(
         `/auth/check-enrollment/${email}/${courseId}`
       );
-      
+      console.log("enrolle:",response)
       if (response.data) {
         navigate(`/coursePlayer/${courseId}`);
       } else {

@@ -4,7 +4,13 @@ import AppError from "../utils/appError";
 import { v4 as uuidv4 } from "uuid";
 import { generateOtp } from "../utils/generateOtp";
 import sendEmail from "../utils/email";
-import { ICleanedUser, IEditUser,ICourse ,ITutorData} from "../interfaces/common.inteface";
+import {
+  ICleanedUser,
+  IEditUser,
+  ICourse,
+  ITutorData,
+  IRating,
+} from "../interfaces/common.inteface";
 import { getOtpByEmail, otpSetData } from "../utils/redisCache";
 import { createToken, createRefreshToken } from "../config/jwtConfig";
 import HTTP_statusCode from "../Enums/httpStatusCode";
@@ -13,7 +19,6 @@ import { IAdminRepository } from "../interfaces/admin.repository.interface";
 import ICourseRepository from "../interfaces/course.repository.interface";
 import { createUniquePass } from "../helper/tutorCredentials";
 import makeThePayment from "../config/stripeConfig";
-
 
 class AuthService {
   private authRepository: IAuthRepository;
@@ -162,7 +167,6 @@ class AuthService {
     }
   };
 
-
   saveProfile = async (
     profile: Express.Multer.File,
     userId: string
@@ -206,13 +210,25 @@ class AuthService {
       throw error;
     }
   };
-  getCourses = async(category: string , page: number, limit: number , filter?: string) : Promise<{ courses: any, totalPages : number}> => {
+  getCourses = async (
+    category: string,
+    page: number,
+    limit: number,
+    filter?: string
+  ): Promise<{ courses: any; totalPages: number }> => {
     try {
-      const response = await this.authRepository.getCourses(category, page, limit);
+      const response = await this.authRepository.getCourses(
+        category,
+        page,
+        limit
+      );
       const coursesWithUrls = await Promise.all(
         response.courses.map(async (course: any) => {
           const thumbnails = course.thumbnail
-            ? await this.aws.tutorGetfile(course.thumbnail,`tutors/${course.email}/courses/${course.courseId}/thumbnail`)
+            ? await this.aws.tutorGetfile(
+                course.thumbnail,
+                `tutors/${course.email}/courses/${course.courseId}/thumbnail`
+              )
             : null;
           return { ...course, thumbnail: thumbnails };
         })
@@ -224,19 +240,22 @@ class AuthService {
     } catch (error) {
       throw error;
     }
-  }
+  };
 
-  getCourseDetail = async(id: string) : Promise<any> => {
+  getCourseDetail = async (id: string): Promise<any> => {
     try {
-      const response = await this.authRepository.courseDetails(id)
-      const tutor = await this.authRepository.findUser(response?.email)
+      const response = await this.authRepository.courseDetails(id);
+      const tutor = await this.authRepository.findUser(response?.email);
       const thumbnailUrl = await this.aws.tutorGetfile(
         response?.thumbnail as string,
         `tutors/${response.email}/courses/${response.courseId}/thumbnail`
       );
-       let profileUrl =''
-      if(tutor?.profilePicture) {
-         profileUrl = await this.aws.tutorGetfile(tutor?.profilePicture as string,`users/profile/${tutor?.userId}` )
+      let profileUrl = "";
+      if (tutor?.profilePicture) {
+        profileUrl = await this.aws.tutorGetfile(
+          tutor?.profilePicture as string,
+          `users/profile/${tutor?.userId}`
+        );
       }
       const sectionsWithUrls = await Promise.all(
         response.sections.map(async (section: any, index: number) => {
@@ -259,18 +278,24 @@ class AuthService {
         ...response,
         thumbnailUrl,
         sections: sectionsWithUrls,
-        profileUrl
+        profileUrl,
       };
     } catch (error: any) {
       console.error("Error fetching course details:", error.message);
       throw new Error(`Failed to fetch course details: ${error.message}`);
     }
-  }
-  checkEnrollment = async(courseId: string, email: string) : Promise<boolean> =>{
+  };
+  checkEnrollment = async (
+    courseId: string,
+    email: string
+  ): Promise<boolean> => {
     try {
       const user = await this.authRepository.findUser(email as string);
+      console.log("user:", user);
       if (user?.enrolledCourses) {
-        const isEnrolled = (user.enrolledCourses as string[]).includes(courseId);
+        const isEnrolled = (user.enrolledCourses as string[]).includes(
+          courseId
+        );
         console.log("enrollled", isEnrolled, courseId);
         return isEnrolled;
       }
@@ -282,7 +307,7 @@ class AuthService {
       );
       throw new Error(` ${error.message}`);
     }
-  }
+  };
   createSession = async (
     amount: number,
     email: string,
@@ -290,60 +315,88 @@ class AuthService {
     courseName: string
   ): Promise<any> => {
     try {
+      const adminShare = parseFloat((amount * 0.05).toFixed(2));
+      const tutorShare = parseFloat((amount * 0.95).toFixed(2));
       const data = {
         amount,
         email,
         courseId,
         courseName,
-      }
+      };
       const user = await this.authRepository.findUser(email);
-      if(!user){
-        throw new Error("user is not there")
+      if (!user) {
+        throw new Error("user is not there");
       }
       const course = await this.authRepository.getCourse(courseId);
-      if(!course){
-        throw new Error("course is not there")
+      if (!course) {
+        throw new Error("course is not there");
       }
-      const orderId = createUniquePass(10)
+      const tutor = await this.authRepository.findUser(course?.email || "");
+      const adminTransaction = {
+        courseId: courseId,
+        course: course?.name,
+        tutorId: tutor?.userId,
+        tutor: tutor?.name,
+        transactionId: uuidv4(),
+      };
+      await this.authRepository.coursePaymentWallet(
+        tutor?.userId || "",
+        tutorShare,
+        course?.name || ""
+      );
+      await this.adminRepository.adminPaymentWallet(
+        adminShare,
+        adminTransaction
+      );
+      const orderId = createUniquePass(10);
       const orderDetails = {
-        userId: user?.userId || "", 
+        userId: user?.userId || "",
         courseId: courseId,
         totalAmount: amount,
         orderId: orderId,
-        courseName:courseName,
+        courseName: courseName,
         paymentStatus: "Pending",
       };
       await this.authRepository.saveOder(orderDetails);
-      const session = await makeThePayment(data,orderId as string)
-      if(session){
-        const update = await this.authRepository.updateOrder(session.id,orderId as string)
-        console.log("session:",session)
-        console.log("updateOrder:",update)
-        return session
+      const session = await makeThePayment(data, orderId as string);
+      if (session) {
+        const update = await this.authRepository.updateOrder(
+          session.id,
+          orderId as string
+        );
+        console.log("session:", session);
+        console.log("updateOrder:", update);
+        return session;
       }
-    
-     
     } catch (error: any) {
-      console.error('Error in create session:', error.message);
+      console.error("Error in create session:", error.message);
       throw new Error(`Error processing payment: ${error.message}`);
     }
   };
 
-  confirmCourse = async(orderId:string):Promise<any> =>{
+  confirmCourse = async (
+    orderId: string,
+    courseId: string,
+    email: string
+  ): Promise<any> => {
     try {
-      const orderStatus = await this.authRepository.confirmOrder(orderId)
-      console.log("status changed:",orderStatus)
-      return orderStatus
-    } catch (error:any) {
-      console.error('Error in confirm course:', error.message);
+      const saveCourse = await this.authRepository.saveCourse(courseId, email);
+      console.log("savecourse:", saveCourse);
+      const orderStatus = await this.authRepository.confirmOrder(orderId);
+      console.log("status changed:", orderStatus);
+      return orderStatus;
+    } catch (error: any) {
+      console.error("Error in confirm course:", error.message);
       throw new Error(`Error confim course...: ${error.message}`);
     }
-  }
+  };
 
-  tutorData = async(id: string) : Promise<ITutorData> => {
+  tutorData = async (id: string): Promise<ITutorData> => {
     try {
       const user = await this.authRepository.findUserById(id as string);
-      const tutor = await this.authRepository.getApplicantData(user?.email as string);
+      const tutor = await this.authRepository.getApplicantData(
+        user?.email as string
+      );
       let profileUrl = "";
       if (user?.profilePicture) {
         profileUrl = await this.aws.tutorGetfile(
@@ -362,8 +415,47 @@ class AuthService {
       console.error("Error in getting tutor data user serice :", error.message);
       throw error;
     }
+  };
+
+  MyCourses = async (userId: string): Promise<any> => {
+    try {
+      const getCourses = await this.courseRepository.getUserCourses(
+        userId as string
+      );
+      console.log("get:", getCourses);
+      const coursesWithUrls = await Promise.all(
+        getCourses.map(async (course: ICourse) => {
+          const thumbnails = course.thumbnail
+            ? await this.aws.tutorGetfile(
+                course.thumbnail,
+                `tutors/${course.email}/courses/${course.courseId}/thumbnail`
+              )
+            : null;
+          return { ...course, thumbnail: thumbnails };
+        })
+      );
+      return coursesWithUrls;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  getRatings = async(courseId: string): Promise<IRating[]> => {
+    try {
+        return await this.authRepository.ratings(courseId as string)
+    } catch (error: any) {
+      console.error("Error in getting ratings user serice :", error.message);
+      throw new Error(` ${error.message}`);
+    }
   }
-  
+  addRating =async(newRating: object) : Promise<IRating>  => {
+    try {
+        return await this.authRepository.addRating(newRating)
+    } catch (error: any) {
+      console.error("Error in getting ratings user serice :", error.message);
+      throw new Error(` ${error.message}`);
+    }
+  }
 }
 
 export default AuthService;

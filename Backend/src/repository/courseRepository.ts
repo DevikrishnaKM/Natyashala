@@ -4,6 +4,25 @@ import TutorProfile from "../models/tutorProfileModel";
 import ICourseRepository from "../interfaces/course.repository.interface";
 
 export class CourseRepository implements ICourseRepository {
+
+  async getUserCourses(userId: string) : Promise<ICourse[]> {
+    try {
+      
+      const courses = await Course.find().populate({
+        path: "sections",
+        populate: { path: "videos" },
+      }).lean();
+      console.log("cours:",courses)
+      if (!courses) {
+        throw new Error("Cannot find course.");
+      }
+      return courses;
+    } catch (error: any) {
+      console.log("Error in getting course detail course repo", error.message);
+      throw new Error(error.message);
+    }
+  }
+
   async updateCourse(couresId: string, newData: any): Promise<ICourse> {
     try {
       console.log("course", couresId, newData);

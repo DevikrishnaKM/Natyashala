@@ -4,8 +4,13 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import userAxiosInstance from "@/config/axiosInstance.ts/userInstance";
 import triggerConfetti from "@/utils/confetti";
 import { toast } from "sonner";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const PaymentSucess = () => {
+  const { userInfo } = useSelector((state: RootState) => state.user);
+  const email = userInfo?.email;
+  console.log("info:",email)
   const { orderId, courseId } = useParams();
   const navigate = useNavigate();
   triggerConfetti();
@@ -24,6 +29,8 @@ const PaymentSucess = () => {
           "/auth/checkSessionStatus",
           {
               orderId: orderId,
+              courseId:courseId,
+              email:email,
           }
         );
 

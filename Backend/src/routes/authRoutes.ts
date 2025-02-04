@@ -45,7 +45,10 @@ router.get('/get-courses', authController.getCourses.bind(authController));
 router.get("/getCourse/:id", verifyToken, authController.courseDetails.bind(authController));
 router.get('/check-enrollment/:email/:courseId', verifyToken,authController.checkEnrollement.bind(authController));
 router.post('/createorder',verifyToken,authController.createOrder.bind(authController))
+router.get('/mycourses/:userId',verifyToken, authController.MyCourses.bind(authController));
 router.post('/checkSessionStatus',verifyToken,authController.confirmPayment.bind(authController))
 router.get("/tutorDetail/:id",verifyToken,authController.tutorDetail.bind(authController))
+router.get('/ratings/:courseId' ,verifyToken,authController.getRatings.bind(authController))
+router.post('/add-rating', authController.addRating.bind(authController));
 
 export default router;

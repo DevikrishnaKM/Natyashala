@@ -208,7 +208,7 @@ class AuthController {
         pageNumber,
         limitNumber
       );
-      console.log("courses",courses)
+      console.log("courses", courses);
       res.status(HTTP_statusCode.OK).json(courses);
     } catch (error: any) {
       console.error(error.message);
@@ -217,7 +217,7 @@ class AuthController {
         .json({ message: error.message });
     }
   }
-  
+
   courseDetails = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -231,58 +231,115 @@ class AuthController {
     }
   };
 
-  checkEnrollement = catchAsync(async(req:Request,res:Response)=>{
+  checkEnrollement = catchAsync(async (req: Request, res: Response) => {
     try {
-      const {courseId,email} = req.params
-      const response = await this.authService.checkEnrollment(courseId as string, email as string)
-      res.status(HTTP_statusCode.OK).json(response)
-    } catch (error:any) {
+      const { courseId, email } = req.params;
+      const response = await this.authService.checkEnrollment(
+        courseId as string,
+        email as string
+      );
+
+      res.status(HTTP_statusCode.OK).json(response);
+    } catch (error: any) {
       console.error(error.message);
       res
         .status(HTTP_statusCode.InternalServerError)
         .json({ message: error.message });
     }
-  })
+  });
 
-  createOrder = catchAsync(async(req:Request,res:Response)=>{
+  createOrder = catchAsync(async (req: Request, res: Response) => {
     try {
-      const {amount,email,courseId,courseName} = req.body
-      const session = await this.authService.createSession(amount as number,email,courseId,courseName)
-      console.log("client_secret:",session)
-      res.status(HTTP_statusCode.updated).json({ message: 'Order created successfully', session })
-    } catch (error:any) {
+      const { amount, email, courseId, courseName } = req.body;
+      const session = await this.authService.createSession(
+        amount as number,
+        email,
+        courseId,
+        courseName
+      );
+      console.log("client_secret:", session);
+      res
+        .status(HTTP_statusCode.updated)
+        .json({ message: "Order created successfully", session });
+    } catch (error: any) {
       console.error(error.message);
       res
         .status(HTTP_statusCode.InternalServerError)
         .json({ message: error.message });
     }
-  })
+  });
 
-  confirmPayment = catchAsync(async(req:Request,res:Response) => {
+  confirmPayment = catchAsync(async (req: Request, res: Response) => {
     try {
-      const {orderId} = req.body
-      const response = await this.authService.confirmCourse(orderId)
-      console.log("res:",response)
-      res.status(HTTP_statusCode.OK).json({message:"course confirmed",response})
-    } catch (error:any) {
+      const { orderId, courseId, email } = req.body;
+      const response = await this.authService.confirmCourse(
+        orderId,
+        courseId,
+        email
+      );
+      console.log("res:", response);
+      res
+        .status(HTTP_statusCode.OK)
+        .json({ message: "course confirmed", response });
+    } catch (error: any) {
       console.error(error.message);
       res
         .status(HTTP_statusCode.InternalServerError)
         .json({ message: error.message });
     }
-  })
+  });
 
-  tutorDetail = async(req : Request, res : Response) => {
+  tutorDetail = async (req: Request, res: Response) => {
     try {
-       const {id} = req.params
-       const tutorData =  await this.authService.tutorData(id as string)
-       res.status(HTTP_statusCode.OK).json(tutorData)
+      const { id } = req.params;
+      const tutorData = await this.authService.tutorData(id as string);
+      res.status(HTTP_statusCode.OK).json(tutorData);
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  };
+  MyCourses = async (req: Request, res: Response) => {
+    try {
+      const userId = req.params.userId;
+
+      const courses = await this.authService.MyCourses(userId as string);
+      console.log("course:", courses);
+      res.status(HTTP_statusCode.OK).json(courses);
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  };
+
+  getRatings = async (req: Request, res: Response) => {
+    try {
+      const { courseId } = req.params;
+      const ratings = await this.authService.getRatings(courseId as string);
+      res.status(HTTP_statusCode.OK).json(ratings);
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  };
+  addRating = async(req : Request, res : Response) => {
+    try {
+       const newRating = req.body;
+       console.log(newRating);
+       
+       const rating =  await this.authService.addRating(newRating as object)  
+       res.status(HTTP_statusCode.updated).json(rating)
     } catch (error :any) {
       console.error(error.message);
       res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
     }
-  }
- 
+  } 
 }
 
 export default AuthController;

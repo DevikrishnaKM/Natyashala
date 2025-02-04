@@ -10,6 +10,7 @@ import Navbar from '@/components/common/UserCommon/NavBar';
 import ProfileImg from "../../components/User/ProfileImg";
 import BlockChecker from "../../services/BlockChecker";
 
+
 const menuItems = [
   { name: 'Profile', component: <UserDetails /> },
   { name: 'Wallet', component: <Wallet/> },

@@ -67,12 +67,10 @@ const userSchema = new Schema<IUser>(
       type: String,
       default: 'default.jpg',
     },
-    enrolledCourses: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Course',
-      },
-    ],
+    enrolledCourses: {
+      type: [String],
+      default: [],
+    },
     walletBalance: {
       type: Number,
       default: 0,

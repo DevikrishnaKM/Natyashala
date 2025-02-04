@@ -5,6 +5,7 @@ import {
   ICourse,
   IOrder,
   IWallet,
+  IRating,
 } from "../interfaces/common.inteface";
 import { IAuthRepository } from "../interfaces/auth.repository.interface";
 import BaseRepository from "./baseRepository";
@@ -13,6 +14,7 @@ import TutorProfile from "../models/tutorProfileModel";
 import { Course } from "../models/courseModel";
 import { Wallet } from "../models/walletModel";
 import Order from "../models/orderModel";
+import Rating from "../models/ratingModel";
 
 class AuthRepository implements IAuthRepository {
   private userRepo: BaseRepository<IUser>;
@@ -339,7 +341,7 @@ class AuthRepository implements IAuthRepository {
       await this.userRepo.update(
         { email: email },
         {
-          $push: { courses: courseId },
+          $push: { enrolledCourses: courseId },
         }
       );
       const user = await this.userRepo.find({ email: email });
@@ -395,6 +397,24 @@ class AuthRepository implements IAuthRepository {
       return wallet;
     } catch (error: any) {
       console.error("Error in saving wallet in wallet repo", error.message);
+      throw new Error(error.message);
+    }
+  }
+  async ratings(courseId: string) : Promise<IRating[]> {
+    try {
+       return await Rating.find({ courseId }).lean();
+    } catch (error: any) {
+      console.error("Error in getting rating repo", error.message);
+      throw new Error(error.message);
+    }
+  }
+  async addRating(newRating: object): Promise<IRating> { 
+    try {
+      const rating = new Rating(newRating);
+      const savedRating = await rating.save(); 
+      return savedRating; 
+    } catch (error: any) {
+      console.error("Error in adding rating:", error.message);
       throw new Error(error.message);
     }
   }
