@@ -32,7 +32,9 @@ const upload = multer({
 })
 
 // Define routes
-router.post('/signup', authController.createUser.bind(authController)); // Correctly bind `createUser`
+router.post('/signup', authController.createUser.bind(authController)); 
+router.post('/google', authController.googleLogin.bind(authController)); 
+
 router.post('/otpVerification', authController.otpVerification.bind(authController));
 router.post("/verifyLogin",authController.verifyLogin.bind(authController))
 router.post('/resendOtp', authController.resendOtp.bind(authController));
@@ -52,5 +54,6 @@ router.get('/ratings/:courseId' ,verifyToken,authController.getRatings.bind(auth
 router.post('/add-rating', authController.addRating.bind(authController));
 router.post(`/walletAdd`,verifyToken ,authController.addMoney.bind(authController))
 router.get(`/getTransactions/:userId`, authController.getTransactions.bind(authController))
+router.get('/get-orders/:userId', verifyToken ,authController.getOrders.bind(authController))
 
 export default router;

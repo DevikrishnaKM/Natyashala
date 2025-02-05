@@ -86,6 +86,10 @@ const userSchema = new Schema<IUser>(
     location: {
       type: String,
     },
+    googleId: {
+      type: String,
+      required :false
+    },
   },
   {
     timestamps: true,

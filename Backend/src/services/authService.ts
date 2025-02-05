@@ -11,6 +11,7 @@ import {
   ITutorData,
   IRating,
   IWallet,
+  IOrder,
 } from "../interfaces/common.inteface";
 import { getOtpByEmail, otpSetData } from "../utils/redisCache";
 import { createToken, createRefreshToken } from "../config/jwtConfig";
@@ -81,6 +82,32 @@ class AuthService {
 
     const token = createToken(tempData.userId, tempData.role);
     return { user: tempData, token }; // Returning user and token
+  };
+
+  googleLogin = async (userData: any): Promise<any> => {
+    try {
+      const existUser = await this.authRepository.findUser(userData.email);
+      if (existUser) {
+        return existUser;
+      } else {
+        const userDetail = {
+          name: userData.name,
+          email: userData.email,
+          googleId: userData.uid,
+          profilePicture: userData.picture || undefined,
+          role: "user",
+        };
+
+        const newUser = await this.authRepository.googleLogin(userDetail);
+        return newUser;
+      }
+    } catch (error: any) {
+      console.error("Error during google login:", error.message);
+      throw new AppError(
+        "Internal Server Error",
+        HTTP_statusCode.InternalServerError
+      );
+    }
   };
 
   otpVerify = async (
@@ -420,12 +447,32 @@ class AuthService {
 
   MyCourses = async (userId: string): Promise<any> => {
     try {
+      const orders = await this.authRepository.orders(userId as string);
+
+      const completedOrders = orders.filter(
+        (order: any) => order.paymentStatus === "Completed"
+      );
+
+      const purchasedCourseIds = completedOrders.map(
+        (order: any) => order.courseId
+      );
+
+      if (purchasedCourseIds.length === 0) {
+        return [];
+      }
+
       const getCourses = await this.courseRepository.getUserCourses(
         userId as string
       );
-      console.log("get:", getCourses);
+
+      const filteredCourses = getCourses.filter((course: ICourse) =>
+        purchasedCourseIds.includes(course.courseId)
+      );
+
+      console.log("Filtered Courses:", filteredCourses);
+
       const coursesWithUrls = await Promise.all(
-        getCourses.map(async (course: ICourse) => {
+        filteredCourses.map(async (course: ICourse) => {
           const thumbnails = course.thumbnail
             ? await this.aws.tutorGetfile(
                 course.thumbnail,
@@ -435,6 +482,7 @@ class AuthService {
           return { ...course, thumbnail: thumbnails };
         })
       );
+
       return coursesWithUrls;
     } catch (error) {
       throw error;
@@ -480,6 +528,34 @@ class AuthService {
         "Error in getting transactions user serice :",
         error.message
       );
+      throw new Error(` ${error.message}`);
+    }
+  };
+  getOrders = async (userId: string): Promise<any> => {
+    try {
+      console.log("id:", userId);
+      const orders = await this.authRepository.orders(userId as string);
+      console.log("orders:", orders);
+      const CompletedOrders = await Promise.all(
+        orders.map(async (order: IOrder) => {
+          const { name, thumbnail, category, email } =
+            await this.authRepository.getCourse(order?.courseId);
+          const thumbnailUrl = await this.aws.tutorGetfile(
+            thumbnail as string,
+            `tutors/${email}/courses/${order?.courseId}/thumbnail`
+          );
+
+          return {
+            ...order,
+            courseName: name,
+            thumbnail: thumbnailUrl,
+            category,
+          };
+        })
+      );
+      return CompletedOrders;
+    } catch (error: any) {
+      console.error("Error in getting ratings user serice :", error.message);
       throw new Error(` ${error.message}`);
     }
   };

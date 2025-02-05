@@ -248,18 +248,17 @@ class AdminServices implements IAdminServices {
             createdAt,
             role,
             isVerified,
-            profile,
+            profilePicture,
             userId,
             isApprovedTutor,
           } = user._doc;
-
-          let profilePicture = "";
-          if (profile) {
-            profilePicture = await this.aws.getfile(
-              profile as string,
-              `users/profile/${userId}`
-            );
-          }
+          
+          const profileUrl = profilePicture
+            ? await this.aws.tutorGetfile(
+                profilePicture as string,
+                `users/profile/${userId}`
+              )
+            : "";
 
           return {
             name,
@@ -267,7 +266,7 @@ class AdminServices implements IAdminServices {
             phone,
             role,
             isVerified,
-            profilePicture,
+            profilePicture: profileUrl,
             createdAt: createdAt.toISOString().slice(0, 10),
             userId,
             isApprovedTutor,
@@ -286,6 +285,7 @@ class AdminServices implements IAdminServices {
       throw error;
     }
   };
+
 
   createCategory = async (
     categoryName: string,

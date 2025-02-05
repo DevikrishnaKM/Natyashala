@@ -6,7 +6,7 @@ import { toast} from "sonner";
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch} from "react-redux";
 import { login } from "../../redux/actions/UserActions";
-// import GoogleAuthButton from "./Google_auth"
+// import {Google} from "./Google_auth"
 
 export default function LoginPage() {
   const dispatch = useDispatch<any>();
@@ -132,7 +132,7 @@ export default function LoginPage() {
             </div>
           </form>
           <div className="text-center mt-4">
-          
+              {/* <Google/> */}
            </div>
 
           <div className="w-full flex items-center justify-center relative mb-6">

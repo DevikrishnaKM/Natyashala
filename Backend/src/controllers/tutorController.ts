@@ -63,11 +63,13 @@ class TutorController {
       const courseData = req.body;
       const { email } = req.params;
       const files = req.files as Express.Multer.File[];
+      console.log("sadn",courseData," ",email," ",files)
       const response = await this.tutorServices.createCourse(
         files,
         courseData,
         email
       );
+      console.log("res:",response)
       res.status(HTTP_statusCode.updated).json(response);
     } catch (error: any) {
       console.error(error.message);

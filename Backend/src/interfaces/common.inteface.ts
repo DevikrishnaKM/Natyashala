@@ -19,6 +19,7 @@ export interface IUser extends Document {
     };
     bio?: string;
     location?: string;
+    googleId?: string;
     createdAt?: Date;
     updatedAt?: Date;
   }

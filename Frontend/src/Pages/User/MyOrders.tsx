@@ -5,12 +5,12 @@ import { RootState } from "../../redux/store";
 import userAxiosInstance from "../../config/axiosInstance.ts/userInstance";
 import { Base_URL } from "../../credentials";
 import BlockChecker from "../../services/BlockChecker";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import Navbar from "../../components/common/UserCommon/NavBar";
 
 interface IOrders {
     courseName: string;
-    Category: string;
+    category: string;
     totalAmount: number;
     createdAt: string;
     thumbnail: string | undefined;
@@ -20,21 +20,23 @@ interface IOrders {
 
 const MyOrders: React.FC = () => {
   BlockChecker();
-  const {userId} = useParams();
+  const {userInfo} = useSelector((state:RootState)=>state.user)
+  console.log("user:",userInfo)
   const navigate = useNavigate();
   const [orders, setOrders] = useState<IOrders[] | null>(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
         try {
-            const {data} = await userAxiosInstance.get(`/get-orders/${userId}`);
+            const {data} = await userAxiosInstance.get(`${Base_URL}/auth/get-orders/${userInfo.userId}`);
+            console.log("res:",{data})
             setOrders(data);
         } catch (error) {
-            // Handle error
+            console.error(error,"dkjcndncc")
         }
     }
     fetchOrders();
-  }, [userId]);
+  }, [userInfo.userId]);
 
   return (
     <>
@@ -114,7 +116,7 @@ const MyOrders: React.FC = () => {
                     </thead>
                     <tbody>
                       {orders && orders.length > 0 ? (
-                        orders.map((order, index) => (
+                        orders.map((order) => (
                           <tr key={order.orderId} className="border-b border-gray-200">
                             <td className="text-sm text-gray-500 px-4 py-10">{order.orderId}</td>
                             <td className="px-4 py-5">
@@ -127,7 +129,7 @@ const MyOrders: React.FC = () => {
                                 <p className="text-sm">{order.courseName}</p>
                               </div>
                             </td>
-                            <td className="px-4 py-10">{order.Category}</td>
+                            <td className="px-4 py-10">{order.category}</td>
                             <td className="px-4 py-10">{order.totalAmount}</td>
                             <td className="px-4 py-10">{order.createdAt}</td>
                             <td className="px-4 py-10">
@@ -168,7 +170,7 @@ const MyOrders: React.FC = () => {
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-500">Category:</span>
-                          <span className="text-sm">{order.Category}</span>
+                          <span className="text-sm">{order.category}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-500">Price:</span>

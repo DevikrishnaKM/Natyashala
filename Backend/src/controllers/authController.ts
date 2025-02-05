@@ -4,6 +4,7 @@ import AppError from "../utils/appError";
 import catchAsync from "../utils/catchAsync";
 import { createSendToken } from "../config/jwtConfig";
 import HTTP_statusCode from "../Enums/httpStatusCode";
+import { admin } from "../config/firebase";
 
 class AuthController {
   private authService: AuthService;
@@ -27,6 +28,26 @@ class AuthController {
       createSendToken(user, 201, res, "Registration successful");
     }
   );
+  googleLogin = catchAsync(async (req: Request, res: Response) => {
+    try {
+      const { idToken } = req.body;
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+
+      const { email, name, uid, picture } = decodedToken;
+
+      const userData = { email, name, uid, picture };
+
+      const user = await this.authService.googleLogin(userData as any);
+      res
+        .status(HTTP_statusCode.OK)
+        .json({ message: "Login successful", user });
+    } catch (error: any) {
+      console.error("Error during OTP verification in controller:", error);
+      return res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: "Internal Server Error" });
+    }
+  });
 
   otpVerification = catchAsync(async (req: Request, res: Response) => {
     try {
@@ -344,8 +365,8 @@ class AuthController {
   };
   addMoney = async (req: Request, res: Response) => {
     try {
-      const { userId ,amount} = req.body;
-     
+      const { userId, amount } = req.body;
+
       const wallet = await this.authService.addMoney(
         userId as string,
         amount as number
@@ -365,6 +386,20 @@ class AuthController {
       const wallet = await this.authService.getTransactions(userId as string);
       console.log(wallet, "wallet");
       res.status(HTTP_statusCode.OK).json(wallet);
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  };
+  getOrders = async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
+      console.log("userId",userId)
+      const orders = await this.authService.getOrders(userId as string);
+      console.log("orders:",orders)
+      res.status(HTTP_statusCode.OK).json(orders);
     } catch (error: any) {
       console.error(error.message);
       res

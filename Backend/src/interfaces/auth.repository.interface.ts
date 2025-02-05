@@ -2,6 +2,7 @@ import {IUser,ICleanedUser,ICourse, IOrder,IRating,IWallet} from "./common.intef
 
 export interface IAuthRepository {
     findUser(email : string) : Promise<IUser | null>;
+    googleLogin(userDetail : any) : Promise<IUser | null>;
     findUserById(userId: string): Promise<IUser>
     createUser(userData: { name: string, email: string, phone: string, password: string,role:'user'|'tutor'}): Promise<IUser|boolean>;
     validateLoginUser(email: string,password: string): Promise<ICleanedUser>;
@@ -21,4 +22,5 @@ export interface IAuthRepository {
     addRating(newRating : object) : Promise<IRating> 
     newPayment(userId: string, amount: number) : Promise <IWallet>
     transactions(userId: string) :Promise<IWallet | null>;
+    orders(userId: string)  : Promise<IOrder[]>;
 }

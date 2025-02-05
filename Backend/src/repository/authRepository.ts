@@ -34,6 +34,17 @@ class AuthRepository implements IAuthRepository {
       throw error;
     }
   }
+
+  async googleLogin(userDetail:any): Promise<IUser|null>{
+    try {
+      const newUser = await this.userRepo.create(userDetail); 
+      // console.log("User created successfully:", newUser);
+      return newUser;
+    } catch (error: any) {
+      console.error("Error fetching user in auth-controller", error.message);
+      throw error;
+    }
+  }
   async findUserById(userId: string): Promise<IUser> {
     try {
       const user = await this.userRepo.find({userId})
@@ -462,5 +473,17 @@ class AuthRepository implements IAuthRepository {
       throw new Error(error.message);
     }
   }
+  async orders(userId: string): Promise<IOrder[]> {
+    try {
+        console.log("Fetching orders for userId:", userId);
+        const order = await Order.find({ userId }).lean().exec()
+        console.log("Fetched orders from DB:", order);
+        return order;
+    } catch (error: any) {
+        console.error("Error in getting orders from repo", error.message);
+        throw new Error(error.message);
+    }
+}
+
 }
 export default AuthRepository;

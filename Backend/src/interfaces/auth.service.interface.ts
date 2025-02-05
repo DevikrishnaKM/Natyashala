@@ -1,6 +1,7 @@
 import {ICleanedUser,IEditUser,ICourse,ITutorData,IRating,IWallet} from "./common.inteface"
 export default interface IAuthService {
     signUp(data: any, role: string): Promise<{ user: any; token: string }>;
+    googleLogin(userdata:any):Promise<any>
     otpVerify(email:string,name:string,phone:string,password:string,inputOtp:string,role:'user'|'tutor'):Promise<Boolean>;
     verifyLogin(email:string,password:string):Promise<{userInfo:ICleanedUser;accessToken:string}>;
     resendOtp(email: any): Promise<boolean>; 
@@ -18,4 +19,5 @@ export default interface IAuthService {
     addRating(newRating : object) : Promise<IRating> ;
     addMoney(userId: string , amount : number) : Promise<any>
     getTransactions(userId: string) : Promise<IWallet | null>;
+    getOrders(userId: string) : Promise<any>;
 }
