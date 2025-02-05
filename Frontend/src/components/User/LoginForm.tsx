@@ -1,10 +1,12 @@
-import React from 'react'
+
+// import { FcGoogle } from "react-icons/fc";
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import { toast, Toaster } from "sonner";
+import { toast} from "sonner";
 import { Link, useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch} from "react-redux";
 import { login } from "../../redux/actions/UserActions";
+// import GoogleAuthButton from "./Google_auth"
 
 export default function LoginPage() {
   const dispatch = useDispatch<any>();
@@ -129,6 +131,9 @@ export default function LoginPage() {
 
             </div>
           </form>
+          <div className="text-center mt-4">
+          
+           </div>
 
           <div className="w-full flex items-center justify-center relative mb-6">
             <div className="w-full h-[1px] bg-black"></div>

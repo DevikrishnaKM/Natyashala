@@ -1,4 +1,4 @@
-import {IUser,ICleanedUser,ICourse, IOrder,IRating} from "./common.inteface";
+import {IUser,ICleanedUser,ICourse, IOrder,IRating,IWallet} from "./common.inteface";
 
 export interface IAuthRepository {
     findUser(email : string) : Promise<IUser | null>;
@@ -19,4 +19,6 @@ export interface IAuthRepository {
     getApplicantData(email: string) : Promise<any>;
     ratings(courseId: string) : Promise<IRating[]>
     addRating(newRating : object) : Promise<IRating> 
+    newPayment(userId: string, amount: number) : Promise <IWallet>
+    transactions(userId: string) :Promise<IWallet | null>;
 }

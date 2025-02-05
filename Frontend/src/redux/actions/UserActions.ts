@@ -139,6 +139,20 @@ export const login = createAsyncThunk<
     return rejectWithValue( "Your account is blocked");
   }
 });
+export const googleLogin = createAsyncThunk<{ accessToken: string; userInfo: User }, string | undefined,{ rejectValue: string }>(
+  'user/googleLogin',
+  async (credential, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${Base_URL}/auth/google-login`, {
+        credential,
+      });
+      const { cred: userInfo, accessToken } = response.data; 
+      return { userInfo, accessToken }; 
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Google Login failed');
+    }
+  }
+);
 export const updateUserInfo = createAsyncThunk<
   User | "no change",
   UpdateUserInfoPayload

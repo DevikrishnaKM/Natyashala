@@ -22,9 +22,7 @@ interface Itransactions {
 
 const Wallet = () => {
   const { userInfo } = useSelector((state: RootState) => state.user);
-  const name = userInfo?.name;
-  const email = userInfo?.email;
-  const phone = userInfo?.phone;
+  
   const userId = userInfo?.userId;
   const [wallet, setWallet] = useState<IWallet | any>(null);
   const [amount, setAmount] = useState<string>("");
@@ -35,7 +33,7 @@ const Wallet = () => {
     const fetchData = async () => {
       try {
         console.log(userInfo, "user");
-        const res = await userAxiosInstance.get(`/getTransactions/${userId}`);
+        const res = await userAxiosInstance.get(`/auth/getTransactions/${userId}`);
         console.log(res);
         setWallet(res.data);
       } catch (error) {
@@ -52,62 +50,29 @@ const Wallet = () => {
     if (!/^\d+$/.test(amount)) {
       return toast.error("Please enter only numeric characters.");
     }
-
     if (numericAmount <= 0) {
       return toast.error("Enter a valid positive amount.");
     }
 
-    const options = {
-      amount: numericAmount * 100,
-      currency: "INR",
-      name: "Learn Sphere",
-      description: "Add money to wallet",
-      prefill: {
-        name: { name },
-        email: { email },
-        contact: { phone },
-      },
-      handler: async function (response: any) {
-        const transactionData = {
-          razorpay_payment_id: response.razorpay_payment_id,
-          razorpay_order_id: response.razorpay_order_id,
-          razorpay_signature: response.razorpay_signature,
-          amount: numericAmount,
-        };
-
-        await userAxiosInstance.post(`/walletAdd/${userId}`, transactionData);
-
-        setWallet((prevWallet: { balance: number; transactions: any }) =>
-          prevWallet
-            ? {
-                ...prevWallet,
-                balance: prevWallet.balance + numericAmount,
-                transactions: [
-                  ...prevWallet.transactions,
-                  {
-                    id: Date.now().toString(),
-                    amount: numericAmount,
-                    transactionType: "credit",
-                    date: new Date().toISOString(),
-                  },
-                ],
-              }
-            : null
-        );
-
-        setAmount("");
-        toast.success("Amount added");
-      },
-      theme: {
-        color: "#3399cc",
-      },
-    };
-
-    const rzp = new (window as any).Razorpay(options);
-    rzp.open();
+    try {
+      const response = await userAxiosInstance.post(`${Base_URL}/auth/walletAdd`, {
+        userId,
+        amount: numericAmount,
+      });
+      console.log("res:",response)
+      const { url } = response.data;
+      if (url) {
+        window.location.href = url;
+      }
+    
+     
+    } catch (error) {
+      console.error("Error processing payment", error);
+      toast.error("Payment initiation failed");
+    }
   };
 
-  // Function to format the transaction date
+ 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString("en-US", {
@@ -116,7 +81,7 @@ const Wallet = () => {
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
-      hour12: true, // Use false for 24-hour format
+      hour12: true, 
     });
   };
 
@@ -128,9 +93,10 @@ const Wallet = () => {
           <div className="w-full flex justify-center pt-14">
             <h1 className="text-3xl font-extrabold">
               {" "}
-              $ {wallet?.balance.toFixed(2) || 0}
+              Rs. {wallet?.balance.toFixed(2) || 0}
             </h1>
           </div>
+           
           <div className="flex items-center pl-10 my-8">
             <input
               type="text"

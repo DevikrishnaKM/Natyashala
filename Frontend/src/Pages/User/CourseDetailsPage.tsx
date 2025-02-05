@@ -157,7 +157,7 @@ interface IcourseData {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold mb-4">
-                    {courseData?.price ? `$${courseData.price}` : "Free"}
+                    {courseData?.price ? `₹${courseData.price}` : "Free"}
                   </div>
                  
                   <Button variant="outline" className="w-full" onClick={handleEnroll}>

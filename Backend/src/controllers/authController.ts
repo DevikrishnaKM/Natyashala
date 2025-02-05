@@ -328,18 +328,50 @@ class AuthController {
         .json({ message: error.message });
     }
   };
-  addRating = async(req : Request, res : Response) => {
+  addRating = async (req: Request, res: Response) => {
     try {
-       const newRating = req.body;
-       console.log(newRating);
-       
-       const rating =  await this.authService.addRating(newRating as object)  
-       res.status(HTTP_statusCode.updated).json(rating)
-    } catch (error :any) {
+      const newRating = req.body;
+      console.log(newRating);
+
+      const rating = await this.authService.addRating(newRating as object);
+      res.status(HTTP_statusCode.updated).json(rating);
+    } catch (error: any) {
       console.error(error.message);
-      res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
     }
-  } 
+  };
+  addMoney = async (req: Request, res: Response) => {
+    try {
+      const { userId ,amount} = req.body;
+     
+      const wallet = await this.authService.addMoney(
+        userId as string,
+        amount as number
+      );
+      res.status(HTTP_statusCode.OK).json(wallet);
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  };
+
+  getTransactions = async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
+      const wallet = await this.authService.getTransactions(userId as string);
+      console.log(wallet, "wallet");
+      res.status(HTTP_statusCode.OK).json(wallet);
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  };
 }
 
 export default AuthController;

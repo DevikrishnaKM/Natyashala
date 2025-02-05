@@ -10,6 +10,7 @@ import {
   ICourse,
   ITutorData,
   IRating,
+  IWallet,
 } from "../interfaces/common.inteface";
 import { getOtpByEmail, otpSetData } from "../utils/redisCache";
 import { createToken, createRefreshToken } from "../config/jwtConfig";
@@ -18,7 +19,7 @@ import { AwsConfig } from "../config/awsFileConfig";
 import { IAdminRepository } from "../interfaces/admin.repository.interface";
 import ICourseRepository from "../interfaces/course.repository.interface";
 import { createUniquePass } from "../helper/tutorCredentials";
-import makeThePayment from "../config/stripeConfig";
+import makeThePayment, { addWalletMoney } from "../config/stripeConfig";
 
 class AuthService {
   private authRepository: IAuthRepository;
@@ -440,22 +441,48 @@ class AuthService {
     }
   };
 
-  getRatings = async(courseId: string): Promise<IRating[]> => {
+  getRatings = async (courseId: string): Promise<IRating[]> => {
     try {
-        return await this.authRepository.ratings(courseId as string)
+      return await this.authRepository.ratings(courseId as string);
     } catch (error: any) {
       console.error("Error in getting ratings user serice :", error.message);
       throw new Error(` ${error.message}`);
     }
-  }
-  addRating =async(newRating: object) : Promise<IRating>  => {
+  };
+  addRating = async (newRating: object): Promise<IRating> => {
     try {
-        return await this.authRepository.addRating(newRating)
+      return await this.authRepository.addRating(newRating);
     } catch (error: any) {
       console.error("Error in getting ratings user serice :", error.message);
       throw new Error(` ${error.message}`);
     }
-  }
+  };
+
+  addMoney = async (userId: string, amount: number): Promise<any> => {
+    try {
+      await this.authRepository.newPayment(userId as string, amount as any);
+      const session = await addWalletMoney(userId as string, amount as number);
+
+      console.log("session:", session);
+
+      return session;
+    } catch (error: any) {
+      console.error("Error in adding money user serice :", error.message);
+      throw new Error(` ${error.message}`);
+    }
+  };
+
+  getTransactions = async (userId: string): Promise<IWallet | null> => {
+    try {
+      return await this.authRepository.transactions(userId as string);
+    } catch (error: any) {
+      console.error(
+        "Error in getting transactions user serice :",
+        error.message
+      );
+      throw new Error(` ${error.message}`);
+    }
+  };
 }
 
 export default AuthService;

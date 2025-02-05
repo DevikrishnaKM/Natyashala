@@ -82,7 +82,7 @@ class AuthRepository implements IAuthRepository {
 
       // Ensure password field is defined before comparison
       if (!user.password) {
-        throw new Error("Password not found in user data.");
+        throw new Error("Password not found in user ");
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
@@ -415,6 +415,50 @@ class AuthRepository implements IAuthRepository {
       return savedRating; 
     } catch (error: any) {
       console.error("Error in adding rating:", error.message);
+      throw new Error(error.message);
+    }
+  }
+  async newPayment(userId: string, amount: number) : Promise <IWallet> {
+    try {  
+      let wallet = await Wallet.findOne({ userId });
+      const id = Math.floor(1000 + Math.random() * 9000).toString();
+      const transaction = {
+        transactionId: id,
+        amount: amount,
+        transactionType: "credit" as "credit",
+        date: new Date(),
+      };
+      if (!wallet) {
+        wallet = new Wallet({
+          userId,
+          balance: amount,
+          transactions: [transaction],
+        });
+        await wallet.save();
+      } else {
+        wallet.balance += amount;
+        wallet.transactions.push(transaction);
+        await wallet.save();
+      }
+      return wallet;
+    } catch (error: any) {
+      console.error("Error in saving wallet in wallet repo", error.message);
+      throw new Error(error.message);
+    }
+  }
+
+   async transactions(userId: string) :Promise<IWallet | null> {
+    try {
+      console.log(userId)
+      let wallet = await Wallet.findOne({ userId }).lean();
+      console.log(userId , wallet)
+      if (wallet) {
+        return wallet;
+      } else {
+        return null;
+      }
+    } catch (error: any) {
+      console.error("Error in saving wallet in wallet repo", error.message);
       throw new Error(error.message);
     }
   }

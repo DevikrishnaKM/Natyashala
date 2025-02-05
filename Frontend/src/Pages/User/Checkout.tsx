@@ -80,10 +80,6 @@ export default function CheckoutPage() {
       if (responses.data.session) {
         window.location.href = responses.data.session.url;
       }
-
-      // toast.success("Payment successful!");
-      // triggerConfetti();
-      // navigate("/allcourses");
     } catch (error: any) {
       if (
         error.response &&

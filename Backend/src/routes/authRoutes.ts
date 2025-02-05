@@ -50,5 +50,7 @@ router.post('/checkSessionStatus',verifyToken,authController.confirmPayment.bind
 router.get("/tutorDetail/:id",verifyToken,authController.tutorDetail.bind(authController))
 router.get('/ratings/:courseId' ,verifyToken,authController.getRatings.bind(authController))
 router.post('/add-rating', authController.addRating.bind(authController));
+router.post(`/walletAdd`,verifyToken ,authController.addMoney.bind(authController))
+router.get(`/getTransactions/:userId`, authController.getTransactions.bind(authController))
 
 export default router;
