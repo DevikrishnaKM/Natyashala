@@ -56,6 +56,7 @@ interface IcourseData {
     const fetchCourseData = async () => {
       try {
         const response = await userAxiosInstance.get(`/auth/getCourse/${id}`)
+        console.log("courseData:",response.data)
         setCourseData(response.data)
       } catch (error) {
         console.error("Error fetching course data:", error)
@@ -76,9 +77,13 @@ interface IcourseData {
     0
   ) || 0
 
+
+  
+  
   const averageRating = courseData?.ratings.length
-    ? (courseData.ratings.reduce((a, b) => a + b, 0) / courseData.ratings.length).toFixed(1)
-    : 'N/A'
+  ? (courseData.ratings.reduce((a, b) => a + (b.ratingValue || 0), 0) / courseData.ratings.length).toFixed(1)
+  : "N/A";
+
 
   return (
     <>

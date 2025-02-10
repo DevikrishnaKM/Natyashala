@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState ,useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { FaRegClock, FaStar } from "react-icons/fa";
 import { useSelector } from "react-redux";
@@ -32,6 +32,25 @@ const CourseCard: React.FC<IcourseData> = ({
   const { userInfo } = useSelector((state: RootState) => state.user);
   const email = userInfo?.email;
   const navigate = useNavigate();
+  const [courseData,setCourseData] = useState<IcourseData | null>(null)
+
+  useEffect(() => {
+    const fetchCourseData = async () => {
+      try {
+        const response = await userAxiosInstance.get(`/auth/getCourse/${courseId}`)
+        console.log("courseData:",response.data)
+        setCourseData(response.data)
+      } catch (error) {
+        console.error("Error fetching course data:", error)
+      }
+    }
+    fetchCourseData()
+  }, [courseId])
+
+  const averageRating = courseData?.ratings.length
+  ? (courseData.ratings.reduce((a, b) => a + (b.ratingValue || 0), 0) / courseData.ratings.length).toFixed(1)
+  : 0;
+
 
   const gotoCourseDetails = async () => {
     try {
@@ -55,7 +74,7 @@ const CourseCard: React.FC<IcourseData> = ({
   };
 
   return (
-    <div className="w-full max-w-[280px] mx-auto bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="w-full max-w-[280px] mx-auto bg-white rounded-xl shadow-sm hover:shadow-md   transition-transform duration-500 transform hover:scale-105 hover:translate-y-[-10px]">
       {/* Card Container */}
       <div className="flex flex-col h-full">
         {/* Thumbnail */}
@@ -79,7 +98,7 @@ const CourseCard: React.FC<IcourseData> = ({
             <div className="flex items-center justify-between w-full text-[#60758a]">
               {/* Price */}
               <p className="text-sm font-medium">
-                {price ? `$${price}` : "Free"}
+                {price ? `₹${price}` : "Free"}
               </p>
 
               {/* Duration */}
@@ -92,7 +111,7 @@ const CourseCard: React.FC<IcourseData> = ({
               <div className="flex items-center">
                 <FaStar className="w-4 h-4 text-yellow-500" />
                 <span className="text-sm font-medium text-gray-600 ml-1">
-                  {rating.toFixed(1)}
+                  {averageRating}
                 </span>
               </div>
             </div>

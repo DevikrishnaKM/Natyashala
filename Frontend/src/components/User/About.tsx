@@ -11,15 +11,11 @@ const About = () => {
 
           <div className="relative w-[500px] h-[300px] transition-transform duration-500 transform hover:scale-105 hover:translate-y-[-10px] z-10">
             <img
-              src=""
+              src="./src/assets/pexels-cottonbro-7097464.jpg"
               alt="E-Learning Illustration"
               className="w-full h-full object-cover rounded-xl shadow-lg"
             />
-            <div className="absolute bottom-4 left-4 bg-white/75 backdrop-blur-sm px-3 py-2 rounded-md shadow-md">
-              <p className="text-sm font-semibold text-[#17171a]">
-                Explore Our Courses
-              </p>
-            </div>
+           
           </div>
           
 

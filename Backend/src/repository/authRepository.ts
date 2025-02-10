@@ -271,6 +271,13 @@ class AuthRepository implements IAuthRepository {
       if (!userTutor) {
         throw new Error("Cannot find userTutor.");
       }
+      
+      const rating = await Rating.find({courseId:id})
+      // console.log("ratings",rating)
+      if(!rating){
+        
+        throw new Error("Cannot find ratings.");
+      }
 
       const CourseData = {
         id: course._id,
@@ -280,7 +287,7 @@ class AuthRepository implements IAuthRepository {
         sections: course.sections,
         tags: course.tags,
         language: course.language,
-        ratings: course.ratings,
+        ratings: rating,
         comments: course.comments,
         thumbnail: course.thumbnail,
         tutorName: userTutor.name,
@@ -295,7 +302,7 @@ class AuthRepository implements IAuthRepository {
         price: course.price,
         users: course?.users?.length,
       };
-
+      console.log("corse:",CourseData)
       return CourseData;
     } catch (error: any) {
       console.log("Error in getting course detail user repo", error.message);

@@ -19,7 +19,7 @@ const sendTutorLoginCredentials = async (email: string, passcode: string) => {
     const mailOptions = {
       from: `"Natya Shala" <${process.env.BREVO_EMAIL}>`,
       to: email,
-      subject: 'You Have Been Accepted as a Tutor - Login Credentials',
+      subject: 'You Have Been Accepted as a Tutor ',
       html: `<!DOCTYPE html>
       <html>
       <head>
@@ -72,13 +72,8 @@ const sendTutorLoginCredentials = async (email: string, passcode: string) => {
             <h1>Congratulations! You Are Now a Tutor</h1>
           </div>
           <div class="content">
-            <p>We are pleased to inform you that you have been accepted as a tutor with Learn Sphere.</p>
-            <p>Please use the following credentials to log in:</p>
-            <div class="credentials">
-              <p>Email: ${email}</p>
-              <p>Passcode: ${passcode}</p>
-            </div>
-            <p>Make sure to change your passcode after logging in for security purposes.</p>
+            <p>We are pleased to inform you that you have been accepted as a tutor with Natyashala.</p>
+            
           </div>
           <div class="footer">
             <p>If you did not apply for this position, please ignore this email.</p>

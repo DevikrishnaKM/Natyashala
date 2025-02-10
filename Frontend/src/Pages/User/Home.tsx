@@ -4,6 +4,7 @@ import About from '@/components/User/About'
 import PreLoader from '@/components/common/UserCommon/PreLoader'
 import CoursesHome from '@/components/User/CoursesHome'
 import Features from '@/components/User/Features'
+import Footer from '@/components/common/UserCommon/Footer'
 
 const Home = () => {
     return(
@@ -16,6 +17,7 @@ const Home = () => {
     <About/>
     <CoursesHome/>
     <Features/>
+    <Footer/>
     </main>
   </div>
   </>
