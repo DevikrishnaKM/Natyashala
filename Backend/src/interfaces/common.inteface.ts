@@ -218,3 +218,10 @@ export interface IRating extends Document {
   review: string;          
   createdAt: Date;           
 }
+export interface IWishlist extends Document {
+  courseId: ObjectId; 
+  userId: string;   
+  email: string;       
+  isWishlist: boolean;          
+  createdAt: Date;           
+}

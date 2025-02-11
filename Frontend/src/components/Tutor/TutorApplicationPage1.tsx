@@ -151,6 +151,7 @@ const TutorApplicationPage1: React.FC<TutorApplicationPage1Props> = ({ nextStep,
                                     type="file"
                                     name="resume"
                                     id="resume"
+                                    accept=".pdf"
                                     onChange={(event) => {
                                         const file = event.currentTarget.files?.[0];
                                         if (file) {

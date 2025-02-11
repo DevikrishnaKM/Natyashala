@@ -396,10 +396,49 @@ class AuthController {
   getOrders = async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
-      console.log("userId",userId)
+      console.log("userId", userId);
       const orders = await this.authService.getOrders(userId as string);
-      console.log("orders:",orders)
+      console.log("orders:", orders);
       res.status(HTTP_statusCode.OK).json(orders);
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  };
+  toggleWishlist = async (req: Request, res: Response): Promise<any> => {
+    try {
+      const { courseId, email } = req.body;
+
+      const wishlistItem = await this.authService.checkWishlist(
+        courseId as string,
+        email as string
+      );
+
+      if (wishlistItem) {
+        await this.authService.removeWishlist(
+          courseId as string,
+          email as string
+        );
+        return res.status(200).json(false);
+      } else {
+        await this.authService.addWishlist(courseId as string, email as string);
+        return res.status(200).json(true);
+      }
+    } catch (error: any) {
+      console.error(error.message);
+      res.status(500).json({ message: error.message });
+    }
+  };
+
+   wishlist = async (req: Request, res: Response) => {
+    try {
+      const { email } = req.params;
+      console.log("email", email);
+      const wishlist = await this.authService.wishlist(email as string);
+      console.log("wishlist:", wishlist);
+      res.status(HTTP_statusCode.OK).json(wishlist);
     } catch (error: any) {
       console.error(error.message);
       res

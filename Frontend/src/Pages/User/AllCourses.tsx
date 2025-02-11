@@ -270,7 +270,7 @@ const AllCourses: React.FC = () => {
                     My Courses
                   </button>
                   <button
-                    onClick={() => navigate("/my-orders/:userId")}
+                    onClick={() => navigate("/my-orders")}
                     className="px-4 py-2 bg-[#f0f2f5] text-[#111418] rounded-xl text-sm font-bold"
                   >
                     My Orders
@@ -281,9 +281,9 @@ const AllCourses: React.FC = () => {
 
             {/* Course Grid */}
             {displayedCourses.length === 0 ? (
-              isLoading ? (
+             isLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {[...Array(8)].map((_, index) => (
+                   {[...Array(8)].map((_, index) => (
                     <Skeleton key={index} className="h-48 w-full" />
                   ))}
                 </div>

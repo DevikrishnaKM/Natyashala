@@ -1,4 +1,4 @@
-import {IUser,ICleanedUser,ICourse, IOrder,IRating,IWallet} from "./common.inteface";
+import {IUser,ICleanedUser,ICourse, IOrder,IRating,IWallet, IWishlist} from "./common.inteface";
 
 export interface IAuthRepository {
     findUser(email : string) : Promise<IUser | null>;
@@ -23,4 +23,8 @@ export interface IAuthRepository {
     newPayment(userId: string, amount: number) : Promise <IWallet>
     transactions(userId: string) :Promise<IWallet | null>;
     orders(userId: string)  : Promise<IOrder[]>;
+    addWishlist(wishlistData:any) : Promise<boolean>
+    checkWishlist(wishlistData:any) : Promise<any>
+    removeWishlist(wishlistData:any) : Promise<boolean>
+    wishlist(email:string) : Promise<any>
 }

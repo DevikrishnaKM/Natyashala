@@ -5,38 +5,86 @@ import { RootState } from "../../redux/store";
 import userAxiosInstance from "../../config/axiosInstance.ts/userInstance";
 import { Base_URL } from "../../credentials";
 import BlockChecker from "../../services/BlockChecker";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/common/UserCommon/NavBar";
+import { FaSpinner } from "react-icons/fa";
 
 interface IOrders {
-    courseName: string;
-    category: string;
-    totalAmount: number;
-    createdAt: string;
-    thumbnail: string | undefined;
-    orderId: string;
-    courseId: string;
+  courseName: string;
+  category: string;
+  totalAmount: number;
+  createdAt: string;
+  thumbnail: string | undefined;
+  orderId: string;
+  courseId: string;
 }
 
 const MyOrders: React.FC = () => {
   BlockChecker();
-  const {userInfo} = useSelector((state:RootState)=>state.user)
-  console.log("user:",userInfo)
+  const { userInfo }: any = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
-  const [orders, setOrders] = useState<IOrders[] | null>(null);
+  
+  const [orders, setOrders] = useState<IOrders[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const coursesPerPage = 6;
+  const [filteredCourses, setFilteredCourses] = useState<IOrders[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchOrders = async () => {
-        try {
-            const {data} = await userAxiosInstance.get(`${Base_URL}/auth/get-orders/${userInfo.userId}`);
-            console.log("res:",{data})
-            setOrders(data);
-        } catch (error) {
-            console.error(error,"dkjcndncc")
+      try {
+        if (!userInfo?.userId) return;
+
+        setIsLoading(true);
+        const response = await userAxiosInstance.get(
+          `${Base_URL}/auth/get-orders/${userInfo.userId}`
+        );
+
+        if (response?.data) {
+          setOrders(response.data);
+          setFilteredCourses(response.data);
+          setTotalPages(Math.ceil(response.data.length / coursesPerPage));
+        } else {
+          console.warn("Unexpected response structure:", response);
         }
-    }
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
     fetchOrders();
-  }, [userInfo.userId]);
+  }, [userInfo?.userId]);
+
+  useEffect(() => {
+    if (orders.length) applyFilters();
+  }, [searchQuery, orders]);
+
+  const applyFilters = () => {
+    let filtered = orders;
+
+    if (searchQuery) {
+      filtered = filtered.filter((order) =>
+        order.courseName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredCourses(filtered);
+    setTotalPages(Math.ceil(filtered.length / coursesPerPage));
+  };
+
+  const displayedCourses = filteredCourses.slice(
+    (currentPage - 1) * coursesPerPage,
+    currentPage * coursesPerPage
+  );
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+    setCurrentPage(1);
+  };
 
   return (
     <>
@@ -51,59 +99,50 @@ const MyOrders: React.FC = () => {
                   className="flex min-h-[300px] md:min-h-[400px] flex-col gap-4 md:gap-6 bg-cover bg-center bg-no-repeat rounded-xl items-start justify-end p-4 md:p-10"
                   style={{
                     backgroundImage:
-                      'linear-gradient(rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%), url("https://images.pexels.com/photos/1193743/pexels-photo-1193743.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1")',
+                      'linear-gradient(rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%), url("https://images.pexels.com/photos/1193743/pexels-photo-1193743.jpeg")',
                   }}
                 >
-                  <div className="flex flex-col gap-2 text-left">
-                    <h1 className="text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
-                      Welcome back,
-                    </h1>
-                    <h2 className="text-white text-sm font-normal leading-normal">
-                      Continue learning with these courses
-                    </h2>
-                  </div>
-                  
+                  <h1 className="text-white text-3xl md:text-4xl font-black">
+                    Welcome back,
+                  </h1>
+                  <h2 className="text-white text-sm font-normal">
+                    Continue learning with these courses
+                  </h2>
+
                   {/* Search Bar */}
                   <div className="w-full max-w-[480px]">
-                    <div className="flex flex-col md:flex-row w-full gap-2 md:gap-0">
-                      <div className="flex w-full">
-                        <div className="text-[#647987] flex border border-[#dce1e5] bg-white items-center justify-center pl-3 md:pl-[15px] rounded-l-xl border-r-0">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20px"
-                            height="20px"
-                            fill="currentColor"
-                            viewBox="0 0 256 256"
-                          >
-                            <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
-                          </svg>
-                        </div>
-                        <input
-                          placeholder="Search for anything"
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl md:rounded-r-none text-[#111517] focus:outline-0 focus:ring-0 border border-[#dce1e5] bg-white focus:border-[#dce1e5] h-12 placeholder:text-[#647987] px-3 md:px-[15px] text-sm font-normal leading-normal"
-                        />
-                      </div>
-                      <div className="flex md:items-center justify-center">
-                        <button className="w-full md:w-auto flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-xl md:rounded-l-none h-12 px-4 bg-[#1d8cd7] text-white text-sm font-bold leading-normal tracking-[0.015em]">
-                          <span className="truncate">Search</span>
-                        </button>
-                      </div>
+                    <div className="flex flex-col md:flex-row w-full">
+                      <input
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        placeholder="Search for anything"
+                        className="form-input flex w-full text-[#111517] border border-[#dce1e5] bg-white focus:border-[#1d8cd7] h-12 px-3 text-sm rounded-l-xl"
+                      />
+                      <button
+                        onClick={applyFilters}
+                        className="w-full md:w-auto bg-[#1d8cd7] text-white h-12 px-4 rounded-r-xl"
+                      >
+                        Search
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Orders Section */}
-              <h2 className="text-[#111517] text-xl md:text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 md:px-16 pb-3 pt-5 ">
-                My orders
+              <h2 className="text-xl md:text-[22px] font-bold px-4 md:px-16 pb-3 pt-5">
+                My Orders
               </h2>
               <hr className="py-5 h-[2px]" />
-              
-              {/* Table/Cards Container */}
-              <div className="pb-3 w-full border border-gray-200 rounded-md px-4 md:px-8 lg:px-20 py-5 overflow-x-auto overflow-y-scroll">
-                {/* Desktop Table View */}
-                <div className="hidden md:block">
-                  <table className="min-w-full text-left table-auto">
+
+              {/* Loading State */}
+              {isLoading ? (
+                <div className="mt-9 flex justify-center">
+                  <FaSpinner className="animate-spin text-green-600" size={40} />
+                </div>
+              ) : (
+                <div className="pb-3 w-full border border-gray-200 rounded-md px-4 md:px-8 lg:px-20 py-5 overflow-x-auto">
+                  <table className="min-w-full text-left">
                     <thead className="border-b border-gray-400">
                       <tr>
                         <th className="px-4 py-2">Order ID</th>
@@ -115,26 +154,20 @@ const MyOrders: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {orders && orders.length > 0 ? (
-                        orders.map((order) => (
+                      {displayedCourses.length > 0 ? (
+                        displayedCourses.map((order) => (
                           <tr key={order.orderId} className="border-b border-gray-200">
-                            <td className="text-sm text-gray-500 px-4 py-10">{order.orderId}</td>
+                            <td className="text-sm px-4 py-10">{order.orderId}</td>
                             <td className="px-4 py-5">
-                              <div className="flex flex-col gap-2">
-                                <img 
-                                  src={order.thumbnail} 
-                                  className="w-40 h-20 rounded-md object-cover"
-                                  alt="course img" 
-                                />
-                                <p className="text-sm">{order.courseName}</p>
-                              </div>
+                              <img src={order.thumbnail} className="w-40 h-20 rounded-md object-cover" alt="course" />
+                              <p className="text-sm">{order.courseName}</p>
                             </td>
                             <td className="px-4 py-10">{order.category}</td>
                             <td className="px-4 py-10">{order.totalAmount}</td>
                             <td className="px-4 py-10">{order.createdAt}</td>
                             <td className="px-4 py-10">
-                              <button 
-                                className="w-14 h-8 rounded-md bg-black text-white hover:bg-gray-800 transition-colors"
+                              <button
+                                className="w-14 h-8 rounded-md bg-black text-white"
                                 onClick={() => navigate(`/coursePlayer/${order.courseId}`)}
                               >
                                 View
@@ -143,56 +176,34 @@ const MyOrders: React.FC = () => {
                           </tr>
                         ))
                       ) : (
-                        <tr>
-                          <td colSpan={6} className="text-center py-10">No orders</td>
-                        </tr>
+                        <tr><td colSpan={6} className="text-center py-10">No orders found</td></tr>
                       )}
                     </tbody>
                   </table>
                 </div>
-
-                {/* Mobile Card View */}
-                <div className="md:hidden space-y-4">
-                  {orders && orders.length > 0 ? (
-                    orders.map((order) => (
-                      <div key={order.orderId} className="bg-white rounded-lg shadow p-4 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-500">Order ID:</span>
-                          <span className="text-sm">{order.orderId}</span>
-                        </div>
-                        <div className="space-y-2">
-                          <img 
-                            src={order.thumbnail} 
-                            className="w-full h-40 rounded-md object-cover"
-                            alt="course img" 
-                          />
-                          <p className="font-medium">{order.courseName}</p>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-500">Category:</span>
-                          <span className="text-sm">{order.category}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-500">Price:</span>
-                          <span className="text-sm">{order.totalAmount}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-500">Purchased:</span>
-                          <span className="text-sm">{order.createdAt}</span>
-                        </div>
-                        <button 
-                          className="w-full h-10 rounded-md bg-black text-white hover:bg-gray-800 transition-colors"
-                          onClick={() => navigate(`/coursePlayer/${order.courseId}`)}
-                        >
-                          View Course
-                        </button>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-10">No orders</div>
-                  )}
-                </div>
+              )}
+                {/* Pagination */}
+            <div className="flex justify-center py-8">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 rounded bg-black text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {"<"}
+                </button>
+                <span className="px-4 py-2">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="p-2 rounded bg-black text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {">"}
+                </button>
               </div>
+            </div>
             </div>
           </div>
         </div>

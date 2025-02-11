@@ -559,6 +559,74 @@ class AuthService {
       throw new Error(` ${error.message}`);
     }
   };
+
+  addWishlist = async (courseId: string, email: string): Promise<any> => {
+    try {
+      const wishlistData = {
+        courseId,
+        email,
+        isWishlist: true,
+      };
+      const wishlist = await this.authRepository.addWishlist(
+        wishlistData as any
+      );
+
+      console.log("wish:", wishlist);
+
+      return wishlist;
+    } catch (error: any) {
+      console.error("Error in adding wishlist user serice :", error.message);
+      throw new Error(` ${error.message}`);
+    }
+  };
+  checkWishlist = async (courseId: string, email: string): Promise<any> => {
+    try {
+      const wishlistData = {
+        courseId,
+        email,
+      };
+      const wishlist = await this.authRepository.checkWishlist(
+        wishlistData as any
+      );
+      console.log("wish:", wishlist);
+
+      return wishlist;
+    } catch (error: any) {
+      console.error("Error in adding wishlist user serice :", error.message);
+      throw new Error(` ${error.message}`);
+    }
+  };
+  removeWishlist = async (courseId: string, email: string): Promise<any> => {
+    try {
+      const wishlistData = {
+        courseId,
+        email,
+      };
+      const wishlist = await this.authRepository.removeWishlist(
+        wishlistData as any
+      );
+      console.log("wish:", wishlist);
+
+      return wishlist;
+    } catch (error: any) {
+      console.error("Error in adding wishlist user serice :", error.message);
+      throw new Error(` ${error.message}`);
+    }
+  };
+  wishlist = async (email: string): Promise<any> => {
+    try {
+      
+      const wishlist = await this.authRepository.wishlist(
+       email as string
+      );
+      console.log("wish:", wishlist);
+
+      return wishlist;
+    } catch (error: any) {
+      console.error("Error in adding wishlist user serice :", error.message);
+      throw new Error(` ${error.message}`);
+    }
+  };
 }
 
 export default AuthService;

@@ -1,83 +1,110 @@
-import React, { useEffect, useState } from "react";
-import Footer from "../../components/common/UserCommon/Footer";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
-import userAxiosInstance from "../../config/axiosInstance.ts/userInstance";
-import { Base_URL } from "../../credentials";
-import BlockChecker from "../../services/BlockChecker";
-import { toast } from "sonner";
-import Navbar from "../../components/common/UserCommon/NavBar";
-import CourseCard from "../../components/User/CourseCard";
-import Skeleton from "../../components/ui/skeleton";
-import { FaSpinner } from "react-icons/fa";
+"use client"
 
-const MyCourses: React.FC = () => {
-  BlockChecker();
-  const { userInfo } = useSelector((state: RootState) => state.user);
-  const [courseData, setCourseData] = useState<any[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const coursesPerPage = 8;
-  const [filteredCourses, setFilteredCourses] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+import type React from "react"
+import { useEffect, useState } from "react"
+import { useSelector } from "react-redux"
+import { toast } from "sonner"
+import { FaSpinner } from "react-icons/fa"
+import type { RootState } from "../../redux/store"
+import userAxiosInstance from "../../config/axiosInstance.ts/userInstance"
+import { Base_URL } from "../../credentials"
+import BlockChecker from "../../services/BlockChecker"
+import Navbar from "../../components/common/UserCommon/NavBar"
+import Footer from "../../components/common/UserCommon/Footer"
+import CourseCard from "../../components/User/CourseCard"
+import Skeleton from "../../components/ui/skeleton"
+
+const Wishlist: React.FC = () => {
+  BlockChecker()
+  const { userInfo } = useSelector((state: RootState) => state.user)
+  const [wishlistData, setWishlistData] = useState<any[]>([])
+  const [courseData, setCourseData] = useState<any[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalPages, setTotalPages] = useState<number>(1)
+  const coursesPerPage = 8
+  const [filteredCourses, setFilteredCourses] = useState<any[]>([])
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [wishlistCourses, setWishlistCourses] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchWishlistData = async () => {
+      try {
+        const response = await userAxiosInstance.get(`${Base_URL}/auth/wishlist/${userInfo?.email}`)
+        console.log("Wishlist response:", response)
+        setWishlistData(response.data)
+        setFilteredCourses(response.data)
+        setTotalPages(Math.ceil(response.data.length / coursesPerPage))
+      } catch (error: any) {
+        console.error("Error fetching wishlist:", error)
+        toast.error(error.message)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchWishlistData()
+  }, [userInfo?.userId])
 
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
-        const response = await userAxiosInstance.get(
-          `${Base_URL}/auth/mycourses/${userInfo?.userId}`
-        );
-        console.log("res:", response);
-        setCourseData(response.data);
-        setFilteredCourses(response.data);
-        setTotalPages(Math.ceil(response.data.length / coursesPerPage));
-      } catch (error: any) {
-        console.error("Error fetching courses:", error);
-        toast.error(error.message);
-      } finally {
-        setIsLoading(false);
+        const response = await userAxiosInstance.get(`/auth/get-courses`)
+        console.log("courseData:", response.data)
+        setCourseData(response.data.courses)
+       
+      } catch (error) {
+        console.error("Error fetching course data:", error)
       }
-    };
+    }
+    fetchCourseData()
+  }, [])
 
-    fetchCourseData();
-  }, [userInfo?.userId]);
 
-  if (!courseData)
+
+ useEffect(() => {
+  if (wishlistData.length > 0 && courseData.length > 0) {
+    const filteredWishlistCourses = courseData.filter(course =>
+      wishlistData.some(wish => wish.courseId === course.courseId)
+    );
+    console.log("fjhd:",filteredWishlistCourses)
+    setWishlistCourses(filteredWishlistCourses);
+  }
+}, [wishlistData, courseData]);
+
+
+  const applyFilters = () => {
+
+    let filtered = wishlistCourses
+    console.log("cbh:",filtered)
+    if (searchQuery) {
+      filtered = filtered.filter((course) => course.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    }
+
+    setFilteredCourses(filtered)
+    setTotalPages(Math.ceil(filtered.length / coursesPerPage))
+  }
+
+  useEffect(() => {
+    applyFilters()
+  }, [searchQuery, wishlistCourses]) 
+
+  const displayedCourses = filteredCourses.slice((currentPage - 1) * coursesPerPage, currentPage * coursesPerPage)
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value)
+    setCurrentPage(1)
+  }
+
+  if (!wishlistData)
     return (
       <div>
         <div className="mt-9 flex justify-center items-center">
           <FaSpinner className="animate-spin text-green-600" size={40} />
         </div>
       </div>
-    );
+    )
 
-  const applyFilters = () => {
-    let filtered = courseData;
-
-    if (searchQuery) {
-      filtered = filtered.filter((courseData) =>
-        courseData.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    setFilteredCourses(filtered);
-    setTotalPages(Math.ceil(filtered.length / coursesPerPage));
-  };
-
-  useEffect(() => {
-    applyFilters();
-  }, [searchQuery, courseData]);
-
-  const displayedCourses = filteredCourses.slice(
-    (currentPage - 1) * coursesPerPage,
-    currentPage * coursesPerPage
-  );
-
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-    setCurrentPage(1);
-  };
   return (
     <>
       <Navbar />
@@ -91,15 +118,15 @@ const MyCourses: React.FC = () => {
                     className="flex min-h-[300px] md:min-h-[480px] flex-col gap-4 md:gap-6 bg-cover bg-center bg-no-repeat rounded-xl items-start justify-end px-4 pb-6 md:pb-10"
                     style={{
                       backgroundImage:
-                        'linear-gradient(rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%), url("https://images.pexels.com/photos/1193743/pexels-photo-1193743.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1")',
+                        'linear-gradient(rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%), url("https://images.pexels.com/photos/733852/pexels-photo-733852.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1")',
                     }}
                   >
                     <div className="flex flex-col gap-2 text-left">
                       <h1 className="text-white text-2xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
-                        Welcome back, {userInfo?.name}
+                        Your Wishlist, {userInfo?.name}
                       </h1>
                       <h2 className="text-white text-xs md:text-sm font-normal leading-normal">
-                        Continue learning with these courses
+                        Courses you've saved for later
                       </h2>
                     </div>
                     <label className="flex flex-col w-full max-w-[480px] h-12 md:h-14">
@@ -119,7 +146,7 @@ const MyCourses: React.FC = () => {
                         <input
                           value={searchQuery}
                           onChange={handleSearchChange}
-                          placeholder="Search for anything"
+                          placeholder="Search your wishlist"
                           className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#111517] focus:outline-0 focus:ring-0 border border-[#dce1e5] bg-white focus:border-[#dce1e5] h-full placeholder:text-[#647987] px-2 md:px-[15px] rounded-r-none border-r-0 rounded-l-none border-l-0 text-xs md:text-sm font-normal leading-normal"
                         />
                         <div className="flex items-center justify-center rounded-r-xl border-l-0 border border-[#dce1e5] bg-white pr-2 md:pr-[7px]">
@@ -136,17 +163,8 @@ const MyCourses: React.FC = () => {
                 </div>
               </div>
               <h2 className="text-[#111517] text-xl md:text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">
-                Your courses
+                Your wishlist
               </h2>
-              <div className="pb-3 overflow-x-auto">
-                <div className="flex border-b border-[#dce1e5] px-4 gap-4 md:gap-8 min-w-max">
-                  <button>
-                    <p className="text-[#111517] text-xs md:text-sm font-bold leading-normal tracking-[0.015em]">
-                      All
-                    </p>
-                  </button>
-                </div>
-              </div>
 
               {/* Course Grid */}
               {displayedCourses.length === 0 ? (
@@ -157,9 +175,7 @@ const MyCourses: React.FC = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="mt-5 text-lg text-center">
-                    No courses available
-                  </div>
+                  <div className="mt-5 text-lg text-center">Your wishlist is empty</div>
                 )
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
@@ -179,9 +195,7 @@ const MyCourses: React.FC = () => {
               <div className="flex justify-center py-8">
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.max(prev - 1, 1))
-                    }
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
                     className="p-2 rounded bg-black text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -191,9 +205,7 @@ const MyCourses: React.FC = () => {
                     Page {currentPage} of {totalPages}
                   </span>
                   <button
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                    }
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
                     className="p-2 rounded bg-black text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -207,7 +219,8 @@ const MyCourses: React.FC = () => {
       </div>
       <Footer />
     </>
-  );
-};
+  )
+}
 
-export default MyCourses;
+export default Wishlist
+

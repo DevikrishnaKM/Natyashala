@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import dayjs from "dayjs";
 import TutorProfileCard from "./TutorProfileCard";
+import userAxiosInstance from "@/config/axiosInstance.ts/userInstance";
 // import CourseCard from "./CourseCard";
 
 
@@ -59,7 +60,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   useEffect(() => {
     const fetchRatings = async () => {
       try {
-        const { data } = await axios.get(`${Base_URL}/auth/ratings/${courseId}`);
+        const { data } = await userAxiosInstance.get(`${Base_URL}/auth/ratings/${courseId}`);
         setRatings(data);
       } catch (error) {
         console.error("Error fetching ratings:", error);

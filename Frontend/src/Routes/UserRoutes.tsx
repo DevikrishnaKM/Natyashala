@@ -17,7 +17,7 @@ import TutorDetails from '@/Pages/User/TutorDetailsPage';
 import MyCourses from '@/Pages/User/MyCourses';
 import CoursePlayer2 from '@/Pages/User/CoursePlayer';
 import MyOrders from '@/Pages/User/MyOrders';
-
+import MyWishlist from "../Pages/User/MyWishlist"
 const UserRoutes = () => {
   return (
     <>
@@ -37,7 +37,8 @@ const UserRoutes = () => {
         <Route path='/paymentFailed' element={<PaymentFailed/>}/>
         <Route path = '/tutorDetails/:id' element = {<TutorDetails />} />
         <Route path = '/mycourses' element = {<UserProtector> <MyCourses /> </UserProtector>} />
-        <Route path = '/my-orders/:userId' element = {<UserProtector> <MyOrders /></UserProtector>} />
+        <Route path = '/my-orders' element = {<UserProtector> <MyOrders /></UserProtector>} />
+        <Route path = '/my-wishlist' element = {<UserProtector> <MyWishlist /></UserProtector>} />
     </Routes>
     </>
   )

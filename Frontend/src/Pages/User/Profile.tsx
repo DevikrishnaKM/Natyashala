@@ -11,6 +11,7 @@ import ProfileImg from "../../components/User/ProfileImg";
 import BlockChecker from "../../services/BlockChecker";
 
 
+
 const menuItems = [
   { name: 'Profile', component: <UserDetails /> },
   { name: 'Wallet', component: <Wallet/> },
@@ -22,7 +23,7 @@ const menuItems = [
 export default function Profile() {
   BlockChecker();
   const data: any = useSelector((state: RootState) => state.user);
-  console.log(data,"data")
+  // console.log(data,"data")
   const navigate = useNavigate()
 
   const [activeItem, setActiveItem] = useState(menuItems[0].name);

@@ -63,8 +63,8 @@ const Navbar: React.FC = () => {
                   variant="outline"
                   className="text-white border-white hover:bg-white hover:text-black"
                 >
-                  <a href="/logout" className="w-full h-full flex items-center justify-center">
-                    Log Out
+                  <a href="/my-wishlist" className="w-full h-full flex items-center justify-center">
+                    My Wishlist
                   </a>
                 </Button>
                 <Button className="w-full bg-white text-black hover:bg-gray-200">

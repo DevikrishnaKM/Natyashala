@@ -20,4 +20,7 @@ export default interface IAuthService {
     addMoney(userId: string , amount : number) : Promise<any>
     getTransactions(userId: string) : Promise<IWallet | null>;
     getOrders(userId: string) : Promise<any>;
+    addWishlist(courseId:string,email:string) : Promise<any> ;
+    checkWishlist(courseId:string,email:string) : Promise<any> ;
+    wishlist(email:string) : Promise<any> ;
 }

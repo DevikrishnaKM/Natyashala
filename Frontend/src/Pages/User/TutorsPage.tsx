@@ -1,74 +1,102 @@
-import React, { useEffect, useState } from 'react';
-import { Toaster } from 'sonner';
-import tutorsBanner from '../../assets/userbanner/77 Legit Work From Home Companies That Pay Weekly.jpeg'
+import React, { useEffect, useState } from "react";
+import { Toaster } from "sonner";
+import tutorsBanner from "../../assets/userbanner/77 Legit Work From Home Companies That Pay Weekly.jpeg";
 
-import Footer from '../../components/common/UserCommon/Footer';
-
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../redux/store';
-import axios from 'axios';
-import  defaultProfile  from '../../assets/defualt.webp';
-import { Base_URL } from '../../credentials';
-import { useNavigate, useParams } from 'react-router-dom';
-import Navbar from '../../components/common/UserCommon/NavBar';
+import Footer from "../../components/common/UserCommon/Footer";
+import { FaSpinner } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../redux/store";
+import axios from "axios";
+import defaultProfile from "../../assets/defualt.webp";
+import { Base_URL } from "../../credentials";
+import { useNavigate, useParams } from "react-router-dom";
+import Navbar from "../../components/common/UserCommon/NavBar";
 interface User {
-    userId: any;
-    isBlocked: boolean;
-    createdAt: string;
-    name: string;
-    profilePicture:string;
-    email: string;
-    subscriptionStatus: string;
-    status: string;
-    phone: string;
-  }
+  userId: any;
+  isBlocked: boolean;
+  createdAt: string;
+  name: string;
+  profilePicture: string;
+  email: string;
+  subscriptionStatus: string;
+  status: string;
+  phone: string;
+}
 
 const TutorsPage = () => {
-    const navigate = useNavigate()
-    
-    
-    const [users, setUsers] = useState<User[]>([]);
-    const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<Error | null>(null);
+  const navigate = useNavigate();
 
-    
+  const [users, setUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [search, setSearch] = useState("");
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${Base_URL}/admin/getTutors`, {
+          params: {
+            page: currentPage,
+            limit: itemsPerPage,
+          },
+        });
+
+        console.log("API Response:", response);
+        const fetchedUsers = response.data.tutors || [];
+        setUsers(fetchedUsers);
+        setFilteredUsers(fetchedUsers);
+        setTotalPages(response.data.totalPages || 1);
+      } catch (err) {
+        console.error("Error fetching users:", err);
+        setError(err as Error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [currentPage]);
+
+   useEffect(() => {
    
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const itemsPerPage = 10;
+      const filtered = users.filter((user) =>
+        `${user.name}`.toLowerCase().includes(search.toLowerCase()) ||
+        user.email.toLowerCase().includes(search.toLowerCase()) ||
+        user.phone.includes(search)
+      );
+      setFilteredUsers(filtered);
+      setTotalPages(Math.ceil(filtered.length / itemsPerPage));
+      setCurrentPage(1); 
+    }, [search, users]);
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  console.log(paginatedUsers,"pdd")
+
+  if (!users)
+      return (
+        <div>
+         
+          <div className="mt-4 flex justify-center items-center">
+            <FaSpinner className="animate-spin text-green-600" size={40} />
+          </div>
+        </div>
+      );
   
-    useEffect(() => {
-        const fetchData = async () => {
-          setLoading(true);
-          try {
-            const response = await axios.get(`${Base_URL}/admin/getTutors`, {
-              params: {
-                page: currentPage,
-                limit: itemsPerPage,
-              },
-            });
-    
-            console.log("API Response:", response);
-            const fetchedUsers = response.data.tutors || [];
-            setUsers(fetchedUsers);
-            setFilteredUsers(fetchedUsers); 
-            setTotalPages(response.data.totalPages || 1);
-          } catch (err) {
-            console.error("Error fetching users:", err);
-            setError(err as Error);
-          } finally {
-            setLoading(false);
-          }
-        };
-    
-        fetchData();
-      }, [currentPage]);
 
-     
-   
-    return (
-        <>
+  return (
+    <>
       <Navbar />
       <div className="relative flex min-h-screen flex-col bg-white overflow-x-hidden font-sans mt-16">
         <div className="layout-container flex h-full grow flex-col">
@@ -105,6 +133,8 @@ const TutorsPage = () => {
                           </svg>
                         </div>
                         <input
+                         value={search}
+                         onChange={(e) => setSearch(e.target.value)}
                           placeholder="Search for anything"
                           className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#111517] focus:outline-0 focus:ring-0 border border-[#dce1e5] bg-white focus:border-[#dce1e5] h-full placeholder:text-[#647987] px-[15px] rounded-r-none border-r-0 pr-2 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal"
                         />
@@ -119,45 +149,65 @@ const TutorsPage = () => {
                 </div>
               </div>
               <h2 className="text-[#111517] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">
-               Meet the Tutors
+                Meet the Tutors
               </h2>
               <div className="pb-3">
-                <div className="flex border-b border-[#dce1e5] px-4 gap-8">
-            
-         
-              
-                </div>
+                <div className="flex border-b border-[#dce1e5] px-4 gap-8"></div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-0 px-4 py-5">
-                {users.slice(0, 15).map((tutor, index) => (
-                  <div className="flex flex-col " key={index}>
-                    <div className="w-48 h-48 mb-4">
-                      <img
-                        src={tutor?.profilePicture || defaultProfile}
-                        alt={`${tutor.name}`}
-                        className="rounded-full w-full h-full object-cover cursor-pointer"
-                        onClick={() => navigate(`/tutorDetails/${tutor?.userId}`)}
-                      />
+
+                  {paginatedUsers && paginatedUsers.length>0?(
+                    paginatedUsers.map((tutor,index)=>(
+
+                    <div className="flex flex-col " key={index}>
+                      <div className="w-48 h-48 mb-4">
+                        <img
+                          src={tutor?.profilePicture || defaultProfile}
+                          alt={`${tutor.name}`}
+                          className="rounded-full w-full h-full object-cover cursor-pointer"
+                          onClick={() =>
+                            navigate(`/tutorDetails/${tutor?.userId}`)
+                          }
+                        />
+                      </div>
+                      <div className="pl-10">
+                        <h3 className="text-lg font-medium">{tutor.name}</h3>
+                        <p className="text-sm text-gray-500">{tutor.email}</p>
+                      </div>
                     </div>
-                    <div className="pl-10">
-                      <h3 className="text-lg font-medium">
-                        {tutor.name}
-                      </h3>
-                      <p className="text-sm text-gray-500">{tutor.email}</p>
-                    </div>
-                  </div>
+                    ))
+                  ):(
+                    <tr>
+                    <td colSpan={7} className="text-center py-5">
+                      No tutors found.
+                    </td>
+                  </tr>
+                  )}
+                 
+                </div>
+               {/* Pagination */}
+               <div className="flex justify-center my-4">
+                {Array.from({ length: totalPages }, (_, index) => (
+                  <button
+                    key={index}
+                    className={`px-4 py-2 mx-1 rounded ${
+                      currentPage === index + 1
+                        ? "bg-gradient-to-r from-stone-500 to-stone-700 text-white"
+                        : "bg-white border border-black"
+                    }`}
+                    onClick={() => handlePageChange(index + 1)}
+                  >
+                    {index + 1}
+                  </button>
                 ))}
               </div>
-               
               </div>
-
-              
             </div>
           </div>
         </div>
       </div>
       <Footer />
     </>
-    );
-}
+  );
+};
 
 export default TutorsPage;

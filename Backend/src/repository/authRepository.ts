@@ -15,6 +15,7 @@ import { Course } from "../models/courseModel";
 import { Wallet } from "../models/walletModel";
 import Order from "../models/orderModel";
 import Rating from "../models/ratingModel";
+import Wishlist from "../models/wishlistSchema";
 
 class AuthRepository implements IAuthRepository {
   private userRepo: BaseRepository<IUser>;
@@ -35,9 +36,9 @@ class AuthRepository implements IAuthRepository {
     }
   }
 
-  async googleLogin(userDetail:any): Promise<IUser|null>{
+  async googleLogin(userDetail: any): Promise<IUser | null> {
     try {
-      const newUser = await this.userRepo.create(userDetail); 
+      const newUser = await this.userRepo.create(userDetail);
       // console.log("User created successfully:", newUser);
       return newUser;
     } catch (error: any) {
@@ -47,16 +48,16 @@ class AuthRepository implements IAuthRepository {
   }
   async findUserById(userId: string): Promise<IUser> {
     try {
-      const user = await this.userRepo.find({userId})
-      if(!user) {
-        throw new Error("User dosent exist.")
+      const user = await this.userRepo.find({ userId });
+      if (!user) {
+        throw new Error("User dosent exist.");
       }
       return user;
-    } catch ( error : any) {
-    console.error('Error fetching user in user-controller:', error.message);
-    throw error;
+    } catch (error: any) {
+      console.error("Error fetching user in user-controller:", error.message);
+      throw error;
     }
-}
+  }
   async createUser(userData: {
     name: string;
     email: string;
@@ -211,14 +212,19 @@ class AuthRepository implements IAuthRepository {
   ): Promise<{ courses: any; totalPages: number }> {
     try {
       // Define the base filter
-      let queryFilter: { isBlocked: boolean; category?: string;isVerified:boolean } = {
-        isBlocked: false,isVerified:true
+      let queryFilter: {
+        isBlocked: boolean;
+        category?: string;
+        isVerified: boolean;
+      } = {
+        isBlocked: false,
+        isVerified: true,
       };
 
       if (category && category !== "All") {
         queryFilter.category = category;
       } else if (category && category === "All") {
-        queryFilter = { isBlocked: false,isVerified:true };
+        queryFilter = { isBlocked: false, isVerified: true };
       }
 
       // Pagination logic
@@ -271,11 +277,10 @@ class AuthRepository implements IAuthRepository {
       if (!userTutor) {
         throw new Error("Cannot find userTutor.");
       }
-      
-      const rating = await Rating.find({courseId:id})
+
+      const rating = await Rating.find({ courseId: id });
       // console.log("ratings",rating)
-      if(!rating){
-        
+      if (!rating) {
         throw new Error("Cannot find ratings.");
       }
 
@@ -302,7 +307,7 @@ class AuthRepository implements IAuthRepository {
         price: course.price,
         users: course?.users?.length,
       };
-      console.log("corse:",CourseData)
+      console.log("corse:", CourseData);
       return CourseData;
     } catch (error: any) {
       console.log("Error in getting course detail user repo", error.message);
@@ -341,7 +346,11 @@ class AuthRepository implements IAuthRepository {
   async confirmOrder(orderId: string): Promise<any> {
     try {
       // Find the order by a custom ID or ObjectId
-      const order = await Order.findOneAndUpdate({ orderId: orderId },{paymentStatus:"Completed"},{new:true});
+      const order = await Order.findOneAndUpdate(
+        { orderId: orderId },
+        { paymentStatus: "Completed" },
+        { new: true }
+      );
 
       // Check if the order exists
       if (!order) {
@@ -418,26 +427,26 @@ class AuthRepository implements IAuthRepository {
       throw new Error(error.message);
     }
   }
-  async ratings(courseId: string) : Promise<IRating[]> {
+  async ratings(courseId: string): Promise<IRating[]> {
     try {
-       return await Rating.find({ courseId }).lean();
+      return await Rating.find({ courseId }).lean();
     } catch (error: any) {
       console.error("Error in getting rating repo", error.message);
       throw new Error(error.message);
     }
   }
-  async addRating(newRating: object): Promise<IRating> { 
+  async addRating(newRating: object): Promise<IRating> {
     try {
       const rating = new Rating(newRating);
-      const savedRating = await rating.save(); 
-      return savedRating; 
+      const savedRating = await rating.save();
+      return savedRating;
     } catch (error: any) {
       console.error("Error in adding rating:", error.message);
       throw new Error(error.message);
     }
   }
-  async newPayment(userId: string, amount: number) : Promise <IWallet> {
-    try {  
+  async newPayment(userId: string, amount: number): Promise<IWallet> {
+    try {
       let wallet = await Wallet.findOne({ userId });
       const id = Math.floor(1000 + Math.random() * 9000).toString();
       const transaction = {
@@ -465,11 +474,11 @@ class AuthRepository implements IAuthRepository {
     }
   }
 
-   async transactions(userId: string) :Promise<IWallet | null> {
+  async transactions(userId: string): Promise<IWallet | null> {
     try {
-      console.log(userId)
+      console.log(userId);
       let wallet = await Wallet.findOne({ userId }).lean();
-      console.log(userId , wallet)
+      console.log(userId, wallet);
       if (wallet) {
         return wallet;
       } else {
@@ -482,15 +491,58 @@ class AuthRepository implements IAuthRepository {
   }
   async orders(userId: string): Promise<IOrder[]> {
     try {
-        console.log("Fetching orders for userId:", userId);
-        const order = await Order.find({ userId }).lean().exec()
-        console.log("Fetched orders from DB:", order);
-        return order;
+      console.log("Fetching orders for userId:", userId);
+      const order = await Order.find({ userId }).lean().exec();
+      console.log("Fetched orders from DB:", order);
+      return order;
     } catch (error: any) {
-        console.error("Error in getting orders from repo", error.message);
+      console.error("Error in getting orders from repo", error.message);
+      throw new Error(error.message);
+    }
+  }
+  addWishlist = async (wishlistData:any): Promise<boolean> => {
+    try {
+      const wishlist = await Wishlist.create(wishlistData);
+      return true;
+    } catch (error: any) {
+      console.log("Error in saving order data in user repo", error.message);
+      throw new Error(error.message);
+    }
+  };
+  checkWishlist = async (wishlistData:any): Promise<any> => {
+    try {
+      const {email,courseId} = wishlistData
+      const wishlist = await Wishlist.findOne({email,courseId});
+      
+      console.log("wishl:",wishlist)
+      if(!wishlist)return null
+      return wishlist.isWishlist;
+    } catch (error: any) {
+      console.log("Error in saving order data in user repo", error.message);
+      throw new Error(error.message);
+    }
+  };
+  removeWishlist = async (wishlistData:any): Promise<any> => {
+    try {
+      const {email,courseId} = wishlistData
+      return await Wishlist.deleteOne({email,courseId});
+      
+     
+    } catch (error: any) {
+      console.log("Error in saving order data in user repo", error.message);
+      throw new Error(error.message);
+    }
+  };
+  wishlist = async (email: string): Promise<any> => {
+    try {
+        const wishlist = await Wishlist.find({ email })
+        if (!wishlist) return null;
+        return wishlist;
+    } catch (error: any) {
+        console.log("Error in fetching wishlist data", error.message);
         throw new Error(error.message);
     }
-}
+};
 
 }
 export default AuthRepository;

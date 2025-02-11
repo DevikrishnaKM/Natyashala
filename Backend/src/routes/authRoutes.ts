@@ -55,5 +55,7 @@ router.post('/add-rating', authController.addRating.bind(authController));
 router.post(`/walletAdd`,verifyToken ,authController.addMoney.bind(authController))
 router.get(`/getTransactions/:userId`, authController.getTransactions.bind(authController))
 router.get('/get-orders/:userId', verifyToken ,authController.getOrders.bind(authController))
+router.post('/toggle-wishlist', authController.toggleWishlist.bind(authController));
+router.get('/wishlist/:email', authController.wishlist.bind(authController));
 
 export default router;
