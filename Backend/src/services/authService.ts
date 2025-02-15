@@ -59,6 +59,8 @@ class AuthService {
     const userId = uuidv4();
     const otp = generateOtp();
 
+   
+
     const tempData = {
       userId,
       name: data.name,
@@ -70,6 +72,7 @@ class AuthService {
       createdAt: new Date(),
       role,
       isVerified: false,
+      
     };
 
     await otpSetData(data.email, otp);
@@ -81,7 +84,7 @@ class AuthService {
     });
 
     const token = createToken(tempData.userId, tempData.role);
-    return { user: tempData, token }; // Returning user and token
+    return { user: tempData, token }; 
   };
 
   googleLogin = async (userData: any): Promise<any> => {
@@ -116,11 +119,20 @@ class AuthService {
     phone: string,
     password: string,
     inputOtp: string,
-    role: "user" | "tutor"
+    role: "user" | "tutor",
+    referralCode:string
   ): Promise<Boolean> => {
     try {
       const storedOtp = await getOtpByEmail(email);
       console.log("storedOtp:", storedOtp, inputOtp);
+
+      const generateReferralCode = () => {
+        return Math.random().toString(36).substring(2, 8);
+      };
+      
+      const referrer =  await this.authRepository.findReferral(referralCode) 
+      
+      const referredBy = referrer._id
 
       if (!storedOtp) {
         throw new AppError("OTP not found", HTTP_statusCode.NotFound);
@@ -131,7 +143,7 @@ class AuthService {
         throw new AppError("Wrong OTP", HTTP_statusCode.Conflict);
       }
 
-      const userData = { userId: uuidv4(), name, email, phone, password, role };
+      const userData = { userId: uuidv4(), name, email, phone, password, role,referralCode: generateReferralCode(),referredBy};
       await this.authRepository.createUser(userData);
       console.log("OTP matched successfully. Creating user...");
       return true;

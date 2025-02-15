@@ -44,5 +44,7 @@ route.put('/updateCourse/:courseId' ,tutorController.updateCourse.bind(tutorCont
 route.put('/updateVideo/:courseId', tutorController.editVideo.bind(tutorController))
 route.delete('/deleteVideo', tutorController.deleteVideo.bind(tutorController))
 route.post('/add-video/:sectionId', upload.single("file"), tutorController.addVideo.bind(tutorController))
+route.get('/tutorDashboard/:email', tutorController.getDashboard.bind(tutorController))
+route.get('/chart', tutorController.ChartData.bind(tutorController))
 
 export default route;

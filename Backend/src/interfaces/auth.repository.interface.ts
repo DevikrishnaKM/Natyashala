@@ -2,9 +2,10 @@ import {IUser,ICleanedUser,ICourse, IOrder,IRating,IWallet, IWishlist} from "./c
 
 export interface IAuthRepository {
     findUser(email : string) : Promise<IUser | null>;
+    findReferral(referral : string) : Promise<any>;
     googleLogin(userDetail : any) : Promise<IUser | null>;
     findUserById(userId: string): Promise<IUser>
-    createUser(userData: { name: string, email: string, phone: string, password: string,role:'user'|'tutor'}): Promise<IUser|boolean>;
+    createUser(userData: { name: string, email: string, phone: string, password: string,role:'user'|'tutor',referralCode:any,referredBy:string}): Promise<IUser|boolean>;
     validateLoginUser(email: string,password: string): Promise<ICleanedUser>;
     editUser(userid: string,newUserInfo: object): Promise<IUser | null>;
     saveProfile(userId: string, profileUrl: string) : Promise<boolean>;
@@ -27,4 +28,5 @@ export interface IAuthRepository {
     checkWishlist(wishlistData:any) : Promise<any>
     removeWishlist(wishlistData:any) : Promise<boolean>
     wishlist(email:string) : Promise<any>
+    incomeWallet(userId: string) : Promise<number> 
 }

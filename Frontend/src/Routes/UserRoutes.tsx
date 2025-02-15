@@ -18,6 +18,7 @@ import MyCourses from '@/Pages/User/MyCourses';
 import CoursePlayer2 from '@/Pages/User/CoursePlayer';
 import MyOrders from '@/Pages/User/MyOrders';
 import MyWishlist from "../Pages/User/MyWishlist"
+import CommunityContent from '@/Pages/User/Community';
 const UserRoutes = () => {
   return (
     <>
@@ -39,6 +40,7 @@ const UserRoutes = () => {
         <Route path = '/mycourses' element = {<UserProtector> <MyCourses /> </UserProtector>} />
         <Route path = '/my-orders' element = {<UserProtector> <MyOrders /></UserProtector>} />
         <Route path = '/my-wishlist' element = {<UserProtector> <MyWishlist /></UserProtector>} />
+        <Route path = '/community' element = {<UserProtector> <CommunityContent/></UserProtector>} />
     </Routes>
     </>
   )

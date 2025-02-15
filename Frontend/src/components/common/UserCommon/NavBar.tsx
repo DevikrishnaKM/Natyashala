@@ -2,6 +2,7 @@ import React, { useState,useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import {decrypt} from "../../../utils/encryption";
+import logo from "../../../assets/output (1).jpg"
 
 interface NavItem {
   label: string
@@ -39,7 +40,7 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <a href="/" className="flex-shrink-0">
-              <img className="h-8 w-8" src="./src/assets/output (1).jpg?height=32&width=32" alt="Logo" />
+              <img className="h-8 w-8" src ={`${logo}?height=32&width=32`} alt="Logo" />
             </a>
             <h2 className="p-2 text-white text-lg">Natyashala</h2>
             <div className="hidden md:block">

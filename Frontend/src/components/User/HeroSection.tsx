@@ -6,9 +6,7 @@ import {motion} from "framer-motion"
 const LandingPage: React.FC = () => {
 
 const navigate = useNavigate()
-  const goToCommunity = () => {
-    console.log("Navigating to community page");
-  };
+ 
 
   const goToTutors = () => {
     console.log("Navigating to tutors page");
@@ -50,9 +48,11 @@ const navigate = useNavigate()
             </button>
             <button
               className="rounded-full border h-11 bg-[#EEEEEE] border-black px-6 py-2 text-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-200 cursor-pointer text-center"
-              onClick={goToCommunity}
             >
+              <Link to="/community">
+            
               Community
+              </Link>
             </button>
           </div>
         </motion.div>

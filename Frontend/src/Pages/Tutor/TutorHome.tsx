@@ -13,6 +13,9 @@ import { Base_URL } from '@/credentials'
 import { toast } from 'sonner'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
+import HomeAbout from '@/components/Tutor/HomeAbout'
+import HomeTutorComment from '@/components/Tutor/HomeTutorcomment'
+import Footer from '@/components/common/UserCommon/Footer'
 
 // Placeholder components (you'll need to create these separately)
 
@@ -119,10 +122,11 @@ export default function TutorHomePage() {
             </CardContent>
           </Card>
         </div>
-
         </div>
+             <HomeAbout/>
+             <HomeTutorComment/>
       </div>
-      
+      <Footer/>
     </>
   )
 }

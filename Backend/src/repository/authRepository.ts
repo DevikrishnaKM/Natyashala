@@ -35,6 +35,15 @@ class AuthRepository implements IAuthRepository {
       throw error;
     }
   }
+  async findReferral(referral: string): Promise<any> {
+    try {
+      const User = await this.userRepo.find({ referralCode: referral });
+      return User;
+    } catch (error: any) {
+      console.error("Error fetching user in auth-controller", error.message);
+      throw error;
+    }
+  }
 
   async googleLogin(userDetail: any): Promise<IUser | null> {
     try {
@@ -64,11 +73,13 @@ class AuthRepository implements IAuthRepository {
     phone: string;
     password: string;
     role: "user" | "tutor";
+    referralCode: any;
+    referredBy: string;
   }): Promise<IUser> {
     try {
       console.log("Creating new user with:", userData);
-      const newUser = await this.userRepo.create(userData); // Assuming `userRepo` is the MongoDB repository
-      // console.log("User created successfully:", newUser);
+      const newUser = await this.userRepo.create(userData);
+
       return newUser;
     } catch (error: any) {
       console.log("Error in creating new User", error);
@@ -500,7 +511,7 @@ class AuthRepository implements IAuthRepository {
       throw new Error(error.message);
     }
   }
-  addWishlist = async (wishlistData:any): Promise<boolean> => {
+  addWishlist = async (wishlistData: any): Promise<boolean> => {
     try {
       const wishlist = await Wishlist.create(wishlistData);
       return true;
@@ -509,25 +520,23 @@ class AuthRepository implements IAuthRepository {
       throw new Error(error.message);
     }
   };
-  checkWishlist = async (wishlistData:any): Promise<any> => {
+  checkWishlist = async (wishlistData: any): Promise<any> => {
     try {
-      const {email,courseId} = wishlistData
-      const wishlist = await Wishlist.findOne({email,courseId});
-      
-      console.log("wishl:",wishlist)
-      if(!wishlist)return null
+      const { email, courseId } = wishlistData;
+      const wishlist = await Wishlist.findOne({ email, courseId });
+
+      console.log("wishl:", wishlist);
+      if (!wishlist) return null;
       return wishlist.isWishlist;
     } catch (error: any) {
       console.log("Error in saving order data in user repo", error.message);
       throw new Error(error.message);
     }
   };
-  removeWishlist = async (wishlistData:any): Promise<any> => {
+  removeWishlist = async (wishlistData: any): Promise<any> => {
     try {
-      const {email,courseId} = wishlistData
-      return await Wishlist.deleteOne({email,courseId});
-      
-     
+      const { email, courseId } = wishlistData;
+      return await Wishlist.deleteOne({ email, courseId });
     } catch (error: any) {
       console.log("Error in saving order data in user repo", error.message);
       throw new Error(error.message);
@@ -535,14 +544,41 @@ class AuthRepository implements IAuthRepository {
   };
   wishlist = async (email: string): Promise<any> => {
     try {
-        const wishlist = await Wishlist.find({ email })
-        if (!wishlist) return null;
-        return wishlist;
+      const wishlist = await Wishlist.find({ email });
+      if (!wishlist) return null;
+      return wishlist;
     } catch (error: any) {
-        console.log("Error in fetching wishlist data", error.message);
-        throw new Error(error.message);
+      console.log("Error in fetching wishlist data", error.message);
+      throw new Error(error.message);
     }
-};
+  };
+  async incomeWallet(userId: string) : Promise<number> {
+    try {
+      const result = await Wallet.aggregate([
+        { $match: { userId } },
+        { $unwind: "$transactions" },
+        {
+          $match: {
+            "transactions.transactionType": "course payment",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalAmount: { $sum: "$transactions.amount" },
+          },
+        },
+      ]);
 
+      if (result && result.length > 0) {
+        return result[0].totalAmount;
+      } else {
+        return 0;
+      }
+    } catch (error: any) {
+      console.error("Error in saving wallet in wallet repo", error.message);
+      throw new Error(error.message);
+    }
+  }
 }
 export default AuthRepository;

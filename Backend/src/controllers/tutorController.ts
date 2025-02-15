@@ -156,6 +156,33 @@ class TutorController {
         .json({ message: error.message });
     }
   }
+  getDashboard = async(req: Request, res: Response):Promise<any> => {
+    try {
+      const { email } = req.params;
+      const getDashboardData = await this.tutorServices.getDashboard(
+        email as string
+      );
+      return res.status(HTTP_statusCode.OK).json(getDashboardData);
+    } catch (error: any) {
+      console.error(error.message, "dsfsdf");
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  }
+  async ChartData(req: Request, res: Response) {
+    try {
+      const year =
+        parseInt(req.query.year as string) || new Date().getFullYear();
+      const chartdata = await this.tutorServices.getMonthlyData(year as number);
+      res.status(HTTP_statusCode.OK).json(chartdata);
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  }
   
 }
 

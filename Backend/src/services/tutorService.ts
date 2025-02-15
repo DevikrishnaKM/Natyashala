@@ -4,7 +4,7 @@ import { IAuthRepository } from "../interfaces/auth.repository.interface";
 import ITutorRepository from "../interfaces/tutor.repository.interface";
 import ICourseRepository from "../interfaces/course.repository.interface";
 import { AwsConfig } from "../config/awsFileConfig";
-import { ITutorProfile,ICourse,INewCourseDetails ,IVideo} from "../interfaces/common.inteface";
+import { ITutorProfile,ICourse,INewCourseDetails ,IVideo,ITutorDashBoard,IMonthlyEnrollment,IMonthlyRevenue} from "../interfaces/common.inteface";
 class TutorService {
   private authRepository: IAuthRepository;
   private adminRepository: IAdminRepository;
@@ -216,8 +216,55 @@ class TutorService {
       throw error;
     }
   }
-
-
+  getDashboard = async(email: string) : Promise<ITutorDashBoard> => {
+    try {
+      const userTutor = await this.authRepository.findUser(email);
+      if (!userTutor) throw new Error("Tutor dosent exist.");
+      const totalIncome = await this.authRepository.incomeWallet(userTutor?.userId);
+      const tutorProfile = await this.tutorRepository.getTutorDetail(email);
+      if (!tutorProfile) throw new Error("TutorProfile dosent exist.");
+      let profileUrl = ""
+      if(userTutor?.profilePicture) {
+          profileUrl = await this.awsConfig.tutorGetfile(
+          userTutor?.profilePicture as string,
+          `users/profile/${userTutor?.userId}`
+        );
+      }       
+      const courses = await this.tutorRepository.getCoursesByTutor(email);
+      const totalCourses = courses.length;
+      const uniqueStudents = new Set();
+      courses.forEach((course : ICourse) => {
+        course.users?.forEach((user) => uniqueStudents.add(user));
+      });
+      const totalStudents = uniqueStudents.size;
+      const dashboardData = {
+        name: userTutor?.name,
+        profileUrl,
+        // followers: userTutor?.followers.length,
+        role: tutorProfile?.role,
+        students: totalStudents,
+        totalCourses,
+        income: totalIncome,
+      };
+      return dashboardData;
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      throw error;
+    }
+  }
+  getMonthlyData = async(year: number) :  Promise<{enrollments : IMonthlyEnrollment[] ,revenue :IMonthlyRevenue[] }> => {
+    try {
+      const userEnrollments = await this.tutorRepository.getMonthlyUserEnrollments(year);
+      const revenue = await this.tutorRepository.getMonthlyRevenue(year);
+      return {
+        enrollments : userEnrollments,
+        revenue
+      }
+    } catch (error) {
+      console.error("Error fetching monthly  data:", error);
+      throw error;
+    }
+  }
 }
 
 export default TutorService;

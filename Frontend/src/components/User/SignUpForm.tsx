@@ -26,6 +26,7 @@ const SignUpForm = () => {
     phone: "",
     password: "",
     confirmPassword: "",
+    referralCode: "",
   });
 
   useEffect(() => {
@@ -39,6 +40,7 @@ const SignUpForm = () => {
       phone: "",
       password: "",
       confirmPassword: "",
+      referralCode: "", 
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Name is required"),
@@ -54,6 +56,7 @@ const SignUpForm = () => {
       confirmPassword: Yup.string()
         .oneOf([Yup.ref("password"), null], "Passwords must match")
         .required("Confirm password is required"),
+        referralCode: Yup.string().optional(),
     }),
     onSubmit: async (values) => {
       try {
@@ -170,6 +173,10 @@ const SignUpForm = () => {
               {formik.touched.confirmPassword && formik.errors.confirmPassword && (
                 <div className="text-red-500 text-sm">{formik.errors.confirmPassword}</div>
               )}
+            </div>
+            <div>
+              <Label htmlFor="referralCode">Referral Code (Optional)</Label>
+              <Input id="referralCode" name="referralCode" type="text" autoComplete="off" value={formik.values.referralCode} onChange={formik.handleChange} onBlur={formik.handleBlur} className="mt-1" />
             </div>
 
             <div>

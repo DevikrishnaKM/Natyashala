@@ -2,7 +2,7 @@ import {ICleanedUser,IEditUser,ICourse,ITutorData,IRating,IWallet} from "./commo
 export default interface IAuthService {
     signUp(data: any, role: string): Promise<{ user: any; token: string }>;
     googleLogin(userdata:any):Promise<any>
-    otpVerify(email:string,name:string,phone:string,password:string,inputOtp:string,role:'user'|'tutor'):Promise<Boolean>;
+    otpVerify(email:string,name:string,phone:string,password:string,inputOtp:string,role:'user'|'tutor',referralCode:string):Promise<Boolean>;
     verifyLogin(email:string,password:string):Promise<{userInfo:ICleanedUser;accessToken:string}>;
     resendOtp(email: any): Promise<boolean>; 
     editUser(userId : string ,updateData : object): Promise<IEditUser>;

@@ -8,9 +8,12 @@ import {
   ICourseData,
   IVideo,
   ICourse,
+  IMonthlyEnrollment,
+  IMonthlyRevenue
 } from "../interfaces/common.inteface";
 import TutorProfile from "../models/tutorProfileModel";
 import { Course, Section, Video } from "../models/courseModel";
+import { Wallet } from "../models/walletModel";
 
 class TutorRepository {
   private userRepo: BaseRepository<IUser>;
@@ -175,6 +178,84 @@ class TutorRepository {
         "Error in getting montly revenue in tutor repo",
         error.message
       );
+      throw new Error(error.message);
+    }
+  }
+  async getTutorDetail(email : string) : Promise<ITutorProfile> {
+    try {
+      const tutor =  await TutorProfile.findOne({email : email}).lean().exec()
+      if(!tutor) throw new Error("Cannot find Tutor")
+      return tutor;
+    } catch (error : any) {
+      console.log("Error in getting tutro detail in tutor repo", error.message); 
+      throw new Error(error.message);
+    }
+  }
+  async getMonthlyUserEnrollments (year : number) : Promise<IMonthlyEnrollment[]> {
+    try {
+      const enrollments = await Course.aggregate([
+        {$unwind : '$users'},
+        {
+          $match: {
+            createdAt: {
+              $gte: new Date(`${year}-01-01`),
+              $lt: new Date(`${year + 1}-01-01`),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$createdAt' },
+              month: { $month: '$createdAt' },
+            },
+            totalUsers: { $sum: 1 }, 
+          },
+        },
+        {
+          $sort: { '_id.month': 1 }, 
+        },
+      ]);
+
+      return enrollments;
+
+    } catch (error : any) {
+      console.log("Error in getting montly users in tutor repo", error.message); 
+      throw new Error(error.message);
+    }
+  }
+
+   async getMonthlyRevenue (year: number) : Promise<IMonthlyRevenue[]> {
+    try {
+      const revenue = await Wallet.aggregate([
+        {
+          $unwind: '$transactions',
+        },
+        {
+          $match: {
+            'transactions.transactionType': 'course payment',
+            'transactions.date': {
+              $gte: new Date(`${year}-01-01`),
+              $lt: new Date(`${year + 1}-01-01`),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$transactions.date' },
+              month: { $month: '$transactions.date' },
+            },
+            totalRevenue: { $sum: '$transactions.amount' }, 
+          },
+        },
+        {
+          $sort: { '_id.month': 1 },
+        },
+      ]);
+      return revenue;
+    } catch (error : any) {
+      console.log("Error in getting montly revenue in tutor repo", error.message); 
       throw new Error(error.message);
     }
   }

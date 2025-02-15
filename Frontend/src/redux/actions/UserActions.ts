@@ -19,6 +19,7 @@ interface FormData {
   password: string;
   otp: string;
   role: "user" | "tutor";
+  referralCode:string;
 }
 export const registerUser = (userData: User, role: string | null) => {
   return async (dispatch: AppDispatch): Promise<boolean> => {

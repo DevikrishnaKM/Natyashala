@@ -52,7 +52,7 @@ class AuthController {
   otpVerification = catchAsync(async (req: Request, res: Response) => {
     try {
       console.log("Incoming OTP verification request:", req.body);
-      const { email, name, phone, password, otp, role } = req.body;
+      const { email, name, phone, password, otp, role ,referralCode} = req.body;
 
       const result = await this.authService.otpVerify(
         email,
@@ -60,7 +60,8 @@ class AuthController {
         phone,
         password,
         otp,
-        role
+        role,
+        referralCode,
       );
       console.log(result);
       if (result) {

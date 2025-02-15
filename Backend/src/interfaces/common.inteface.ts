@@ -8,6 +8,8 @@ export interface IUser extends Document {
     password: string;
     confirmPassword?: string;
     role: 'user' | 'tutor' ;
+    referralCode?:string
+    referredBy?:string
     isVerified: boolean;
     profilePicture?: string;
     enrolledCourses?: [];
@@ -219,9 +221,33 @@ export interface IRating extends Document {
   createdAt: Date;           
 }
 export interface IWishlist extends Document {
-  courseId: ObjectId; 
+  courseId: string; 
   userId: string;   
   email: string;       
   isWishlist: boolean;          
   createdAt: Date;           
 }
+export interface ITutorDashBoard {
+  name: string
+  profileUrl : string,
+  // followers: number,
+  role:string,
+  students: number,
+  totalCourses : number,
+  income: number,
+}
+export interface IMonthlyEnrollment  {
+  _id: {
+    year: number;
+    month: number;
+  };
+  totalUsers: number;
+};
+
+export interface IMonthlyRevenue  {
+  _id: {
+    year: number;
+    month: number;
+  };
+  totalRevenue: number;
+};

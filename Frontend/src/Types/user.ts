@@ -1,11 +1,12 @@
 export
 interface User{
-    userId:string;
+    userId?:string;
     name:string;
     email:string;
     phone:string;
     password:string;
-    role:"user"|"tutor"
+    role?:"user"|"tutor"
     confirmPassword:string;
-    isVerified:boolean
+    isVerified?:boolean
+    referralCode?:string
 }
