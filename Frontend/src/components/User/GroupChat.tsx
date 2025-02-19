@@ -8,17 +8,16 @@ import React, {
   useCallback,
 } from "react";
 import { BsSendFill } from "react-icons/bs";
-// import io from "socket.io-client";
+import io from "socket.io-client";
 import { Base_URL } from "../../credentials";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import userAxiosInstance from "../../config/axiosInstance.ts/userInstance";
 import  defaultProfile  from "../../assets/defualt.webp";
-// import Msg from "./Message";
+import Msg from "./Message";
 
 interface UserDetails {
-  firstName: string;
-  lastName: string;
+ name: string;
   email: string;
   profileUrl: string;
 }
@@ -70,7 +69,7 @@ const GroupChat: React.FC = React.memo(() => {
     const fetchCourses = async () => {
       try {
         const response = await userAxiosInstance.get(
-          `${Base_URL}/mycourses/${userInfo?.userId}`
+          `${Base_URL}/auth/mycourses/${userInfo?.userId}`
         );
         setCourseData(response.data);
 
@@ -81,20 +80,20 @@ const GroupChat: React.FC = React.memo(() => {
 
     fetchCourses();
 
-    // if (userInfo?.userId) {
-    //   socketRef.current = io(Base_URL);
-    //   const socket = socketRef.current;
+    if (userInfo?.userId) {
+      socketRef.current = io(Base_URL);
+      const socket = socketRef.current;
 
-    //   socket.on("connect", () => {
-    //     console.log("Connected to socket server");
-    //   });
+      socket.on("connect", () => {
+        console.log("Connected to socket server");
+      });
 
       
-    //   return () => {
-    //     socket.disconnect();
-    //     console.log("Disconnected from socket server");
-    //   };
-    // }
+      return () => {
+        socket.disconnect();
+        console.log("Disconnected from socket server");
+      };
+    }
   }, [userInfo?.userId]);
 
   useEffect(() => {
@@ -116,40 +115,40 @@ const GroupChat: React.FC = React.memo(() => {
 
     fetchMessages();
 
-    // if (selectedCourse) {
-    //   socketRef.current = io(Base_URL);
-    //   const socket = socketRef.current;
+    if (selectedCourse) {
+      socketRef.current = io(Base_URL);
+      const socket = socketRef.current;
 
-    //   socket.emit("joinRoom", selectedCourse);
+      socket.emit("joinRoom", selectedCourse);
 
-    //   socket.on("receiveMessage", (payload: Message) => {
-    //     setMessages((prevMsgs) => [...prevMsgs, payload]);
-    //   });
+      socket.on("receiveMessage", (payload: Message) => {
+        setMessages((prevMsgs) => [...prevMsgs, payload]);
+      });
 
-    //   socket.on("userTyping", (userId: string, user: string) => {
-    //     const username = user;
-    //     const existingUser = typingUsers.find((user) => user.userId === userId);
-    //     if (!existingUser) {
-    //       setTypingUsers((prevTypingUsers) => [
-    //         ...prevTypingUsers,
-    //         { userId, username },
-    //       ]);
-    //     }
-    //   });
+      socket.on("userTyping", (userId: string, user: string) => {
+        const username = user;
+        const existingUser = typingUsers.find((user) => user.userId === userId);
+        if (!existingUser) {
+          setTypingUsers((prevTypingUsers) => [
+            ...prevTypingUsers,
+            { userId, username },
+          ]);
+        }
+      });
 
-    //   socket.on("userStoppedTyping", (userId: string) => {
-    //     setTypingUsers((prevTypingUsers) =>
-    //       prevTypingUsers.filter((user) => user.userId !== userId)
-    //     );
-    //   });
+      socket.on("userStoppedTyping", (userId: string) => {
+        setTypingUsers((prevTypingUsers) =>
+          prevTypingUsers.filter((user) => user.userId !== userId)
+        );
+      });
 
-    //   return () => {
-    //     socket.off("receiveMessage");
-    //     socket.off("userTyping");
-    //     socket.off("userStoppedTyping");
-    //     socket.disconnect();
-    //   };
-    // }
+      return () => {
+        socket.off("receiveMessage");
+        socket.off("userTyping");
+        socket.off("userStoppedTyping");
+        socket.disconnect();
+      };
+    }
   }, [selectedCourse]);
 
   const handleChange = useCallback(

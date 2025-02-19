@@ -251,3 +251,16 @@ export interface IMonthlyRevenue  {
   };
   totalRevenue: number;
 };
+export interface IMessage extends Document{
+  userId: string;
+  message: string;
+  timestamp: Date;
+  courseId: string;
+  deleted?: boolean;
+}
+
+export interface IGroup  extends Document {
+  courseId: string;
+  messages: IMessage[];
+  createdAt: Date;
+}
