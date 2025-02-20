@@ -81,7 +81,7 @@ const GroupChat: React.FC = React.memo(() => {
     fetchCourses();
 
     if (userInfo?.userId) {
-      socketRef.current = io(Base_URL);
+      socketRef.current = io(Base_URL + "/auth");
       const socket = socketRef.current;
 
       socket.on("connect", () => {
@@ -96,7 +96,6 @@ const GroupChat: React.FC = React.memo(() => {
     }
   }, [userInfo?.userId]);
 
-  useEffect(() => {
     const fetchMessages = async () => {
       if (selectedCourse) {
         setIsLoading(true);
@@ -112,47 +111,51 @@ const GroupChat: React.FC = React.memo(() => {
         }
       }
     };
+    useEffect(()=>{
+      fetchMessages();
+      if (selectedCourse) {
+        socketRef.current = io(Base_URL);
+        const socket = socketRef.current;
+  
+        socket.emit("joinRoom", selectedCourse);
+  
+        socket.on("receiveMessage", (payload: Message) => {
+          setMessages((prevMsgs) => [...prevMsgs, payload]);
+        });
+  
+        socket.on("userTyping", (userId: string, user: string) => {
+          const username = user;
+          const existingUser = typingUsers.find((user) => user.userId === userId);
+          if (!existingUser) {
+            setTypingUsers((prevTypingUsers) => [
+              ...prevTypingUsers,
+              { userId, username },
+            ]);
+          }
+        });
+  
+        socket.on("userStoppedTyping", (userId: string) => {
+          setTypingUsers((prevTypingUsers) =>
+            prevTypingUsers.filter((user) => user.userId !== userId)
+          );
+        });
+  
+        return () => {
+          socket.off("receiveMessage");
+          socket.off("userTyping");
+          socket.off("userStoppedTyping");
+          socket.disconnect();
+        };
+      }
+    },[selectedCourse])
+    
 
-    fetchMessages();
-
-    if (selectedCourse) {
-      socketRef.current = io(Base_URL);
-      const socket = socketRef.current;
-
-      socket.emit("joinRoom", selectedCourse);
-
-      socket.on("receiveMessage", (payload: Message) => {
-        setMessages((prevMsgs) => [...prevMsgs, payload]);
-      });
-
-      socket.on("userTyping", (userId: string, user: string) => {
-        const username = user;
-        const existingUser = typingUsers.find((user) => user.userId === userId);
-        if (!existingUser) {
-          setTypingUsers((prevTypingUsers) => [
-            ...prevTypingUsers,
-            { userId, username },
-          ]);
-        }
-      });
-
-      socket.on("userStoppedTyping", (userId: string) => {
-        setTypingUsers((prevTypingUsers) =>
-          prevTypingUsers.filter((user) => user.userId !== userId)
-        );
-      });
-
-      return () => {
-        socket.off("receiveMessage");
-        socket.off("userTyping");
-        socket.off("userStoppedTyping");
-        socket.disconnect();
-      };
-    }
-  }, [selectedCourse]);
+    
+  
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
+   
       setMessage(e.target.value);
       if (selectedCourse && socketRef.current && !isTypingRef.current) {
         isTypingRef.current = true;
@@ -171,6 +174,7 @@ const GroupChat: React.FC = React.memo(() => {
           });
           isTypingRef.current = false;
         }, 2000);
+     
       }
     },
     [selectedCourse, userInfo]
@@ -181,12 +185,14 @@ const GroupChat: React.FC = React.memo(() => {
       e.preventDefault();
       if (message.trim() !== "" && selectedCourse) {
         const userId = userInfo?.userId;
+        
         socketRef.current?.emit("sendMessage", {
           courseId: selectedCourse,
           message,
           userId,
         });
         setMessage("");
+       
       }
     },
     [message, selectedCourse, userInfo]

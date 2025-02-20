@@ -5,6 +5,7 @@ import {
   ITutorApplication,
   ICategory,
   ICourse,
+  IUserAggregationResult,
 } from "../interfaces/common.inteface";
 import { BaseRepository } from "../repository/baseRepository";
 import userSchema from "../models/userSchema";
@@ -57,7 +58,7 @@ class AdminRepository implements IAdminRepository {
         { email: email },
         { $set: { isVerified: true } }
       );
-      console.log("res n blovk:",updatedUser)
+      console.log("res n blovk:", updatedUser);
       if (!updatedUser) {
         throw new Error("User could not be blocked");
       }
@@ -312,5 +313,145 @@ class AdminRepository implements IAdminRepository {
       throw error;
     }
   }
+  async getTopTutors(): Promise<any> {
+    try {
+      const topTutorsByStudents = await userSchema.aggregate([
+        { $match: { role: "tutor", isApprovedTutor: true } },
+        {
+          $lookup: {
+            from: "courses",
+            localField: "_id",
+            foreignField: "courseId",
+            as: "courses",
+          },
+        },
+        {
+          $addFields: {
+            totalCourses: { $size: "$courses" }, // Count courses
+            totalStudents: {
+              $sum: {
+                $map: {
+                  input: "$courses",
+                  as: "course",
+                  in: { $size: { $ifNull: ["$$course.users", []] } }, // Count students in each course
+                },
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            email: 1,
+            profilePicture: 1,
+            userId: 1,
+            totalCourses: 1,
+            totalStudents: 1,
+          },
+        },
+        { $sort: { totalStudents: -1 } },
+        { $limit: 5 },
+      ]);
+
+      console.log("Top Tutors:", topTutorsByStudents);
+      return topTutorsByStudents;
+    } catch (error: any) {
+      console.error("Error fetching top tutors:", error);
+      throw error;
+    }
+  }
+
+  async getTopCourses(): Promise<any> {
+    try {
+      const topCourses = await Course.aggregate([
+        {
+          $addFields: {
+            enrolledCount: { $size: "$users" },
+          },
+        },
+        {
+          $sort: { enrolledCount: -1 },
+        },
+        {
+          $limit: 5,
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "email",
+            foreignField: "email",
+            as: "userDetails",
+          },
+        },
+        {
+          $unwind: "$userDetails",
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            email: 1,
+            courseId: 1,
+            enrolledCount: 1,
+            totalRatings: 1,
+            averageRating: 1,
+            thumbnail: 1,
+            "userDetails.profilePicture": 1,
+            "userDetails.userId": 1,
+            "userDetails.name": 1,
+          },
+        },
+      ]);
+      return topCourses;
+    } catch (error: any) {
+      console.log("error in top 5 in admin rpo ", error.message);
+      throw error;
+    }
+  }
+  async getDasboard(): Promise<{
+    users: number;
+    courses: number;
+    tutors: number;
+  }> {
+    try {
+      const users = await this.userRepo.countDocuments({ isVerified: false });
+      const courses = await this.userRepo.countDocuments({ isVerified: false });
+      const tutors = await this.userRepo.countDocuments({
+        role: "tutor", isApprovedTutor: true
+      });
+      return { users, courses, tutors };
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+  async getUserAndTutorStatsByMonth(): Promise<IUserAggregationResult[]> {
+    try {
+      const result = await userSchema.aggregate<IUserAggregationResult>([
+        {
+          $project: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+            role: 1, // Project the role field
+          },
+        },
+        {
+          $group: {
+            _id: { year: "$year", month: "$month" },
+            totalUsers: { $sum: 1 },
+            totalTutors: { $sum: { $cond: [{ $eq: ["$role", "tutor"] }, 1, 0] } },
+          },
+        },
+        {
+          $sort: { "_id.year": 1, "_id.month": 1 },
+        },
+      ]);
+  
+      return result;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+  
 }
 export default AdminRepository;

@@ -16,18 +16,26 @@ let io:SocketServer;
 const configSocketIO = (server:HttpServer)=>{
     io = new SocketServer(server,{
         cors:{
-            origin:process.env.Base_URL,
-            methods:["GET","POSt"],
+            origin:process.env.FRONTEND_url,
+            methods:["GET","POST"],
         },
     })
 
     io.on("connection",(socket)=>{
         console.log("socket connected:",socket.id)
 
-        socket.on('joinRoom',(courseId)=>{
-            socket.join(courseId)
-            console.log(`Client ${socket.id} joined room: ${courseId}`)
-        })
+        socket.on('joinRoom', async (courseId) => {
+            // Check if group exists; if not, create it
+            let group = await Group.findOne({ courseId }).exec();
+            if (!group) {
+              group = new Group({ courseId, messages: [] });
+              await group.save();
+            }
+            
+            socket.join(courseId);
+            console.log(`Client ${socket.id} joined room: ${courseId}`);
+          });
+          
 
         socket.on('sendMessage',async (payload)=>{
             try {

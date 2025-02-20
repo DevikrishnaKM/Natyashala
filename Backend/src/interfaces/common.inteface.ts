@@ -25,6 +25,14 @@ export interface IUser extends Document {
     createdAt?: Date;
     updatedAt?: Date;
   }
+  export interface IUserAggregationResult {
+    _id: {
+        year: number;
+        month: number;
+    };
+    totalUsers: number;
+    totalTutors: number;
+}
  export interface ICleanedUser {
     userId : string
     name: string;

@@ -1,4 +1,4 @@
-import { IUser, ITutorApplication, ICategory,ICourse } from "./common.inteface";
+import { IUser, ITutorApplication, ICategory,ICourse,IUserAggregationResult } from "./common.inteface";
 export interface IAdminRepository {
   getUsers(
     page: number,
@@ -23,4 +23,8 @@ export interface IAdminRepository {
   unBlockCourse(courseId: string) : Promise<string> 
   findCourse(id: string): Promise<any>;
   acceptCourse(id:string):Promise<any>
+  getTopTutors() : Promise<any>;
+  getTopCourses(): Promise<any>
+  getDasboard() : Promise<{users : number, courses : number, tutors : number}>
+  getUserAndTutorStatsByMonth(): Promise<IUserAggregationResult[]>;
 }

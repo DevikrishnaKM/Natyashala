@@ -7,6 +7,8 @@ import {
   FileUrl,
   ICategory,
   ICourse,
+  IUser,
+  IUserAggregationResult,
 } from "../interfaces/common.inteface";
 import { AwsConfig } from "../config/awsFileConfig";
 import getFolderPathByFileType from "../helper/filePathHandler";
@@ -252,7 +254,7 @@ class AdminServices implements IAdminServices {
             userId,
             isApprovedTutor,
           } = user._doc;
-          
+
           const profileUrl = profilePicture
             ? await this.aws.tutorGetfile(
                 profilePicture as string,
@@ -285,7 +287,6 @@ class AdminServices implements IAdminServices {
       throw error;
     }
   };
-
 
   createCategory = async (
     categoryName: string,
@@ -419,5 +420,82 @@ class AdminServices implements IAdminServices {
       throw error;
     }
   };
+  getTopTutors = async (): Promise<IUser[]> => {
+    try {
+      const tutors = await this.adminRepository.getTopTutors();
+      const updatedProfiles = await Promise.all(
+        tutors.map(async (tutor: IUser) => {
+          const profileUrl = tutor.profilePicture
+            ? await this.aws.tutorGetfile(
+                tutor.profilePicture,
+                `users/profile/${tutor.userId}`
+              )
+            : "";
+          return {
+            ...tutor,
+            profile: profileUrl,
+          };
+        })
+      );
+      return updatedProfiles;
+    } catch (error: any) {
+      console.error(
+        "Error during admin getting course detail in service:",
+        error.message
+      );
+      throw error;
+    }
+  };
+
+  getTopCourses = async (): Promise<ICourse[]> => {
+    try {
+      const topCourses = await this.adminRepository.getTopCourses();
+      const withThumbnail = await Promise.all(
+        topCourses.map(async (course: any) => {
+          const thumbnailUrl = await this.aws.tutorGetfile(
+            course?.thumbnail,
+            `tutors/${course.email}/courses/${course.courseId}/thumbnail`
+          );
+          const profileUrl = course.userDetails?.profilePicture
+            ? await this.aws.tutorGetfile(
+                course?.userDetails?.profilePicture,
+                `users/profile/${course?.userDetails?.userId}`
+              )
+            : "";
+          return {
+            ...course,
+            thumbnail: thumbnailUrl,
+            profile: profileUrl,
+          };
+        })
+      );
+      return withThumbnail;
+    } catch (error: any) {
+      console.error(
+        "Error during admin getting course detail in service:",
+        error.message
+      );
+      throw error;
+    }
+  };
+  getDashboard = async (): Promise<{
+    dashboard: { users: number; courses: number; tutors: number };
+    barGraphData: IUserAggregationResult[];
+  }> => {
+    try {
+      const dashboard = await this.adminRepository.getDasboard();
+      const barGraphData =
+        await this.adminRepository.getUserAndTutorStatsByMonth();
+      console.log("Bargraph data", barGraphData);
+      return { dashboard, barGraphData };
+    } catch (error: any) {
+      console.error(
+        "Error during admin getting course detail in service:",
+        error.message
+      );
+      throw error;
+    }
+  };
+ 
 }
 export default AdminServices;

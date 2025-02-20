@@ -4,7 +4,7 @@ import userAxiosInstance from "../../config/axiosInstance.ts/tutorInstance";
 import ProfileCard from "./ProfileCard";
 import  defaultProfile from "../../assets/defualt.webp";
 import StudentCard from "./DataCard";
-// import MonthlyStats from "./TutorGraph";
+import MonthlyStats from "./TutorGraph";
 // import { decrypt } from "../../utils/encryption";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -105,7 +105,7 @@ const TutorMainPage = () => {
         </div>
         <div className="w-full h-[400px] flex gap-5">
           <div className="h-full  w-3/4">
-          {/* <MonthlyStats /> */}
+          <MonthlyStats />
           </div>
           <div  className="h-full w-1/4"></div>
         </div>

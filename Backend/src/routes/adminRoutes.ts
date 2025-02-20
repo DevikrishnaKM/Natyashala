@@ -32,5 +32,8 @@ route.patch('/blockcourse/:courseId', adminController.blockCourse.bind(adminCont
 route.patch('/unblockcourse/:courseId', adminController.unBlockCourse.bind(adminController));
 route.get('/courseview/:id' , adminController.findCourse.bind(adminController))
 route.post('/acceptcourse/:courseId', adminController.acceptCourse.bind(adminController))
+route.get('/top5-tutors', adminController.getTopTutors.bind(adminController))
+route.get('/top5-courses',adminController.getTopCourses.bind(adminController))
+route.get('/dashboard' , adminController.getDashboard.bind(adminController))
 
 export default route

@@ -77,7 +77,7 @@ class AdminController {
     try {
       const { email } = req.params;
       const status = await this.adminService.blockUser(email);
-      console.log("block:",status)
+      console.log("block:", status);
       res.status(HTTP_statusCode.updated).json(status);
     } catch (error: any) {
       console.log("Admin := getusers error in controller", error);
@@ -286,9 +286,9 @@ class AdminController {
   findCourse = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      console.log(id,"id")
+      console.log(id, "id");
       const applicant = await this.adminService.findCourse(id);
-      console.log("applicat:",applicant)
+      console.log("applicat:", applicant);
       res.status(HTTP_statusCode.OK).json(applicant);
     } catch (error: any) {
       console.log("Admin := getusers error in controller", error);
@@ -299,12 +299,14 @@ class AdminController {
   };
   acceptCourse = async (req: Request, res: Response) => {
     try {
-      console.log("starting")
+      console.log("starting");
       const { courseId } = req.params;
-      console.log(courseId,"id")
+      console.log(courseId, "id");
       const response = await this.adminService.acceptCourse(courseId);
       console.log("res:", response);
-      res.status(HTTP_statusCode.updated).json({message:"Course verified successfully",response});
+      res
+        .status(HTTP_statusCode.updated)
+        .json({ message: "Course verified successfully", response });
     } catch (error: any) {
       console.log("Admin := getusers error in controller", error);
       res
@@ -312,5 +314,35 @@ class AdminController {
         .json({ message: error.message });
     }
   };
+  getTopTutors = async (req: Request, res: Response) => {
+    try {
+      const topTutors = await this.adminService.getTopTutors();
+      res.status(HTTP_statusCode.OK).json(topTutors);
+    } catch (error: any) {
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  };
+
+  getTopCourses = async (req: Request, res: Response) => {
+    try {
+      const topCourses = await this.adminService.getTopCourses();
+      res.status(HTTP_statusCode.OK).json(topCourses);
+    } catch (error: any) {
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  };
+  getDashboard = async(req : Request , res :Response) => {
+    try {
+        const dashboard = await this.adminService.getDashboard()
+        res.status(HTTP_statusCode.OK).json(dashboard)
+    } catch (error : any) {
+        res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+    }
+}
+
 }
 export default AdminController;

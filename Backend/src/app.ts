@@ -45,6 +45,6 @@ app.all('*', (req: Request, res: Response, next: NextFunction) => {
 app.use(errorController);
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+server.listen(port, () => {
+  console.log("Server running peacefully on", port);
 });

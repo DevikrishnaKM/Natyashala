@@ -1,4 +1,4 @@
-import { ICleanedUser,ITutorApplication,ICategory, ICourse } from "./common.inteface";
+import { ICleanedUser,ITutorApplication,ICategory, ICourse,IUser, IUserAggregationResult} from "./common.inteface";
 export interface IAdminServices {
     login(email:string,password:string):{adminAccessToken:string,adminRefreshToken:string}
     getUsersList(page: number, limit: number) : Promise<{ users: ICleanedUser[]; total: number }>;
@@ -17,4 +17,7 @@ export interface IAdminServices {
     unBlockCourse(courseId : string): Promise<string>
     findCourse(id : string) : Promise<any>;
     acceptCourse (courseId : string) : Promise<boolean>;
+    getTopTutors() : Promise<IUser[]>
+    getTopCourses () : Promise<ICourse[]>;
+    getDashboard () : Promise<{dashboard:{users : number, courses : number, tutors : number}, barGraphData:IUserAggregationResult[]}> 
 }
