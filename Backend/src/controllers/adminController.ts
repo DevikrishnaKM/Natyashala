@@ -343,6 +343,33 @@ class AdminController {
         res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
     }
 }
-
+getReports = async(req: Request, res: Response) => {
+  try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const { reports, totalPages } = await this.adminService.getReports(page, limit);
+      res.status(HTTP_statusCode.OK).json({ reports, totalPages });
+  } catch (error: any) {
+      res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+  }
+}
+reportCourse = async(req : Request , res :Response) => {
+  try {
+    const  {courseId  ,reason ,additionalInfo} = req.body;
+    const report = await this.adminService.reportCourse(courseId  , reason , additionalInfo)
+    res.status(HTTP_statusCode.updated).json(report)
+  } catch (error : any) {
+      res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+  }
+}
+reportDetail = async(req : Request , res :Response) => {
+  try {
+      const {reportId} = req.params
+      const report = await this.adminService.reportDetail(reportId)
+      res.status(HTTP_statusCode.OK).json(report)
+  } catch (error : any) {
+      res.status(HTTP_statusCode.InternalServerError).json({ message: error.message });
+  }
+}
 }
 export default AdminController;

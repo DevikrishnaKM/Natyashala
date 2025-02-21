@@ -9,7 +9,8 @@ import TutorList from '@/Pages/Admin/TutorList';
 import CategoryList from '../components/Admin/CategoryList'
 import AdminCoursePage from '@/Pages/Admin/AdminCoursePage';
 import CourseDetailPage from '@/Pages/Admin/CourseDetailPage';
-
+import ReportDetailComponent from "../components/Admin/ReportDetailComponent"
+import AdminReportList from "@/Pages/Admin/ReportDetailsPage";
 const AdminRoutes = () => {
   return (
     <div>
@@ -23,6 +24,8 @@ const AdminRoutes = () => {
             <Route path = '/category' element = {<CategoryList /> }/>
             <Route path ='/courses' element = {<AdminCoursePage/>}/>
             <Route path='/coursedetails' element={<CourseDetailPage/>}/>
+            <Route path = '/reports' element = { <AdminReportList />} />
+            <Route path = '/reportDetail/:id' element = {<ReportDetailComponent />} /> 
         </Routes>
 
     </div>

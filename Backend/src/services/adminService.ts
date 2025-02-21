@@ -8,6 +8,8 @@ import {
   ICategory,
   ICourse,
   IUser,
+  IReport,
+  IReportData,
   IUserAggregationResult,
 } from "../interfaces/common.inteface";
 import { AwsConfig } from "../config/awsFileConfig";
@@ -17,6 +19,8 @@ import { createUniquePass } from "../helper/tutorCredentials";
 import sendTutorLoginCredentials, {
   sendTutorRejectionMail,
 } from "../helper/tutorMail";
+import { v4 as uuidv4 } from 'uuid';
+
 
 const adminEmail = process.env.ADMIN_EMAIL;
 const adminPassword = process.env.ADMIN_PASSWORD;
@@ -496,6 +500,77 @@ class AdminServices implements IAdminServices {
       throw error;
     }
   };
- 
+  getReports = async (
+    page: number,
+    limit: number
+  ): Promise<{ reports: IReport[]; totalPages: number }> => {
+    try {
+      const skip = (page - 1) * limit;
+      console.log(limit, skip);
+
+      const reports = await this.adminRepository.getReports(skip, limit);
+      const totalReports = await this.adminRepository.countReports();
+      const totalPages = Math.ceil(totalReports / limit);
+      return { reports, totalPages };
+    } catch (error: any) {
+      console.error(
+        "Error during admin getting reports in service:",
+        error.message
+      );
+      throw error;
+    }
+  };
+  reportDetail = async (reportId: string): Promise<IReportData> => {
+    try {
+      const report = await this.adminRepository.reportDetail(reportId);
+      const course = await this.authRepository.getCourse(report.courseId);
+      const thumbnailUrl = await this.aws.tutorGetfile(
+        course?.thumbnail as string,
+        `tutors/${course.email}/courses/${course.courseId}/thumbnail`
+      );
+      const user = await this.authRepository.findUser(course?.email);
+      if (!user) {
+        throw new Error("Cannot find user/tutor.");
+      }
+      const reportData: IReportData = {
+        thumbnailUrl: thumbnailUrl,
+        tutorName: user.name,
+        courseName: course.name,
+        courseDescription: course.description,
+        tutorEmail: course.email,
+        users: course?.users,
+        report,
+      };
+      return reportData;
+    } catch (error: any) {
+      console.error(
+        "Error during admin getting report detail in service:",
+        error.message
+      );
+      throw error;
+    }
+  };
+  reportCourse = async(courseId: string  , reason: string , additionalInfo: string) : Promise<boolean> => {
+    try {
+        const {name , email } = await this.authRepository.getCourse(courseId)
+        const user = await this.authRepository.findUser(email)
+        const tutorName =  user?.name
+        const reportId = uuidv4()
+        const reportData = {
+          courseId,
+          reason,
+          additionalInfo,
+          tutorName,
+          courseName : name,
+          reportId
+        }
+        return await this.adminRepository.saveReport(reportData)
+    } catch (error : any) {
+        console.error("Error during admin saving report in service:", error.message);
+        throw error;
+    }
+}
+
 }
 export default AdminServices;
+

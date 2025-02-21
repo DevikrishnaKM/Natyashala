@@ -23,4 +23,5 @@ export default interface IAuthService {
     addWishlist(courseId:string,email:string) : Promise<any> ;
     checkWishlist(courseId:string,email:string) : Promise<any> ;
     wishlist(email:string) : Promise<any> ;
+    wishlist(email:string,courseId:string) : Promise<any> ;
 }

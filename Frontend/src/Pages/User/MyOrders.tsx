@@ -147,6 +147,7 @@ const MyOrders: React.FC = () => {
                       <tr>
                         <th className="px-4 py-2">Order ID</th>
                         <th className="px-4 py-2">Course</th>
+                        <th className="px-4 py-2">Course Name</th>
                         <th className="px-4 py-2">Category</th>
                         <th className="px-4 py-2">Price</th>
                         <th className="px-4 py-2">Purchased Date</th>
@@ -160,9 +161,12 @@ const MyOrders: React.FC = () => {
                             <td className="text-sm px-4 py-10">{order.orderId}</td>
                             <td className="px-4 py-5">
                               <img src={order.thumbnail} className="w-40 h-20 rounded-md object-cover" alt="course" />
-                              <p className="text-sm">{order.courseName}</p>
+                             
                             </td>
                             <td className="px-4 py-10">{order.category}</td>
+                            <td className="px-4 py-10">
+                            <p className="text-sm">{order.courseName}</p>
+                            </td>
                             <td className="px-4 py-10">{order.totalAmount}</td>
                             <td className="px-4 py-10">{order.createdAt}</td>
                             <td className="px-4 py-10">

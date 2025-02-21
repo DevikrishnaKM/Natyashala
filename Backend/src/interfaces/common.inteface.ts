@@ -33,6 +33,37 @@ export interface IUser extends Document {
     totalUsers: number;
     totalTutors: number;
 }
+export interface IReport extends Document  {
+  reportId : string;
+  courseId: string;               
+  reason: string;         
+  additionalInfo?: string;  
+  status: 'pending' | 'resolved'; 
+  createdAt: Date;          
+  updatedAt: Date;    
+  tutorName : string;
+  courseName : string;      
+}
+
+export interface ICleanedReport {
+    reportId: string;
+    courseId: string;
+    reason?: string;
+    additionalInfo?: string;
+    status?: string;
+    createdAt?: Date;
+}
+
+export interface IReportData {
+  thumbnailUrl: string;
+  tutorName: string;
+  courseName: string;
+  courseDescription: string;
+  tutorEmail: string;
+  users?: string[]; 
+  report: ICleanedReport;
+}
+
  export interface ICleanedUser {
     userId : string
     name: string;

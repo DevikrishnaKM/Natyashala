@@ -10,11 +10,12 @@ import categoryModel from "../models/categoryModel"
 import TutorRepository from "../repository/tutorRepository";
 import multer from "multer";
 import  { CourseRepository }  from "../repository/courseRepository";
+import Report from "../models/reportModel"
 
 const route = Router();
 const authRepository= new AuthRepository(userSchema,Course)
 const tutorRepository = new TutorRepository(userSchema,Course)
-const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModel,Course)
+const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModel,Course,Report)
 const courseRepository = new CourseRepository()
 const tutorService = new TutorService(authRepository,adminRepository,tutorRepository,courseRepository)
 const tutorController = new TutorController(tutorService);

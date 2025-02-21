@@ -7,10 +7,11 @@ import TutorApplication from "../models/applicationModel"
 import categoryModel from "../models/categoryModel"
 import AuthRepository from "../repository/authRepository"
 import { Course } from "../models/courseModel";
+import Report from '../models/reportModel'
 
 const route = Router()
 
-const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModel,Course)
+const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModel,Course,Report)
 const authRepository = new AuthRepository(userSchema,Course)
 const adminService = new AdminService(adminRepository,authRepository)
 const adminController = new AdminController(adminService)
@@ -35,5 +36,7 @@ route.post('/acceptcourse/:courseId', adminController.acceptCourse.bind(adminCon
 route.get('/top5-tutors', adminController.getTopTutors.bind(adminController))
 route.get('/top5-courses',adminController.getTopCourses.bind(adminController))
 route.get('/dashboard' , adminController.getDashboard.bind(adminController))
-
+route.post('/report' , adminController.reportCourse.bind(adminController))
+route.get('/reportDetail/:reportId',adminController.reportDetail.bind(adminController))
+route.get('/getReports' , adminController.getReports.bind(adminController))
 export default route

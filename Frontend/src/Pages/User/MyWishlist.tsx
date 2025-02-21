@@ -1,100 +1,131 @@
-"use client"
+// "use client"
 
-import type React from "react"
-import { useEffect, useState } from "react"
-import { useSelector } from "react-redux"
-import { toast } from "sonner"
-import { FaSpinner } from "react-icons/fa"
-import type { RootState } from "../../redux/store"
-import userAxiosInstance from "../../config/axiosInstance.ts/userInstance"
-import { Base_URL } from "../../credentials"
-import BlockChecker from "../../services/BlockChecker"
-import Navbar from "../../components/common/UserCommon/NavBar"
-import Footer from "../../components/common/UserCommon/Footer"
-import CourseCard from "../../components/User/CourseCard"
-import Skeleton from "../../components/ui/skeleton"
+// import type React from "react"
+// import { useEffect, useState } from "react"
+// import { useSelector } from "react-redux"
+// import { toast } from "sonner"
+// import { FaSpinner, FaTrash } from "react-icons/fa"
+// import type { RootState } from "../../redux/store"
+// import userAxiosInstance from "../../config/axiosInstance.ts/userInstance"
+// import { Base_URL } from "../../credentials"
+// import BlockChecker from "../../services/BlockChecker"
+// import Navbar from "../../components/common/UserCommon/NavBar"
+// import Footer from "../../components/common/UserCommon/Footer"
+// import Skeleton from "../../components/ui/skeleton"
+
+// const Wishlist: React.FC = () => {
+//   BlockChecker()
+//   const { userInfo } = useSelector((state: RootState) => state.user)
+//   const [wishlistData, setWishlistData] = useState<any[]>([])
+//   const [courseData, setCourseData] = useState<any[]>([])
+//   const [currentPage, setCurrentPage] = useState<number>(1)
+//   const [totalPages, setTotalPages] = useState<number>(1)
+//   const coursesPerPage = 8
+//   const [filteredCourses, setFilteredCourses] = useState<any[]>([])
+//   const [searchQuery, setSearchQuery] = useState<string>("")
+//   const [isLoading, setIsLoading] = useState<boolean>(true)
+//   const [wishlistCourses, setWishlistCourses] = useState<any[]>([])
+
+//   pfp
+//   "use client"
+
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { toast } from "sonner";
+import { FaSpinner, FaTrash } from "react-icons/fa";
+import type { RootState } from "../../redux/store";
+import userAxiosInstance from "../../config/axiosInstance.ts/userInstance";
+import { Base_URL } from "../../credentials";
+import BlockChecker from "../../services/BlockChecker";
+import Navbar from "../../components/common/UserCommon/NavBar";
+import Footer from "../../components/common/UserCommon/Footer";
+// import CourseCard from "../../components/User/CourseCard"
+import Skeleton from "../../components/ui/skeleton";
 
 const Wishlist: React.FC = () => {
-  BlockChecker()
-  const { userInfo } = useSelector((state: RootState) => state.user)
-  const [wishlistData, setWishlistData] = useState<any[]>([])
-  const [courseData, setCourseData] = useState<any[]>([])
-  const [currentPage, setCurrentPage] = useState<number>(1)
-  const [totalPages, setTotalPages] = useState<number>(1)
-  const coursesPerPage = 8
-  const [filteredCourses, setFilteredCourses] = useState<any[]>([])
-  const [searchQuery, setSearchQuery] = useState<string>("")
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  BlockChecker();
+  const { userInfo } = useSelector((state: RootState) => state.user);
+  const [wishlistData, setWishlistData] = useState<any[]>([]);
+  const [courseData, setCourseData] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const coursesPerPage = 8;
+  const [filteredCourses, setFilteredCourses] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [wishlistCourses, setWishlistCourses] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchWishlistData = async () => {
       try {
-        const response = await userAxiosInstance.get(`${Base_URL}/auth/wishlist/${userInfo?.email}`)
-        console.log("Wishlist response:", response)
-        setWishlistData(response.data)
-        setFilteredCourses(response.data)
-        setTotalPages(Math.ceil(response.data.length / coursesPerPage))
+        const response = await userAxiosInstance.get(
+          `${Base_URL}/auth/wishlist/${userInfo?.email}`
+        );
+        console.log("Wishlist response:", response);
+        setWishlistData(response.data);
+        setFilteredCourses(response.data);
+        setTotalPages(Math.ceil(response.data.length / coursesPerPage));
       } catch (error: any) {
-        console.error("Error fetching wishlist:", error)
-        toast.error(error.message)
+        console.error("Error fetching wishlist:", error);
+        toast.error(error.message);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchWishlistData()
-  }, [userInfo?.userId])
+    fetchWishlistData();
+  }, [userInfo?.userId]);
 
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
-        const response = await userAxiosInstance.get(`/auth/get-courses`)
-        console.log("courseData:", response.data)
-        setCourseData(response.data.courses)
-       
+        const response = await userAxiosInstance.get(`/auth/get-courses`);
+        console.log("courseData:", response.data);
+        setCourseData(response.data.courses);
       } catch (error) {
-        console.error("Error fetching course data:", error)
+        console.error("Error fetching course data:", error);
       }
-    }
-    fetchCourseData()
-  }, [])
-
-
-
- useEffect(() => {
-  if (wishlistData.length > 0 && courseData.length > 0) {
-    const filteredWishlistCourses = courseData.filter(course =>
-      wishlistData.some(wish => wish.courseId === course.courseId)
-    );
-    console.log("fjhd:",filteredWishlistCourses)
-    setWishlistCourses(filteredWishlistCourses);
-  }
-}, [wishlistData, courseData]);
-
-
-  const applyFilters = () => {
-
-    let filtered = wishlistCourses
-    console.log("cbh:",filtered)
-    if (searchQuery) {
-      filtered = filtered.filter((course) => course.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    }
-
-    setFilteredCourses(filtered)
-    setTotalPages(Math.ceil(filtered.length / coursesPerPage))
-  }
+    };
+    fetchCourseData();
+  }, []);
 
   useEffect(() => {
-    applyFilters()
-  }, [searchQuery, wishlistCourses]) 
+    if (wishlistData.length > 0 && courseData.length > 0) {
+      const filteredWishlistCourses = courseData.filter((course) =>
+        wishlistData.some((wish) => wish.courseId === course.courseId)
+      );
+      console.log("fjhd:", filteredWishlistCourses);
+      setWishlistCourses(filteredWishlistCourses);
+    }
+  }, [wishlistData, courseData]);
 
-  const displayedCourses = filteredCourses.slice((currentPage - 1) * coursesPerPage, currentPage * coursesPerPage)
+  const applyFilters = () => {
+    let filtered = wishlistCourses;
+    console.log("cbh:", filtered);
+    if (searchQuery) {
+      filtered = filtered.filter((course) =>
+        course.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredCourses(filtered);
+    setTotalPages(Math.ceil(filtered.length / coursesPerPage));
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [searchQuery, wishlistCourses]);
+
+  const displayedCourses = filteredCourses.slice(
+    (currentPage - 1) * coursesPerPage,
+    currentPage * coursesPerPage
+  );
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value)
-    setCurrentPage(1)
-  }
+    setSearchQuery(event.target.value);
+    setCurrentPage(1);
+  };
 
   if (!wishlistData)
     return (
@@ -103,7 +134,25 @@ const Wishlist: React.FC = () => {
           <FaSpinner className="animate-spin text-green-600" size={40} />
         </div>
       </div>
-    )
+    );
+
+  const handleRemoveFromWishlist = async (courseId: string) => {
+    try {
+      await userAxiosInstance.delete(
+        `${Base_URL}/auth/wishlist/${userInfo?.email}/${courseId}`
+      );
+      setWishlistCourses((prev) =>
+        prev.filter((course) => course.courseId !== courseId)
+      );
+      setWishlistData((prev) =>
+        prev.filter((wish) => wish.courseId !== courseId)
+      );
+      toast.success("Course removed from wishlist");
+    } catch (error: any) {
+      console.error("Error removing from wishlist:", error);
+      toast.error("Failed to remove course from wishlist");
+    }
+  };
 
   return (
     <>
@@ -112,7 +161,7 @@ const Wishlist: React.FC = () => {
         <div className="layout-container flex h-full grow flex-col">
           <div className="px-4 md:px-8 lg:px-20 flex flex-1 justify-center py-5 pb-20 md:pb-40">
             <div className="layout-content-container flex flex-col w-full flex-1">
-              <div className="container mx-auto">
+            <div className="container mx-auto">
                 <div className="p-2 md:p-4">
                   <div
                     className="flex min-h-[300px] md:min-h-[480px] flex-col gap-4 md:gap-6 bg-cover bg-center bg-no-repeat rounded-xl items-start justify-end px-4 pb-6 md:pb-10"
@@ -166,7 +215,7 @@ const Wishlist: React.FC = () => {
                 Your wishlist
               </h2>
 
-              {/* Course Grid */}
+              {/* New Course Display Design */}
               {displayedCourses.length === 0 ? (
                 isLoading ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -175,27 +224,60 @@ const Wishlist: React.FC = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="mt-5 text-lg text-center">Your wishlist is empty</div>
+                  <div className="mt-5 text-lg text-center">
+                    Your wishlist is empty
+                  </div>
                 )
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {displayedCourses.map((course) => (
-                    <CourseCard
+                    <div
                       key={course._id}
-                      courseName={course.name}
-                      thumbnail={course.thumbnail}
-                      courseId={course.courseId}
-                      price={course.price}
-                    />
+                      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 overflow-hidden"
+                    >
+                      <div className="relative">
+                        <img
+                          src={course.thumbnail}
+                          alt={course.name}
+                          className="w-full h-40 object-cover"
+                        />
+                        <button
+                          onClick={() =>
+                            handleRemoveFromWishlist(course.courseId)
+                          }
+                          className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors duration-200"
+                          title="Remove from wishlist"
+                        >
+                          <FaTrash size={14} />
+                        </button>
+                      </div>
+                      <div className="p-4">
+                        <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 mb-2">
+                          {course.name}
+                        </h3>
+                        <div className="flex justify-between items-center">
+                          <span className="text-green-600 font-medium">
+                          ₹{course.price}
+                          </span>
+                          <a
+                            href={`/courseDetails/${course.courseId}`}
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
+                            View Details
+                          </a>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
-
               {/* Pagination */}
               <div className="flex justify-center py-8">
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
                     disabled={currentPage === 1}
                     className="p-2 rounded bg-black text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -205,7 +287,9 @@ const Wishlist: React.FC = () => {
                     Page {currentPage} of {totalPages}
                   </span>
                   <button
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
                     disabled={currentPage === totalPages}
                     className="p-2 rounded bg-black text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -219,8 +303,7 @@ const Wishlist: React.FC = () => {
       </div>
       <Footer />
     </>
-  )
-}
+  );
+};
 
-export default Wishlist
-
+export default Wishlist;

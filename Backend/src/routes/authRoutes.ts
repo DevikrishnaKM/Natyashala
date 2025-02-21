@@ -11,7 +11,7 @@ import { refreshTokenHandler } from "../config/refreshTokenVerify";
 import { verifyToken } from "../config/jwtConfig";
 import multer from "multer";
 import { CourseRepository } from "../repository/courseRepository";
-
+import Report from '../models/reportModel';
 
 // import userAuth from "../config/userAuth";
 
@@ -20,7 +20,7 @@ const router = express.Router();
 // Initialize dependencies
 const authRepository = new AuthRepository(userSchema,Course); 
 const courseRepository = new CourseRepository()
-const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModel,Course)
+const adminRepository = new AdminRepository(userSchema,TutorApplication,categoryModel,Course,Report)
 const authService = new AuthService(authRepository,adminRepository,courseRepository);  
 const authController = new AuthController(authService); 
 const storage = multer.memoryStorage()
@@ -57,5 +57,6 @@ router.get(`/getTransactions/:userId`, authController.getTransactions.bind(authC
 router.get('/get-orders/:userId', verifyToken ,authController.getOrders.bind(authController))
 router.post('/toggle-wishlist', authController.toggleWishlist.bind(authController));
 router.get('/wishlist/:email', authController.wishlist.bind(authController));
+router.delete('/wishlist/:email/:couseId', authController.wishlistDelete.bind(authController));
 
 export default router;

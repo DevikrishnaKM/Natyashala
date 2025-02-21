@@ -6,6 +6,8 @@ import {
   ICategory,
   ICourse,
   IUserAggregationResult,
+  IReport,
+  ICleanedReport,
 } from "../interfaces/common.inteface";
 import { BaseRepository } from "../repository/baseRepository";
 import userSchema from "../models/userSchema";
@@ -17,17 +19,20 @@ class AdminRepository implements IAdminRepository {
   private applicationRepo: BaseRepository<ITutorApplication>;
   private categoryRepo: BaseRepository<ICategory>;
   private courseRepo: BaseRepository<ICourse>;
+  private reportRepo: BaseRepository<IReport>;
 
   constructor(
     userSchema: Model<IUser>,
     applicationModel: Model<ITutorApplication>,
     categoryModel: Model<ICategory>,
-    courseModel: Model<ICourse>
+    courseModel: Model<ICourse>,
+    reportModel: Model<IReport>
   ) {
     this.userRepo = new BaseRepository(userSchema);
     this.applicationRepo = new BaseRepository(applicationModel);
     this.categoryRepo = new BaseRepository(categoryModel);
     this.courseRepo = new BaseRepository(courseModel);
+    this.reportRepo = new BaseRepository(reportModel);
   }
 
   async getUsers(
@@ -317,28 +322,31 @@ class AdminRepository implements IAdminRepository {
     try {
       const topTutorsByStudents = await userSchema.aggregate([
         { $match: { role: "tutor", isApprovedTutor: true } },
+
         {
           $lookup: {
-            from: "courses",
-            localField: "_id",
-            foreignField: "courseId",
+            from: "courses", // Ensure this matches your MongoDB collection name
+            localField: "email", // Tutors' email from userSchema
+            foreignField: "email", // Email in courseSchema representing the tutor
             as: "courses",
           },
         },
+
         {
           $addFields: {
-            totalCourses: { $size: "$courses" }, // Count courses
+            totalCourses: { $size: "$courses" },
             totalStudents: {
               $sum: {
                 $map: {
                   input: "$courses",
                   as: "course",
-                  in: { $size: { $ifNull: ["$$course.users", []] } }, // Count students in each course
+                  in: { $size: { $ifNull: ["$$course.users", []] } },
                 },
               },
             },
           },
         },
+
         {
           $project: {
             _id: 1,
@@ -350,6 +358,7 @@ class AdminRepository implements IAdminRepository {
             totalStudents: 1,
           },
         },
+
         { $sort: { totalStudents: -1 } },
         { $limit: 5 },
       ]);
@@ -361,7 +370,6 @@ class AdminRepository implements IAdminRepository {
       throw error;
     }
   }
-
   async getTopCourses(): Promise<any> {
     try {
       const topCourses = await Course.aggregate([
@@ -418,7 +426,8 @@ class AdminRepository implements IAdminRepository {
       const users = await this.userRepo.countDocuments({ isVerified: false });
       const courses = await this.userRepo.countDocuments({ isVerified: false });
       const tutors = await this.userRepo.countDocuments({
-        role: "tutor", isApprovedTutor: true
+        role: "tutor",
+        isApprovedTutor: true,
       });
       return { users, courses, tutors };
     } catch (error: any) {
@@ -439,19 +448,69 @@ class AdminRepository implements IAdminRepository {
           $group: {
             _id: { year: "$year", month: "$month" },
             totalUsers: { $sum: 1 },
-            totalTutors: { $sum: { $cond: [{ $eq: ["$role", "tutor"] }, 1, 0] } },
+            totalTutors: {
+              $sum: { $cond: [{ $eq: ["$role", "tutor"] }, 1, 0] },
+            },
           },
         },
         {
           $sort: { "_id.year": 1, "_id.month": 1 },
         },
       ]);
-  
+
       return result;
     } catch (error: any) {
       throw error;
     }
   }
-  
+  async saveReport(reportData: object): Promise<boolean> {
+    try {
+      await this.reportRepo.create(reportData);
+      return true;
+    } catch (error: any) {
+      console.error("Error in saving report in admin repo", error.message);
+      throw error;
+    }
+  }
+
+  async getReports(skip: number, limit: number): Promise<IReport[]> {
+    try {
+      const r = await this.reportRepo.findAll({}, limit, skip);
+      console.log(r);
+
+      return r;
+    } catch (error: any) {
+      console.error("Error in getting reports in admin repo", error.message);
+      throw error;
+    }
+  }
+
+  async countReports(): Promise<number> {
+    try {
+      return await this.reportRepo.countDocuments();
+    } catch (error: any) {
+      console.error("Error in coutning reports in admin repo", error.message);
+      throw error;
+    }
+  }
+  async reportDetail(reportId: string): Promise<ICleanedReport> {
+    try {
+      const report = await this.reportRepo.find({ reportId: reportId });
+      if (!report) {
+        throw new Error("Report dosent exist");
+      }
+      const reportData: ICleanedReport = {
+        reportId: report.reportId,
+        courseId: report.courseId,
+        reason: report?.reason,
+        additionalInfo: report?.additionalInfo,
+        status: report?.status,
+        createdAt: report?.createdAt,
+      };
+      return reportData;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
 }
 export default AdminRepository;

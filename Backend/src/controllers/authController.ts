@@ -447,6 +447,23 @@ class AuthController {
         .json({ message: error.message });
     }
   };
+   wishlistDelete = async (req: Request, res: Response):Promise<any> => {
+    try {
+      const { email,courseId } = req.params;
+      console.log("email", email);
+      await this.authService.removeWishlist(
+        courseId as string,
+        email as string
+      );
+      return res.status(200).json(false);
+      
+    } catch (error: any) {
+      console.error(error.message);
+      res
+        .status(HTTP_statusCode.InternalServerError)
+        .json({ message: error.message });
+    }
+  };
 }
 
 export default AuthController;
